@@ -27,3 +27,5 @@ npm start
 2. 如果实例未开启 OpenAPI，可切到 `session` 模式，填写 `zentaoAccount`、`zentaoPassword`。
 3. 将 `createRun` 的模拟结果替换为 Playwright、JMeter、Pytest 或接口自动化平台输出。
 4. 后续可补充附件上传、执行报告导出和 Webhook 通知。
+
+# claude
