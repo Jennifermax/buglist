@@ -1,0 +1,22 @@
+[
+  {
+    "id": "BUG-1774271659978",
+    "title": "Smoke bug",
+    "severity": "2",
+    "priority": "2",
+    "module": "",
+    "moduleId": "",
+    "productId": "",
+    "projectId": "",
+    "steps": "1",
+    "expected": "2",
+    "actual": "3",
+    "assignedTo": "",
+    "openedBuild": "trunk",
+    "relatedRunId": "",
+    "zentaoStatus": "pending",
+    "zentaoEndpoint": "https://zt.codetech.pro/zentao",
+    "createdAt": "2026-03-23T13:14:19.978Z",
+    "commandPreview": "POST https://zt.codetech.pro/zentao/api.php/v1/products//bugs"
+  }
+]

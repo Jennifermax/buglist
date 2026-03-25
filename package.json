@@ -1,0 +1,10 @@
+{
+  "name": "zentao-bug-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-contained ZenTao automation testing and bug submission MVP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

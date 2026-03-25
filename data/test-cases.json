@@ -1,0 +1,34 @@
+[
+  {
+    "id": "CASE-LOGIN-001",
+    "module": "登录",
+    "title": "账号密码登录成功",
+    "priority": "P1",
+    "tags": [
+      "smoke",
+      "web"
+    ],
+    "expected": "首页加载成功并显示用户昵称"
+  },
+  {
+    "id": "CASE-ORDER-002",
+    "module": "下单",
+    "title": "库存充足时提交订单成功",
+    "priority": "P1",
+    "tags": [
+      "regression",
+      "api"
+    ],
+    "expected": "订单状态变为待支付"
+  },
+  {
+    "id": "CASE-REPORT-003",
+    "module": "报表",
+    "title": "筛选条件切换后图表刷新",
+    "priority": "P2",
+    "tags": [
+      "ui"
+    ],
+    "expected": "图表与统计卡片同步更新"
+  }
+]
