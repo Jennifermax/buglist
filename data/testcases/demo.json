@@ -1,0 +1,25 @@
+[
+  {
+    "id": "DEMO001",
+    "name": "示例测试用例",
+    "precondition": "浏览器已打开",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开示例页面",
+        "value": "https://example.com"
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载",
+        "value": "2"
+      },
+      {
+        "action": "验证",
+        "description": "检查页面是否正常显示",
+        "value": ""
+      }
+    ],
+    "status": "pending"
+  }
+]

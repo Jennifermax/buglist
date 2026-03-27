@@ -1,14 +1,13 @@
 {
-  "projectName": "Hackathon ZenTao Project",
-  "zentaoBaseUrl": "https://zt.codetech.pro/zentao",
-  "submitMode": "session",
-  "zentaoProductId": "",
-  "zentaoProjectId": "",
-  "zentaoModuleId": "",
-  "zentaoOpenedBuild": "trunk",
-  "zentaoToken": "",
-  "zentaoAccount": "",
-  "zentaoPassword": "",
-  "zentaoCliPath": "",
-  "automationCommand": "node scripts/mock-test-runner.js"
+  "ai": {
+    "provider": "anthropic",
+    "api_url": "https://api.anthropic.com",
+    "api_key": "test-key",
+    "model": "claude-3"
+  },
+  "zentao": {
+    "url": "https://demo.zentao.pm",
+    "account": "admin",
+    "token": "test-token"
+  }
 }
