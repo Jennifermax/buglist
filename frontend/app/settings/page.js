@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { OPENAI_MODEL_OPTIONS, getApiBaseUrl } from '../../lib/api'
 
 export default function Settings() {
   const [aiConfig, setAiConfig] = useState({
@@ -13,21 +14,33 @@ export default function Settings() {
     account: '',
     token: ''
   })
+  const [customModel, setCustomModel] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
+  const [apiBaseUrl, setApiBaseUrl] = useState('http://127.0.0.1:8000')
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/config/ai')
+    const baseUrl = getApiBaseUrl()
+    setApiBaseUrl(baseUrl)
+
+    fetch(`${baseUrl}/api/config/ai`)
       .then(r => r.json())
       .then(data => {
-        if (data.api_key) setAiConfig(data)
+        const isKnownModel = data.model && OPENAI_MODEL_OPTIONS.some(option => option.value === data.model)
+        setAiConfig({
+          ...data,
+          model: isKnownModel ? data.model : '__custom__'
+        })
+        if (data.model && !isKnownModel) {
+          setCustomModel(data.model)
+        }
       })
       .catch(() => {})
 
-    fetch('http://localhost:8000/api/config/zentao')
+    fetch(`${baseUrl}/api/config/zentao`)
       .then(r => r.json())
       .then(data => {
-        if (data.url) setZentaoConfig(data)
+        setZentaoConfig(data)
       })
       .catch(() => {})
   }, [])
@@ -40,7 +53,7 @@ export default function Settings() {
   const saveAiConfig = async () => {
     setSaving(true)
     try {
-      const res = await fetch('http://localhost:8000/api/config/ai', {
+      const res = await fetch(`${apiBaseUrl}/api/config/ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(aiConfig)
@@ -59,7 +72,7 @@ export default function Settings() {
   const saveZentaoConfig = async () => {
     setSaving(true)
     try {
-      const res = await fetch('http://localhost:8000/api/config/zentao', {
+      const res = await fetch(`${apiBaseUrl}/api/config/zentao`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(zentaoConfig)
@@ -112,8 +125,8 @@ export default function Settings() {
               onChange={e => setAiConfig({ ...aiConfig, provider: e.target.value })}
             >
               <option value="openai">OpenAI / 中转 API</option>
-              <option value=""> VL</option>
-              <option value=""> </option>
+              <option value="azure-openai">Azure OpenAI</option>
+              <option value="custom-openai-compatible">自定义 OpenAI 兼容服务</option>
             </select>
           </div>
 
@@ -144,13 +157,39 @@ export default function Settings() {
             <select
               className="form-input form-select"
               value={aiConfig.model}
-              onChange={e => setAiConfig({ ...aiConfig, model: e.target.value })}
+              onChange={e => {
+                const value = e.target.value
+                setAiConfig({ ...aiConfig, model: value })
+                if (value !== '__custom__') {
+                  setCustomModel('')
+                }
+              }}
             >
-              <option value="gpt-4o">GPT-4o (推荐)</option>
-              <option value="gpt-4o-mini">GPT-4o Mini</option>
-              <option value="gpt-4-turbo">GPT-4 Turbo</option>
+              {OPENAI_MODEL_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+              <option value="__custom__">自定义模型</option>
             </select>
           </div>
+
+          {(aiConfig.model === '__custom__' || customModel) && (
+            <div className="form-group">
+              <label className="form-label">自定义模型名</label>
+              <input
+                type="text"
+                className="form-input"
+                value={aiConfig.model === '__custom__' ? customModel : aiConfig.model}
+                onChange={e => {
+                  const value = e.target.value
+                  setCustomModel(value)
+                  setAiConfig({ ...aiConfig, model: value })
+                }}
+                placeholder="例如：gpt-5.2-chat-latest"
+              />
+            </div>
+          )}
 
           <button
             className="btn btn-primary"

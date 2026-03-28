@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import './globals.css'
+import SidebarNav from '../components/sidebar-nav'
 
 export default function RootLayout({ children }) {
   return (
@@ -15,16 +16,7 @@ export default function RootLayout({ children }) {
               </h1>
             </div>
 
-            <nav className="sidebar-nav">
-              <Link href="/" className="nav-item active">
-                <span className="nav-icon">▸</span>
-                测试平台
-              </Link>
-              <Link href="/settings" className="nav-item">
-                <span className="nav-icon">⚙</span>
-                设置
-              </Link>
-            </nav>
+            <SidebarNav />
 
             <div className="sidebar-footer">
               <p className="version">v1.0.0</p>

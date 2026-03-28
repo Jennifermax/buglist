@@ -221,12 +221,21 @@ code, .mono {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .card-title {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.card-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* Form Elements */
@@ -288,6 +297,13 @@ code, .mono {
   transition: all var(--transition);
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
 .btn-primary {
   background: var(--accent);
   color: white;
@@ -339,6 +355,42 @@ code, .mono {
   align-items: center;
 }
 
+.step-button {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.step-button:disabled {
+  cursor: not-allowed;
+}
+
+.step-clickable .step-button:hover .step-circle {
+  transform: translateY(-1px);
+}
+
+.step-clickable .step-button:hover .step-label {
+  color: var(--text-primary);
+}
+
+.step-button:focus-visible {
+  outline: none;
+}
+
+.step-button:focus-visible .step-circle {
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
+}
+
+.step-locked {
+  opacity: 0.72;
+}
+
 .step-circle {
   width: 44px;
   height: 44px;
@@ -352,6 +404,7 @@ code, .mono {
   transition: all var(--transition-slow);
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
 }
 
 .step-pending .step-circle {
@@ -519,6 +572,63 @@ code, .mono {
 .testcase-status.failed {
   background: var(--danger-bg);
   color: var(--danger);
+}
+
+.empty-state {
+  padding: 36px 24px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  text-align: center;
+}
+
+.empty-state h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.stack-lg {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.preview-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+}
+
+.preview-content {
+  margin: 0;
+  padding: 16px;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* Progress */

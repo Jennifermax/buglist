@@ -1,6 +1,4 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from pathlib import Path
-import json
 import time
 
 router = APIRouter()
@@ -11,6 +9,7 @@ connections = {}
 async def websocket_endpoint(websocket: WebSocket, task_id: str):
     await websocket.accept()
     connections[task_id] = websocket
+    runner = None
 
     try:
         from ..services.test_runner import TestRunner
@@ -21,11 +20,7 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
         ai_config = data.get("ai_config", {})
 
         runner = TestRunner()
-        ai_service = AIService(
-            ai_config.get("api_url", ""),
-            ai_config.get("api_key", ""),
-            ai_config.get("model", "gpt-4o")
-        )
+        ai_service = None
 
         await runner.start()
         page = await runner.context.new_page()
@@ -53,6 +48,12 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
             # 处理视觉验证步骤
             for step_result in result.get("results", []):
                 if step_result.get("needs_vision_check"):
+                    if ai_service is None:
+                        ai_service = AIService(
+                            ai_config.get("api_url", ""),
+                            ai_config.get("api_key", ""),
+                            ai_config.get("model", "gpt-4o")
+                        )
                     vision_result = await ai_service.analyze_screenshot(
                         step_result.get("screenshot"),
                         step_result.get("description", "")
@@ -104,5 +105,9 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
         except:
             pass
     finally:
+        try:
+            await runner.cleanup()
+        except Exception:
+            pass
         if task_id in connections:
             del connections[task_id]

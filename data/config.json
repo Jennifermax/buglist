@@ -1,9 +1,9 @@
 {
   "ai": {
-    "provider": "anthropic",
-    "api_url": "https://api.anthropic.com",
-    "api_key": "test-key",
-    "model": "claude-3"
+    "provider": "openai",
+    "api_url": "https://clawfather.up.railway.app/v1",
+    "api_key": "demo-key",
+    "model": "gpt-5.2-chat-latest"
   },
   "zentao": {
     "url": "https://demo.zentao.pm",

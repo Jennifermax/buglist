@@ -10,6 +10,7 @@
   "dependencies": {
     "next": "14.x",
     "react": "18.x",
-    "react-dom": "18.x"
+    "react-dom": "18.x",
+    "xlsx": "^0.18.5"
   }
 }
