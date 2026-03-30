@@ -105,9 +105,12 @@ export default function Home() {
   const [manualCaseInput, setManualCaseInput] = useState(MANUAL_CASE_TEMPLATE)
   const [manualDocumentInput, setManualDocumentInput] = useState(DOCUMENT_TYPE_TEMPLATES.excel)
   const [testcases, setTestcases] = useState([])
+  const [uploadedTestcaseFileName, setUploadedTestcaseFileName] = useState('')
   const [progress, setProgress] = useState(null)
   const [isExecuting, setIsExecuting] = useState(false)
   const [executionError, setExecutionError] = useState('')
+  const [latestStepResult, setLatestStepResult] = useState(null)
+  const [reportItems, setReportItems] = useState([])
   const [config, setConfig] = useState(null)
   const [apiBaseUrl, setApiBaseUrl] = useState('http://127.0.0.1:8000')
   const [wsBaseUrl, setWsBaseUrl] = useState('ws://127.0.0.1:8000')
@@ -134,11 +137,7 @@ export default function Home() {
   }
 
   const canNavigateToStep = (stepNum) => {
-    if (stepNum === 1) return true
-    if (stepNum === 2) return true
-    if (stepNum === 3) return testcases.length > 0
-    if (stepNum === 4) return progress?.status === 'complete'
-    return false
+    return stepNum >= 1 && stepNum <= 4
   }
 
   const handleStepClick = (stepNum) => {
@@ -156,8 +155,7 @@ export default function Home() {
         const cases = JSON.parse(text)
         if (Array.isArray(cases)) {
           setTestcases(normalizeGeneratedCases(cases))
-          setCurrentStep(2)
-          setStepTwoTab('上传测试用例')
+          setUploadedTestcaseFileName(file.name)
           e.target.value = ''
           return
         }
@@ -257,6 +255,8 @@ export default function Home() {
 
     setIsExecuting(true)
     setExecutionError('')
+    setLatestStepResult(null)
+    setReportItems([])
 
     try {
       const ws = new WebSocket(`${wsBaseUrl}/ws/execute/test1`)
@@ -281,6 +281,9 @@ export default function Home() {
             failed: msg.data.failed,
             status: 'running',
           })
+        } else if (msg.type === 'step_complete') {
+          setLatestStepResult(msg.data)
+          setReportItems(prev => [...prev, msg.data])
         } else if (msg.type === 'error') {
           setExecutionError(msg.data?.message || '测试执行失败')
           setProgress(prev => ({
@@ -394,13 +397,46 @@ export default function Home() {
           </div>
 
           {uploadType === 'file' ? (
-            <div
-              className="upload-area"
-              onClick={() => testcaseFileInputRef.current?.click()}
-            >
-              <div className="upload-icon">↑</div>
-              <h3>拖拽或点击上传测试用例</h3>
-              <p>支持 JSON 格式的测试用例文件，可直接进入第 2 步审核和执行</p>
+            <div className="stack-lg">
+              <div
+                className="upload-area"
+                onClick={() => testcaseFileInputRef.current?.click()}
+              >
+                <div className="upload-icon">↑</div>
+                <h3>拖拽或点击上传测试用例</h3>
+                <p>支持 JSON 格式的测试用例文件，上传后点击下一步进入第 2 步</p>
+              </div>
+
+              {testcases.length > 0 && (
+                <div className="upload-summary">
+                  <div>
+                    <strong>已导入测试用例</strong>
+                    <p>{uploadedTestcaseFileName || '未命名文件'} · 共 {testcases.length} 条用例</p>
+                  </div>
+                  <span className="badge badge-success">已准备继续</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => testcaseFileInputRef.current?.click()}
+                >
+                  重新选择文件
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setStepTwoTab('上传测试用例')
+                    setCurrentStep(2)
+                  }}
+                  disabled={testcases.length === 0}
+                >
+                  下一步 →
+                </button>
+              </div>
             </div>
           ) : (
             <div>
@@ -667,23 +703,47 @@ export default function Home() {
                 <p>等待执行...</p>
               )}
             </div>
+
+            {latestStepResult && (
+              <div className="execution-result">
+                <div className="execution-result-header">
+                  <strong>{latestStepResult.testcase_name}</strong>
+                  <span className={`testcase-status ${latestStepResult.result}`}>
+                    {latestStepResult.result === 'passed' ? '通过' : '失败'}
+                  </span>
+                </div>
+                <p className="execution-result-reason">{latestStepResult.reason}</p>
+                {latestStepResult.vision_details?.length > 0 && (
+                  <div className="execution-result-details">
+                    {latestStepResult.vision_details.map((detail, index) => (
+                      <div key={index} className="execution-result-detail">
+                        <div className={`badge ${detail.passed ? 'badge-success' : 'badge-danger'}`}>
+                          {detail.passed ? 'AI 判定通过' : 'AI 判定失败'}
+                        </div>
+                        <p>{detail.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {currentStep === 4 && progress?.status === 'complete' && (
+      {currentStep === 4 && (
         <div className="animate-fadeIn">
           <div className="progress-stats">
             <div className="stat-card">
-              <div className="stat-value total">{progress.total}</div>
+              <div className="stat-value total">{progress?.total || testcases.length || 0}</div>
               <div className="stat-label">总用例数</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value passed">{progress.passed}</div>
+              <div className="stat-value passed">{progress?.passed || 0}</div>
               <div className="stat-label">已通过</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value failed">{progress.failed}</div>
+              <div className="stat-value failed">{progress?.failed || 0}</div>
               <div className="stat-label">已失败</div>
             </div>
           </div>
@@ -691,7 +751,9 @@ export default function Home() {
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">测试报告</h3>
-              <span className="badge badge-success">✓ 测试完成</span>
+              <span className={`badge ${progress?.status === 'complete' ? 'badge-success' : 'badge-warning'}`}>
+                {progress?.status === 'complete' ? '✓ 测试完成' : '预览模式'}
+              </span>
             </div>
 
             <div style={{ textAlign: 'center', padding: '32px 0' }}>
@@ -699,14 +761,59 @@ export default function Home() {
                 fontSize: 48,
                 fontFamily: "'JetBrains Mono', monospace",
                 fontWeight: 700,
-                color: progress.passed === progress.total ? 'var(--success)' : 'var(--warning)',
+                color: progress?.status === 'complete'
+                  ? ((progress?.passed || 0) === (progress?.total || 0) ? 'var(--success)' : 'var(--warning)')
+                  : 'var(--text-muted)',
                 marginBottom: 8,
               }}>
-                {Math.round((progress.passed / progress.total) * 100)}%
+                {progress?.status === 'complete' && progress?.total
+                  ? `${Math.round((progress.passed / progress.total) * 100)}%`
+                  : '--'}
               </div>
               <p style={{ color: 'var(--text-secondary)' }}>
-                通过率 · {progress.passed} 通过 / {progress.failed} 失败
+                {progress?.status === 'complete'
+                  ? `通过率 · ${progress.passed} 通过 / ${progress.failed} 失败`
+                  : '当前还没有执行结果，先展示报告页面布局'}
               </p>
+            </div>
+
+            <div className="report-table-wrap">
+              <table className="report-table">
+                <thead>
+                  <tr>
+                    <th>用例 ID</th>
+                    <th>用例名称</th>
+                    <th>结果</th>
+                    <th>执行说明</th>
+                    <th>AI 判定</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportItems.map((item, index) => {
+                    const visionReason = item.vision_details?.map(detail => detail.reason).join('；') || '-'
+                    return (
+                      <tr key={`${item.testcase_id || index}-${index}`}>
+                        <td className="mono">{item.testcase_id || '-'}</td>
+                        <td>{item.testcase_name || '-'}</td>
+                        <td>
+                          <span className={`testcase-status ${item.result === 'passed' ? 'passed' : 'failed'}`}>
+                            {item.result === 'passed' ? '通过' : '失败'}
+                          </span>
+                        </td>
+                        <td>{item.reason || '-'}</td>
+                        <td>{visionReason}</td>
+                      </tr>
+                    )
+                  })}
+                  {reportItems.length === 0 && (
+                    <tr>
+                      <td colSpan="5" className="report-empty">
+                        {progress?.status === 'complete' ? '暂无可展示的测试结果' : '预览模式下暂无测试结果数据'}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
 
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>

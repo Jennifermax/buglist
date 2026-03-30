@@ -2,8 +2,8 @@
   "ai": {
     "provider": "openai",
     "api_url": "https://clawfather.up.railway.app/v1",
-    "api_key": "demo-key",
-    "model": "gpt-5.2-chat-latest"
+    "api_key": "sk_cc__YSo6Y2Msj-XU8eoWAL-mcevzFljRBVN",
+    "model": "gpt-5.2"
   },
   "zentao": {
     "url": "https://demo.zentao.pm",

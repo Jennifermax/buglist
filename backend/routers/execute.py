@@ -44,6 +44,9 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
             })
 
             result = await runner.execute_testcase(page, tc)
+            testcase_failed = False
+            testcase_reason = "测试执行完成"
+            vision_details = []
 
             # 处理视觉验证步骤
             for step_result in result.get("results", []):
@@ -59,25 +62,30 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
                         step_result.get("description", "")
                     )
                     step_result["vision_result"] = vision_result
+                    vision_details.append(vision_result)
                     if vision_result.get("passed"):
                         passed += 1
                     else:
                         failed += 1
+                        testcase_failed = True
+                        testcase_reason = vision_result.get("reason", "AI 视觉校验未通过")
                 elif not step_result.get("success"):
                     failed += 1
+                    testcase_failed = True
+                    testcase_reason = step_result.get("error", "测试步骤执行失败")
 
-            if result.get("passed") and failed == 0:
-                passed = total - failed
-                if failed > 0:
-                    failed -= 1
+            testcase_result = "failed" if testcase_failed else "passed"
+            if not testcase_failed:
+                passed += 1
 
             await websocket.send_json({
                 "type": "step_complete",
                 "data": {
                     "testcase_id": tc.get("id"),
                     "testcase_name": tc.get("name"),
-                    "result": "passed" if result.get("passed") else "failed",
-                    "reason": "测试执行完成"
+                    "result": testcase_result,
+                    "reason": testcase_reason,
+                    "vision_details": vision_details
                 }
             })
 

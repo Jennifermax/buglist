@@ -1,12 +1,15 @@
 from playwright.async_api import async_playwright, Page, BrowserContext
 from typing import List, Dict, Any
 import asyncio
+from urllib.parse import urljoin
+from ..config import get_base_url
 
 class TestRunner:
     def __init__(self):
         self.browser = None
         self.context = None
         self.playwright = None
+        self.base_url = get_base_url()
 
     async def start(self):
         self.playwright = await async_playwright().start()
@@ -23,9 +26,20 @@ class TestRunner:
 
         try:
             if action == "打开页面":
-                await page.goto(value, wait_until="domcontentloaded")
-                await page.wait_for_timeout(1000)
-                return {"success": True, "action": action, "description": description}
+                target_url = value.strip() if isinstance(value, str) else ""
+                if not target_url:
+                    target_url = self.base_url
+                elif not target_url.startswith(("http://", "https://")):
+                    target_url = urljoin(f"{self.base_url}/", target_url.lstrip("/"))
+
+                await page.goto(target_url, wait_until="domcontentloaded")
+                await page.wait_for_timeout(3000)
+                return {
+                    "success": True,
+                    "action": action,
+                    "description": description,
+                    "resolved_url": target_url
+                }
 
             elif action == "输入":
                 await page.keyboard.type(value, delay=100)
@@ -44,6 +58,7 @@ class TestRunner:
 
             elif action == "验证":
                 # 截图并返回用于 AI 分析
+                await page.wait_for_timeout(3000)
                 screenshot = await page.screenshot()
                 return {
                     "success": True,
