@@ -17,12 +17,24 @@ class TestStep(BaseModel):
 
 class TestCase(BaseModel):
     id: str
+    case_no: str = ""
+    priority: str = "P1"
     name: str
     precondition: str = ""
+    test_data: str = ""
+    expected_result: str = ""
+    owner: str = ""
+    remarks: str = ""
     steps: List[TestStep]
     status: str = "pending"  # pending, approved, passed, failed
 
 class TestCaseCreate(BaseModel):
+    case_no: str = ""
+    priority: str = "P1"
     name: str
     precondition: str = ""
+    test_data: str = ""
+    expected_result: str = ""
+    owner: str = ""
+    remarks: str = ""
     steps: List[TestStep]

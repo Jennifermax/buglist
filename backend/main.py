@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import config, testcases, generate, execute
+from .routers import config, testcases, generate, execute, document
 
 app = FastAPI(title="Buglist API")
 
@@ -20,6 +20,7 @@ app.include_router(config.router)
 app.include_router(testcases.router)
 app.include_router(generate.router)
 app.include_router(execute.router)
+app.include_router(document.router)
 
 @app.get("/")
 async def root():

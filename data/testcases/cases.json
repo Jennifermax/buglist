@@ -1,9 +1,2693 @@
 [
   {
     "id": "TC001",
+    "case_no": "",
+    "priority": "P1",
     "name": "test",
     "precondition": "",
+    "test_data": "",
+    "expected_result": "",
+    "owner": "",
+    "remarks": "",
     "steps": [],
+    "status": "pending"
+  },
+  {
+    "id": "TC002",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "中文登录页首次打开展示正常",
+    "precondition": "网络正常，可访问登录页面",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "成功打开中文登录页；页面首次加载等待3秒后展示稳定；页面存在账号输入框、密码输入框、登录按钮。",
+    "owner": "",
+    "remarks": "覆盖页面首次加载与核心元素展示",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面首次加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面成功展示登录页",
+        "value": "中文登录页",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在账号输入框、密码输入框、登录按钮",
+        "value": "账号输入框/密码输入框/登录按钮",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC004",
+    "case_no": "0002",
+    "priority": "P0",
+    "name": "账号和密码均为空时点击登录提示校验信息",
+    "precondition": "已进入登录页面",
+    "test_data": "账号: 空；密码: 空",
+    "expected_result": "未输入账号和密码时点击登录，页面给出明确提示，阻止登录提交。",
+    "owner": "",
+    "remarks": "覆盖必填项校验",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "不输入账号和密码，直接点击登录按钮",
+        "value": "登录按钮",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面出现账号密码未填写相关提示",
+        "value": "必填提示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC006",
+    "case_no": "0003",
+    "priority": "P0",
+    "name": "仅输入账号未输入密码点击登录提示校验信息",
+    "precondition": "已进入登录页面",
+    "test_data": "账号: testuser；密码: 空",
+    "expected_result": "仅输入账号点击登录后，页面提示密码未输入，阻止登录。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在账号输入框输入账号",
+        "value": "testuser",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录按钮",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面提示密码不能为空或未输入",
+        "value": "密码必填提示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC008",
+    "case_no": "0004",
+    "priority": "P0",
+    "name": "仅输入密码未输入账号点击登录提示校验信息",
+    "precondition": "已进入登录页面",
+    "test_data": "账号: 空；密码: Test@123",
+    "expected_result": "仅输入密码点击登录后，页面提示账号未输入，阻止登录。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入密码",
+        "value": "Test@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录按钮",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面提示账号不能为空或未输入",
+        "value": "账号必填提示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC010",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "中文页面文案展示正确",
+    "precondition": "网络正常，可访问登录页面",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "页面以中文展示，登录相关文案、按钮及提示信息为中文或符合中文页面预期。",
+    "owner": "",
+    "remarks": "覆盖中文页面展示要求",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开中文登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面完成首次加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面整体语言为中文",
+        "value": "中文页面",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "验证登录按钮、输入框提示等文案符合中文展示",
+        "value": "中文文案",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC012",
+    "case_no": "0006",
+    "priority": "P1",
+    "name": "登录页展示验证码信息",
+    "precondition": "已进入登录页面",
+    "test_data": "无",
+    "expected_result": "登录页可看到验证码相关信息或验证码区域，展示正常，无错位无缺失。",
+    "owner": "",
+    "remarks": "根据文档中“可以看到验证码”生成",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在验证码相关信息或组件",
+        "value": "验证码",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证验证码区域显示完整、清晰、可见",
+        "value": "验证码展示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC014",
+    "case_no": "0007",
+    "priority": "P2",
+    "name": "登录页展示忘记密码入口",
+    "precondition": "已进入登录页面",
+    "test_data": "无",
+    "expected_result": "登录页可看到忘记密码入口，入口文字清晰可识别，位置展示正常。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在忘记密码入口",
+        "value": "忘记密码",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证忘记密码入口展示正常，无截断无错位",
+        "value": "入口展示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC016",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "登录页展示语言切换信息",
+    "precondition": "已进入登录页面",
+    "test_data": "无",
+    "expected_result": "登录页可看到语言切换相关信息或控件，展示正常。",
+    "owner": "",
+    "remarks": "根据文档中“语言切换等信息”生成",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在语言切换相关信息或控件",
+        "value": "语言切换",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证语言切换信息展示完整、可见、无错位",
+        "value": "展示正常",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC018",
+    "case_no": "0009",
+    "priority": "P1",
+    "name": "账号输入框可正常输入内容",
+    "precondition": "已进入登录页面",
+    "test_data": "账号: user_001",
+    "expected_result": "账号输入框可正常输入并显示内容，无异常报错。",
+    "owner": "",
+    "remarks": "覆盖输入框基础可用性",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在账号输入框输入测试账号",
+        "value": "user_001",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "验证账号输入框中显示已输入内容",
+        "value": "user_001",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC020",
+    "case_no": "0010",
+    "priority": "P1",
+    "name": "密码输入框可正常输入内容",
+    "precondition": "已进入登录页面",
+    "test_data": "密码: Abcd@1234",
+    "expected_result": "密码输入框可正常输入内容，无异常报错；输入后控件状态正常。",
+    "owner": "",
+    "remarks": "未要求校验掩码，仅验证可输入",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入测试密码",
+        "value": "Abcd@1234",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证密码输入框可接受输入且页面无异常提示",
+        "value": "输入成功",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC012",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "正常打开中文登录页面并展示核心登录元素",
+    "precondition": "网络正常，可访问目标站点。",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "成功打开中文登录页面；页面首次加载等待3秒后展示稳定；页面存在账号输入框、密码输入框、登录按钮。",
+    "owner": "",
+    "remarks": "页面首次加载后需等待3秒再进行截图或结果判断。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开比亚迪交易所中文登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面首次加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证当前页面为登录页",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在账号输入框、密码输入框、登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面布局无明显错位或空白异常",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC014",
+    "case_no": "0002",
+    "priority": "P0",
+    "name": "未输入账号和密码直接登录提示校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "账号: 空；密码: 空",
+    "expected_result": "点击登录后，页面给出未输入账号密码的提示；不应进入系统。",
+    "owner": "",
+    "remarks": "覆盖必填项校验。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "不输入任何内容直接点击登录按钮",
+        "value": "登录按钮",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面提示账号和密码不能为空或存在对应必填提示",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面未跳转登录后页面",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC016",
+    "case_no": "0003",
+    "priority": "P0",
+    "name": "仅输入账号未输入密码点击登录提示校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "账号: test_user；密码: 空",
+    "expected_result": "点击登录后，页面提示密码未输入或密码必填；不应登录成功。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在账号输入框输入账号",
+        "value": "test_user",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录按钮",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面出现密码必填或未输入密码提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC018",
+    "case_no": "0004",
+    "priority": "P0",
+    "name": "仅输入密码未输入账号点击登录提示校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "账号: 空；密码: Test@123456",
+    "expected_result": "点击登录后，页面提示账号未输入或账号必填；不应登录成功。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入密码",
+        "value": "Test@123456",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录按钮",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面出现账号必填或未输入账号提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC020",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "中文页面展示内容校验",
+    "precondition": "网络正常，可访问目标站点。",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "页面整体以中文展示；登录相关文案为中文；无明显英文默认文案干扰主要内容。",
+    "owner": "",
+    "remarks": "重点验证中文本地化展示。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开中文登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成后再观察文案",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面标题、登录按钮、输入框提示等主要文案为中文",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面未出现乱码、截断或异常占位字符",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证中文排版显示正常",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC022",
+    "case_no": "0006",
+    "priority": "P1",
+    "name": "验证码信息展示校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "无",
+    "expected_result": "登录页面可见验证码相关信息或验证码区域，显示正常，无缺失或异常加载。",
+    "owner": "",
+    "remarks": "依据文档要求覆盖验证码展示。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面元素加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在验证码相关信息或验证码展示区域",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证验证码区域显示完整，无破图、无空白占位异常",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证验证码与登录表单布局显示正常",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC024",
+    "case_no": "0007",
+    "priority": "P2",
+    "name": "忘记密码入口展示校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "无",
+    "expected_result": "页面可见忘记密码入口，文案正确，显示位置合理，样式可识别。",
+    "owner": "",
+    "remarks": "仅验证展示，不覆盖跳转逻辑。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在忘记密码入口",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证忘记密码文案显示正确且可见",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证忘记密码入口未被遮挡或错位",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC026",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "语言切换信息展示校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "无",
+    "expected_result": "页面可见语言切换相关入口或信息，展示正常，与中文页面不冲突。",
+    "owner": "",
+    "remarks": "依据文档覆盖语言切换信息展示。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开中文登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面存在语言切换相关入口或信息",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证语言切换控件显示完整、位置正常",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证当前中文页面展示正常且语言入口可识别",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC028",
+    "case_no": "0009",
+    "priority": "P1",
+    "name": "账号输入框与密码输入框可输入校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "账号: byd_user01；密码: Abc@123456",
+    "expected_result": "账号输入框和密码输入框可正常输入内容；输入过程无卡顿、无异常报错；密码框内容按密码类型展示。",
+    "owner": "",
+    "remarks": "仅校验输入能力与展示效果。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在账号输入框输入账号",
+        "value": "byd_user01",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入密码",
+        "value": "Abc@123456",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "验证账号已显示输入内容，密码框以密文形式显示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC030",
+    "case_no": "0010",
+    "priority": "P2",
+    "name": "登录按钮展示与可点击状态校验",
+    "precondition": "已成功进入登录页面。",
+    "test_data": "无",
+    "expected_result": "登录按钮文案正确、样式正常、可被点击；点击后页面产生对应校验反馈。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录按钮显示正常且文案正确",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录按钮",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证点击后页面有响应，并出现相应校验提示或状态变化",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC022",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "正常打开登录页面并验证页面展示",
+    "precondition": "浏览器可正常访问互联网",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "成功打开指定URL，等待3秒后页面正常加载，展示为登录页面，无明显报错或空白。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证当前页面为登录页面",
+        "value": "页面包含登录相关元素或文案",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC024",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "验证登录页面加载后无空白页",
+    "precondition": "浏览器可正常访问目标站点",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面在3秒后完成展示，不出现空白页、纯白屏或纯黑屏。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "访问登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面初始渲染",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面内容已正常渲染且不是空白页",
+        "value": "可见页面主体内容",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC026",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "验证登录页面无明显报错信息",
+    "precondition": "浏览器缓存不影响页面访问",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面打开后无500、404、网络异常、脚本异常等明显错误提示。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "检查页面是否存在明显错误提示信息",
+        "value": "无404/500/网络异常等提示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC028",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "验证登录页面URL访问后页面标题或核心标识正确",
+    "precondition": "浏览器可正常打开网页",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "访问后页面标题、Logo、登录区域标题或其他核心标识符合登录页面特征。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面元素稳定展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证页面标题或核心标识属于登录页面",
+        "value": "存在登录相关标题、Logo或登录框",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC030",
+    "case_no": "0005",
+    "priority": "P2",
+    "name": "验证登录页面在刷新后仍可正常展示",
+    "precondition": "已成功首次打开登录页面",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "刷新页面后仍能在3秒后正常展示登录页面，无样式错乱或加载失败。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待首次加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "点击浏览器刷新操作以重新加载页面",
+        "value": "刷新页面",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待刷新后的页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证刷新后仍为登录页面",
+        "value": "登录页面元素正常显示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC032",
+    "case_no": "0006",
+    "priority": "P2",
+    "name": "验证多次重复打开登录页面的一致性",
+    "precondition": "浏览器运行正常",
+    "test_data": "连续访问URL 2次；URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "多次访问同一URL后，页面均能稳定展示登录页面，内容一致，无随机异常。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "第一次打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待第一次加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证第一次打开为登录页面",
+        "value": "页面展示登录相关内容",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "第二次重新打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待第二次加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证第二次打开仍为登录页面且展示一致",
+        "value": "页面正常且无异常差异",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC034",
+    "case_no": "0007",
+    "priority": "P1",
+    "name": "验证登录页面加载时间点的页面可识别性",
+    "precondition": "网络环境正常",
+    "test_data": "URL=https://beta-5.bydtms.com/zh；等待时长=3秒",
+    "expected_result": "在等待3秒后，页面应达到可识别状态，能够明确判断当前页为登录页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开目标登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待3秒后观察页面状态",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证3秒时页面已具备登录页面识别特征",
+        "value": "登录框、登录文案或账号输入区域可见",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC036",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "验证登录页面基础布局完整性",
+    "precondition": "页面可正常访问",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "登录页面基础布局完整，主要区域无截断、重叠、明显错位。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面元素完全展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "检查登录页面布局是否完整",
+        "value": "页面主要模块显示正常，无明显错位",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC038",
+    "case_no": "0009",
+    "priority": "P3",
+    "name": "验证登录页面地址栏输入后可直接访问",
+    "precondition": "浏览器已启动",
+    "test_data": "地址栏输入：https://beta-5.bydtms.com/zh",
+    "expected_result": "在浏览器地址栏输入URL后，可直接跳转到登录页面并正常显示。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "在浏览器地址栏输入登录页URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "点击回车或访问按钮进入页面",
+        "value": "访问",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "验证打开后是登录页面",
+        "value": "显示登录页面内容",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC040",
+    "case_no": "0010",
+    "priority": "P2",
+    "name": "验证登录页面加载后核心可视元素存在",
+    "precondition": "浏览器与网络正常",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面加载完成后，至少存在一个或多个可用于识别登录页的核心元素，如登录标题、输入框、按钮、Logo等。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面链接",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "等待页面渲染稳定",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录页核心可视元素存在",
+        "value": "存在登录标题、输入框、按钮或Logo等元素",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC032",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "登录页正常打开并展示登录页面",
+    "precondition": "网络正常，可访问测试环境",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "成功打开指定URL，等待3秒后页面正常加载，展示为登录页面，页面无明显报错或白屏。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证当前页面是否为登录页面",
+        "value": "页面标题、登录表单或登录相关元素可见",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC034",
+    "case_no": "0002",
+    "priority": "P0",
+    "name": "登录页URL访问可达性校验",
+    "precondition": "网络正常，可访问外网或测试环境",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "输入URL后可正常访问页面，不出现无法访问、超时、DNS错误等异常提示。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "在浏览器中访问登录页面URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面响应并完成初步加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面是否可正常访问",
+        "value": "页面可打开且无网络异常提示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC036",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "登录页加载后页面无白屏无报错",
+    "precondition": "浏览器正常启动，网络正常",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面加载完成后界面正常展示，无白屏、无明显脚本报错信息、无异常弹窗。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "访问登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面完成加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面展示状态",
+        "value": "无白屏、无报错、无异常弹窗",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC038",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "登录页核心元素展示校验",
+    "precondition": "登录页面可正常访问",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "登录页面应展示登录相关核心元素，如登录标题、账号输入框、密码输入框、登录按钮中的一个或多个，整体可识别为登录页。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面渲染",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录页核心元素是否展示",
+        "value": "存在登录表单或登录按钮等登录相关元素",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC040",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "登录页语言路径zh访问展示校验",
+    "precondition": "系统支持通过/zh路径访问页面",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "通过/zh路径访问后可正常打开页面，页面内容符合登录页面特征，不跳转到异常页面。",
+    "owner": "",
+    "remarks": "关注语言路径是否生效",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开带zh路径的登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证zh路径对应页面是否正常显示为登录页",
+        "value": "页面可识别为登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC042",
+    "case_no": "0006",
+    "priority": "P2",
+    "name": "登录页刷新后仍正确展示",
+    "precondition": "已成功打开登录页面",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面刷新后仍可正常加载并展示登录页面，无跳转异常、无报错。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击浏览器刷新按钮刷新当前页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待刷新后的页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证刷新后是否仍为登录页面",
+        "value": "登录页面正常展示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC044",
+    "case_no": "0007",
+    "priority": "P2",
+    "name": "登录页重复访问稳定性校验",
+    "precondition": "网络正常，浏览器可正常使用",
+    "test_data": "URL=https://beta-5.bydtms.com/zh；重复访问2次",
+    "expected_result": "重复访问页面时均可正常打开登录页，页面展示稳定，无偶发加载失败。",
+    "owner": "",
+    "remarks": "可用于初步稳定性检查",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "首次打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待首次加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "再次打开登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待再次加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证两次访问结果是否一致且均为登录页面",
+        "value": "页面正常展示为登录页",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC046",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "登录页加载等待3秒后页面状态校验",
+    "precondition": "页面地址可正常访问",
+    "test_data": "URL=https://beta-5.bydtms.com/zh；等待时间=3秒",
+    "expected_result": "打开页面并等待3秒后，页面主体内容已完成展示，可判断为登录页，不因加载过慢导致内容缺失。",
+    "owner": "",
+    "remarks": "严格对应文档要求的等待时长",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "按照要求等待3秒",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证等待3秒后页面主体内容是否已展示为登录页",
+        "value": "登录页面元素可见",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC048",
+    "case_no": "0009",
+    "priority": "P3",
+    "name": "登录页地址栏手动输入访问校验",
+    "precondition": "浏览器已打开新标签页",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "手动输入URL并访问后，页面能够正常加载并展示登录页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "输入",
+        "description": "在浏览器地址栏输入登录页面URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击回车或前往按钮访问该地址",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面是否成功展示为登录页面",
+        "value": "登录页可见",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC050",
+    "case_no": "0010",
+    "priority": "P3",
+    "name": "登录页页面标题或标识文案校验",
+    "precondition": "登录页面已可正常打开",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面存在可识别为登录页面的标题、标签或文案标识，用户可明确判断当前页面用途。",
+    "owner": "",
+    "remarks": "若无明确标题，则以登录表单标识替代判断",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面稳定展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面是否存在登录页标题或可识别标识",
+        "value": "存在登录相关标题、文案或表单标识",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC042",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "正常打开登录页面并验证页面展示",
+    "precondition": "网络正常，可访问测试环境",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "成功打开登录页面，等待3秒后页面正常加载，展示登录相关内容与输入区域，无明显报错。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证当前页面为登录页面，页面展示正常",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC044",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "登录页面URL访问正确性校验",
+    "precondition": "浏览器可正常使用",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "打开指定URL后成功进入对应登录页面，地址访问无跳转异常。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "在浏览器中访问登录页面URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面地址访问成功且页面内容为登录页",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC046",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "登录页面首次加载无报错校验",
+    "precondition": "网络正常，浏览器缓存不影响访问",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "页面加载过程中及加载完成后无白屏、无明显脚本报错、无异常提示信息。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "访问登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面完成初始加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面无白屏、无加载失败、无异常报错提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC048",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "登录页面标题或核心文案展示校验",
+    "precondition": "可正常访问页面",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "登录页面展示清晰的登录相关标题、按钮或核心提示文案，用户可识别当前为登录页。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面元素渲染完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面存在登录相关标题、按钮或说明文案",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC050",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "登录页面输入框展示校验",
+    "precondition": "页面可正常访问",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "登录页面应展示账号、密码等必要输入框，输入框可见且状态正常。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "访问登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载显示表单",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录表单输入框是否可见且可正常使用",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC052",
+    "case_no": "0006",
+    "priority": "P2",
+    "name": "登录页面按钮展示校验",
+    "precondition": "页面可正常加载",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "登录按钮展示正常，按钮文案清晰，无禁用异常或样式错乱。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面按钮渲染",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录按钮展示正常且可识别",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC054",
+    "case_no": "0007",
+    "priority": "P2",
+    "name": "登录页面语言区域展示校验",
+    "precondition": "页面可正常访问",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "页面语言区域与URL中的/zh保持一致，页面展示语言符合中文环境预期。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "访问中文环境登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面内容加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面语言为中文或与中文环境匹配",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC056",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "登录页面刷新后展示稳定性校验",
+    "precondition": "首次访问页面成功",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "刷新页面后仍可正常显示登录页，页面结构和核心元素展示稳定。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "执行浏览器刷新操作",
+        "value": "刷新页面",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待刷新后页面重新加载",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证刷新后仍为登录页面且展示正常",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC058",
+    "case_no": "0009",
+    "priority": "P3",
+    "name": "登录页面空白区域与布局完整性校验",
+    "precondition": "页面可正常打开",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "页面整体布局完整，无明显错位、遮挡、重叠或异常空白区域。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面布局渲染完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面布局完整，元素无错位重叠",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC060",
+    "case_no": "0010",
+    "priority": "P3",
+    "name": "登录页面加载等待3秒后的可识别性校验",
+    "precondition": "网络环境正常",
+    "test_data": "URL: https://beta-5.bydtms.com/zh",
+    "expected_result": "等待3秒后用户可明确识别当前页面为登录页面，关键元素已展示完成。",
+    "owner": "",
+    "remarks": "依据文档要求重点验证等待3秒后的页面识别结果。",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开产品指定登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "按要求等待3秒",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面是否可被识别为登录页面，关键内容是否已加载",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC052",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "验证通过指定URL可正常进入登录页面",
+    "precondition": "浏览器可正常访问外网",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "成功打开页面，等待3秒后页面显示为登录页面，无明显加载异常。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证当前页面为登录页面",
+        "value": "登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC054",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "验证登录页面首次加载展示正常",
+    "precondition": "浏览器缓存不影响页面访问",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "登录页面成功展示，页面无空白、无错位、无报错信息。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面稳定加载",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面主体内容已展示且无空白异常",
+        "value": "登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC056",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "验证登录页面在等待3秒后仍停留在登录页",
+    "precondition": "系统服务正常可访问",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面等待3秒后未跳转至其他页面，仍为登录页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "访问登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待3秒观察页面跳转情况",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面未自动跳转且仍为登录页面",
+        "value": "登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC058",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "验证登录页面加载后无明显错误提示",
+    "precondition": "网络连接正常",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "页面打开并等待3秒后，无404、500、脚本异常等错误提示，页面为登录页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面完全加载",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面无错误提示并显示登录页面",
+        "value": "无错误提示",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC060",
+    "case_no": "0005",
+    "priority": "P2",
+    "name": "验证刷新后仍可正常显示登录页面",
+    "precondition": "已成功进入登录页面",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "刷新后页面可重新正常加载，等待3秒后仍为登录页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "执行页面刷新操作",
+        "value": "浏览器刷新",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待刷新后的页面加载完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证刷新后页面仍为登录页面",
+        "value": "登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC062",
+    "case_no": "0006",
+    "priority": "P2",
+    "name": "验证新标签页访问登录地址可正常进入登录页面",
+    "precondition": "浏览器支持打开新标签页",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "在新标签页中访问地址后，等待3秒可正常显示登录页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "点击",
+        "description": "打开浏览器新标签页",
+        "value": "新标签页",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在地址栏输入登录页URL",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "访问输入的地址",
+        "value": "回车访问",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证当前页面为登录页面",
+        "value": "登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC064",
+    "case_no": "0007",
+    "priority": "P2",
+    "name": "验证多次重复打开登录地址页面展示稳定",
+    "precondition": "浏览器运行正常",
+    "test_data": "URL=https://beta-5.bydtms.com/zh，重复访问2次",
+    "expected_result": "多次访问登录地址后，每次等待3秒均可正常进入登录页面，页面展示一致。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "首次打开登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待首次页面加载",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证首次访问为登录页面",
+        "value": "登录页面",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "再次打开登录页地址",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待再次加载完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证再次访问仍为登录页面",
+        "value": "登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC066",
+    "case_no": "0008",
+    "priority": "P3",
+    "name": "验证登录页面打开后的语言路径访问正常",
+    "precondition": "浏览器可访问目标站点",
+    "test_data": "URL=https://beta-5.bydtms.com/zh",
+    "expected_result": "通过带/zh路径访问时，页面可正常加载并展示登录页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "通过语言路径访问系统",
+        "value": "https://beta-5.bydtms.com/zh",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证语言路径访问后显示登录页面",
+        "value": "/zh 登录页面",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC060",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+    "owner": "",
+    "remarks": "AI 服务不可用时自动生成的兜底示例用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC061",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+    "owner": "",
+    "remarks": "AI 服务不可用时自动生成的兜底示例用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC062",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+    "owner": "",
+    "remarks": "AI 服务不可用时自动生成的兜底示例用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC063",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击文档描述中的目标按钮或入口",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC065",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "执行 hover 或触发查看条件入口",
+        "value": "查看条件",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC067",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "3. 用户在报名过程中任意步骤中断，都认为报名未完成，用户可以重新选择角色",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC066",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击文档描述中的目标按钮或入口",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC068",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "执行 hover 或触发查看条件入口",
+        "value": "查看条件",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC070",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "3. 用户在报名过程中任意步骤中断，都认为报名未完成，用户可以重新选择角色",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC069",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击文档描述中的目标按钮或入口",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC071",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "执行 hover 或触发查看条件入口",
+        "value": "查看条件",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC073",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "3. 用户在报名过程中任意步骤中断，都认为报名未完成，用户可以重新选择角色",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC072",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击文档描述中的目标按钮或入口",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确展示角色选择弹窗，弹窗内容与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC074",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "文档场景基础校验",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "执行 hover 或触发查看条件入口",
+        "value": "查看条件",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "执行操作后正确显示提示信息，提示文案与文档描述一致。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC076",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "3. 用户在报名过程中任意步骤中断，都认为报名未完成，用户可以重新选择角色",
+    "precondition": "测试环境可访问，浏览器可正常打开页面",
+    "test_data": "URL: https://example.com",
+    "expected_result": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+    "owner": "",
+    "remarks": "本地快速生成的测试用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开待测页面",
+        "value": "https://example.com",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载稳定",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "页面成功打开并展示与文档描述一致的核心内容，无明显报错或空白。",
+        "value": "",
+        "expected_image": null
+      }
+    ],
     "status": "pending"
   }
 ]
