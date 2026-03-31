@@ -40,3 +40,6 @@ __pycache__/
 .Python
 *.egg-info/
 .eggs/
+
+# Test scripts
+backend/test_create_bug.py
