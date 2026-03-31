@@ -5091,5 +5091,473 @@
       }
     ],
     "status": "pending"
+  },
+  {
+    "id": "TC124",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "开启多账户报名时点击报名展示角色选择弹窗",
+    "precondition": "活动已开启多账户报名，后台已配置账户名称和介绍文案，当前站点存在多语言配置",
+    "test_data": "",
+    "expected_result": "点击报名后显示账户角色选择弹窗；弹窗展示后台配置的账户名称和介绍文案；文案语言与当前页面语言一致",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243335400822505472&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证是否显示账户角色选择弹窗",
+        "value": "弹窗可见",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证弹窗中展示后台配置的账户名称和介绍文案",
+        "value": "名称和介绍文案正确",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证弹窗文案语言与当前页面语言一致",
+        "value": "中文",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC125",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "未登录用户点击报名跳转登录页",
+    "precondition": "用户当前未登录",
+    "test_data": "",
+    "expected_result": "活动页面可正常打开；未登录状态下点击报名按钮后跳转到登录页",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243335400822505472&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证是否跳转到登录页",
+        "value": "页面URL或页面内容显示为登录页",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC126",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页点击报名后按钮状态变为已报名",
+    "precondition": "用户可正常访问活动页面",
+    "test_data": "",
+    "expected_result": "点击报名按钮后，页面上的报名按钮状态变为“已报名”",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243335400822505472&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查按钮状态",
+        "value": "按钮文本变为已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC127",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页面点击报名后2秒按钮显示已报名",
+    "precondition": "活动页面可正常访问，用户可执行报名操作",
+    "test_data": "",
+    "expected_result": "点击报名后等待2秒，报名按钮文案变为“已报名”",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243335400822505472&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待2秒",
+        "value": "2s",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC128",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页点击报名后顶部按钮显示已报名",
+    "precondition": "用户可正常访问活动页面，页面存在可点击的报名按钮。",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后，等待2秒，页面顶部按钮名称显示为“已报名”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动页面1",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243566904173502465&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击页面内任意报名按钮",
+        "value": "任意报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待按钮状态更新",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查页面顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC129",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页面报名后顶部按钮显示已报名",
+    "precondition": "用户可正常访问活动页面，当前活动可报名。",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后，等待2秒，页面顶部按钮名称显示为“已报名”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动页面1",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243566904173502465&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击页面任意报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面状态更新",
+        "value": "2s",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC130",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页点击报名后顶部按钮显示已报名",
+    "precondition": "可正常访问活动页面，当前账号可进行报名操作。",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后，等待2秒，页面顶部按钮名称显示为“已报名”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开第一个活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243566904173502465&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击任意报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面状态更新",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC131",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页点击报名后顶部按钮显示已报名",
+    "precondition": "用户可正常访问活动页面，当前活动未报名。",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后，等待2秒，页面顶部按钮名称显示为“已报名”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动页面1",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243566904173502465&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击页面任意报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待状态更新",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC132",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页点击报名后顶部按钮显示已报名",
+    "precondition": "用户可正常访问活动页面",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后，等待2秒，页面顶部按钮名称显示为“已报名”",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动页面1",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243566904173502465&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击页面任意报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面状态更新",
+        "value": "2s",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC133",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动页面点击报名后顶部按钮显示已报名",
+    "precondition": "用户可正常访问活动页面，页面存在任意报名按钮。",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后，等待2秒，页面顶部按钮名称显示为“已报名”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动页面1",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243566904173502465&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击页面中任意报名按钮",
+        "value": "任意报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面状态更新",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC134",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "测试1-活动页面点击任意报名按钮后顶部按钮显示已报名",
+    "precondition": "用户可正常访问活动页面，页面存在可点击的报名按钮。",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后，等待2秒，页面顶部按钮名称显示为“已报名”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开测试1活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243566904173502465&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击页面内任意一个报名按钮",
+        "value": "任意报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面状态更新",
+        "value": "2s",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查页面顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC136",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "测试2-活动页面点击任意报名按钮后顶部按钮显示已报名",
+    "precondition": "用户可正常访问活动页面，页面存在可点击的报名按钮。",
+    "test_data": "",
+    "expected_result": "点击任意报名按钮后等待2秒，页面顶部按钮名称显示为“已报名”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开测试2活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243358959775088641&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击页面任意一个报名按钮",
+        "value": "任意报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面状态更新",
+        "value": "2s",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查页面顶部按钮名称",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
   }
 ]

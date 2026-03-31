@@ -3,6 +3,9 @@ node_modules/
 
 # Next.js
 .next/
+frontend/.next/
+frontend/.next-dev/
+frontend/.next-prod/
 
 # Build / output
 dist/
