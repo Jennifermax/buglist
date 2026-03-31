@@ -2689,5 +2689,2407 @@
       }
     ],
     "status": "pending"
+  },
+  {
+    "id": "TC075",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "用户名和密码正确时登录成功",
+    "precondition": "用户已注册且账号状态正常，已进入登录页面",
+    "test_data": "用户名：valid_user；密码：Valid@123",
+    "expected_result": "登录成功，跳转到系统首页或登录后的主页面，无错误提示",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入正确的用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入正确的密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证用户成功进入系统首页或主页面，且页面无登录失败提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC077",
+    "case_no": "0002",
+    "priority": "P0",
+    "name": "用户名正确密码错误时登录失败",
+    "precondition": "用户已注册且账号状态正常，已进入登录页面",
+    "test_data": "用户名：valid_user；密码：Wrong@123",
+    "expected_result": "登录失败，页面停留在登录页，出现用户名或密码错误提示",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入正确的用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入错误的密码",
+        "value": "Wrong@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待登录结果返回",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面仍停留在登录页，并提示用户名或密码错误",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC079",
+    "case_no": "0003",
+    "priority": "P0",
+    "name": "用户名不存在时登录失败",
+    "precondition": "已进入登录页面",
+    "test_data": "用户名：not_exist_user；密码：Valid@123",
+    "expected_result": "登录失败，页面停留在登录页，出现用户名或密码错误提示",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入不存在的用户名",
+        "value": "not_exist_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入任意密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待登录结果返回",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面仍停留在登录页，并提示用户名或密码错误",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC081",
+    "case_no": "0004",
+    "priority": "P0",
+    "name": "用户名为空时提交登录",
+    "precondition": "已进入登录页面",
+    "test_data": "用户名：空；密码：Valid@123",
+    "expected_result": "不允许登录，页面提示用户名不能为空或对应必填校验信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名输入框保持为空，在密码输入框输入正确密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面未登录成功，并显示用户名不能为空或必填提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC083",
+    "case_no": "0005",
+    "priority": "P0",
+    "name": "密码为空时提交登录",
+    "precondition": "已进入登录页面",
+    "test_data": "用户名：valid_user；密码：空",
+    "expected_result": "不允许登录，页面提示密码不能为空或对应必填校验信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入正确用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "密码输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面未登录成功，并显示密码不能为空或必填提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC085",
+    "case_no": "0006",
+    "priority": "P0",
+    "name": "用户名和密码均为空时提交登录",
+    "precondition": "已进入登录页面",
+    "test_data": "用户名：空；密码：空",
+    "expected_result": "不允许登录，页面显示用户名和密码的必填校验提示",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名和密码输入框均保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面未登录成功，并显示用户名不能为空和密码不能为空的提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC087",
+    "case_no": "0007",
+    "priority": "P1",
+    "name": "用户名输入前后空格时登录处理",
+    "precondition": "用户已注册且账号状态正常，已进入登录页面",
+    "test_data": "用户名：  valid_user ；密码：Valid@123",
+    "expected_result": "系统应正确处理用户名前后空格；若自动去除空格则可登录成功，否则应给出明确错误提示且行为符合产品预期",
+    "owner": "",
+    "remarks": "用于验证输入值去空格处理逻辑",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入带前后空格的用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入正确密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待登录结果返回",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统对用户名前后空格的处理结果符合预期，且提示信息明确",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC089",
+    "case_no": "0008",
+    "priority": "P1",
+    "name": "密码输入前后空格时登录处理",
+    "precondition": "用户已注册且账号状态正常，已进入登录页面",
+    "test_data": "用户名：valid_user；密码： Valid@123",
+    "expected_result": "系统应按产品预期处理密码空格；通常密码空格应视为有效字符并导致登录失败，页面给出明确错误提示",
+    "owner": "",
+    "remarks": "用于验证密码字段对空格的敏感性",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入正确用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入带前后空格的密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待登录结果返回",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统对密码空格处理符合预期，页面提示准确",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC091",
+    "case_no": "0009",
+    "priority": "P1",
+    "name": "用户名和密码输入框页面展示正常",
+    "precondition": "无",
+    "test_data": "无",
+    "expected_result": "登录页面正常展示，包含用户名输入框、密码输入框、登录按钮，控件可见可用",
+    "owner": "",
+    "remarks": "页面基础展示校验",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面元素加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面存在用户名输入框、密码输入框和登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证各控件展示正常，无错位、无遮挡、不可点击等问题",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC093",
+    "case_no": "0010",
+    "priority": "P1",
+    "name": "密码输入框应进行密文展示",
+    "precondition": "已进入登录页面",
+    "test_data": "密码：Valid@123",
+    "expected_result": "密码输入框输入内容以掩码形式展示，不明文显示密码",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面输入状态稳定",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证密码框内容以密文或掩码形式显示，未泄露明文密码",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC085",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "用户名和密码正确时登录成功",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和密码账号",
+    "test_data": "用户名：testuser；密码：Pass@123",
+    "expected_result": "登录成功，跳转进入系统首页或登录后页面，无错误提示信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确的用户名",
+        "value": "testuser",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确的密码",
+        "value": "Pass@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统登录成功并进入首页或登录后页面",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC087",
+    "case_no": "0002",
+    "priority": "P0",
+    "name": "密码错误时提示错误信息",
+    "precondition": "系统登录页面可正常访问，存在有效用户名",
+    "test_data": "用户名：testuser；密码：Wrong@123",
+    "expected_result": "登录失败，页面提示密码错误或账号密码错误等错误信息，且不跳转页面",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确的用户名",
+        "value": "testuser",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入错误的密码",
+        "value": "Wrong@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待错误提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示密码错误或账号密码错误信息，且未登录成功",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC089",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "用户名为空时登录校验",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名：空；密码：Pass@123",
+    "expected_result": "登录失败，页面提示用户名不能为空或对应必填校验信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确的密码",
+        "value": "Pass@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示用户名不能为空或必填提示，且不允许登录",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC091",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "密码为空时登录校验",
+    "precondition": "系统登录页面可正常访问，存在有效用户名",
+    "test_data": "用户名：testuser；密码：空",
+    "expected_result": "登录失败，页面提示密码不能为空或对应必填校验信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确的用户名",
+        "value": "testuser",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "密码输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示密码不能为空或必填提示，且不允许登录",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC093",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "用户名和密码均为空时登录校验",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名：空；密码：空",
+    "expected_result": "登录失败，页面提示用户名和密码不能为空或对应必填校验信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "密码输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面展示用户名和密码必填提示，且不允许登录",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC095",
+    "case_no": "0006",
+    "priority": "P1",
+    "name": "用户名不存在时登录失败提示",
+    "precondition": "系统登录页面可正常访问，系统中不存在该用户名",
+    "test_data": "用户名：nouser；密码：Pass@123",
+    "expected_result": "登录失败，页面提示账号不存在或账号密码错误等错误信息，且不跳转页面",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入不存在的用户名",
+        "value": "nouser",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入任意密码",
+        "value": "Pass@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待错误提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示账号不存在或账号密码错误，且未登录成功",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC097",
+    "case_no": "0007",
+    "priority": "P2",
+    "name": "用户名输入前后空格时登录处理",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和密码账号",
+    "test_data": "用户名： testuser ；密码：Pass@123",
+    "expected_result": "系统应对用户名前后空格进行合理处理；若自动去空格则可登录成功，否则应给出明确错误提示",
+    "owner": "",
+    "remarks": "用于验证输入值清洗与兼容性",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入前后带空格的用户名",
+        "value": "testuser",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确的密码",
+        "value": "Pass@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待登录结果返回",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统对前后空格处理符合预期，结果明确且无异常",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC099",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "密码区分大小写校验",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和密码账号，正确密码为 Pass@123",
+    "test_data": "用户名：testuser；密码：pass@123",
+    "expected_result": "登录失败，页面提示密码错误或账号密码错误，体现密码大小写敏感",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确的用户名",
+        "value": "testuser",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入仅大小写不同的错误密码",
+        "value": "pass@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待错误提示展示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录失败并提示密码错误或账号密码错误",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC101",
+    "case_no": "0009",
+    "priority": "P2",
+    "name": "登录页基础展示校验",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "无",
+    "expected_result": "登录页面正常展示，包含用户名输入框、密码输入框、登录按钮，页面无明显错位或缺失",
+    "owner": "",
+    "remarks": "页面展示类用例",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面元素加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面存在用户名输入框",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面存在密码输入框",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面存在登录按钮且可操作",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC103",
+    "case_no": "0010",
+    "priority": "P2",
+    "name": "密码输入框内容默认掩码显示",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "密码：Pass@123",
+    "expected_result": "密码输入后以掩码形式显示，不明文展示密码内容",
+    "owner": "",
+    "remarks": "页面安全展示校验",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入密码",
+        "value": "Pass@123",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面展示输入结果",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证密码输入框以掩码形式展示密码内容",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC095",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "用户名和密码正确时登录成功",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和密码的账号",
+    "test_data": "用户名: valid_user；密码: Valid@123",
+    "expected_result": "登录成功，跳转到系统首页或登录后页面，页面展示正常，无错误提示信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入正确密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统登录成功并进入首页，无错误提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC097",
+    "case_no": "0002",
+    "priority": "P0",
+    "name": "用户名正确密码错误时提示错误信息",
+    "precondition": "系统登录页面可正常访问，存在有效用户名",
+    "test_data": "用户名: valid_user；密码: Wrong@123",
+    "expected_result": "登录失败，停留在登录页面，页面提示密码错误或用户名密码错误信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入错误密码",
+        "value": "Wrong@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待错误提示展示",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示错误信息且未登录成功",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC099",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "用户名不存在时登录失败并提示错误信息",
+    "precondition": "系统登录页面可正常访问，不存在该用户名账号",
+    "test_data": "用户名: not_exist_user；密码: Any@123",
+    "expected_result": "登录失败，停留在登录页面，页面提示用户名或密码错误信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入不存在的用户名",
+        "value": "not_exist_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入任意密码",
+        "value": "Any@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待错误提示展示",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录失败并显示用户名或密码错误提示",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC101",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "用户名为空时校验提示",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名: 空；密码: Valid@123",
+    "expected_result": "登录失败，页面提示用户名不能为空或对应必填校验信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名输入框保持为空，在密码输入框输入有效密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示用户名不能为空且不允许登录",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC103",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "密码为空时校验提示",
+    "precondition": "系统登录页面可正常访问，存在有效用户名",
+    "test_data": "用户名: valid_user；密码: 空",
+    "expected_result": "登录失败，页面提示密码不能为空或对应必填校验信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "密码输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示密码不能为空且不允许登录",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC105",
+    "case_no": "0006",
+    "priority": "P1",
+    "name": "用户名和密码均为空时校验提示",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名: 空；密码: 空",
+    "expected_result": "登录失败，页面提示用户名不能为空、密码不能为空或统一必填提示信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名和密码输入框均保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验提示展示",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面展示必填校验提示且不允许登录",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC107",
+    "case_no": "0007",
+    "priority": "P2",
+    "name": "密码区分大小写校验",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和区分大小写的密码账号",
+    "test_data": "用户名: valid_user；正确密码: Valid@123；输入密码: valid@123",
+    "expected_result": "登录失败，页面提示密码错误或用户名密码错误信息",
+    "owner": "",
+    "remarks": "用于验证密码大小写敏感性",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入仅大小写不同的密码",
+        "value": "valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待错误提示展示",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统未登录成功并提示错误信息",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC109",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "用户名前后输入空格时登录处理",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和密码账号",
+    "test_data": "用户名:  valid_user ；密码: Valid@123",
+    "expected_result": "系统应按产品实际规则处理用户名前后空格；若自动去除空格则登录成功，若不去除则给出明确错误提示，页面行为一致",
+    "owner": "",
+    "remarks": "边界场景，验证输入规范处理",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入前后带空格的用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入正确密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待登录处理完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统对用户名前后空格的处理结果符合预期且提示信息清晰",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC111",
+    "case_no": "0009",
+    "priority": "P2",
+    "name": "密码前后输入空格时登录处理",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和密码账号",
+    "test_data": "用户名: valid_user；密码:  Valid@123",
+    "expected_result": "系统应按产品实际规则处理密码前后空格；通常应按原样参与校验并提示密码错误，页面行为一致",
+    "owner": "",
+    "remarks": "边界场景，验证密码输入处理逻辑",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在用户名输入框输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "在密码输入框输入前后带空格的密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待登录处理完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统对密码前后空格处理符合预期并给出正确反馈",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC113",
+    "case_no": "0010",
+    "priority": "P2",
+    "name": "登录页基础展示验证",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "无",
+    "expected_result": "登录页面正常展示，包含用户名输入框、密码输入框、登录按钮，控件可见且可操作",
+    "owner": "",
+    "remarks": "页面展示检查",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面存在用户名输入框、密码输入框和登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面元素展示正常，无明显错位、遮挡或缺失",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC105",
+    "case_no": "0001",
+    "priority": "P0",
+    "name": "用户名和密码正确时登录成功",
+    "precondition": "系统登录页面可正常访问，存在有效用户名和密码账号",
+    "test_data": "用户名: valid_user；密码: Valid@123",
+    "expected_result": "登录成功，跳转至系统首页或登录后的默认页面，页面显示登录成功后的用户状态",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统登录成功并进入首页或默认页面",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC107",
+    "case_no": "0002",
+    "priority": "P0",
+    "name": "用户名错误时登录失败",
+    "precondition": "系统登录页面可正常访问，存在有效账号信息",
+    "test_data": "用户名: invalid_user；密码: Valid@123",
+    "expected_result": "登录失败，页面停留在登录页，并提示用户名或密码错误",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入无效用户名",
+        "value": "invalid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面响应",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录失败且页面提示用户名或密码错误",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC109",
+    "case_no": "0003",
+    "priority": "P0",
+    "name": "密码错误时登录失败",
+    "precondition": "系统登录页面可正常访问，存在有效账号信息",
+    "test_data": "用户名: valid_user；密码: Wrong@123",
+    "expected_result": "登录失败，页面停留在登录页，并提示用户名或密码错误",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入错误密码",
+        "value": "Wrong@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面响应",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录失败且页面提示用户名或密码错误",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC111",
+    "case_no": "0004",
+    "priority": "P0",
+    "name": "用户名和密码均错误时登录失败",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名: invalid_user；密码: Wrong@123",
+    "expected_result": "登录失败，页面停留在登录页，并提示用户名或密码错误",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入错误用户名",
+        "value": "invalid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入错误密码",
+        "value": "Wrong@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面响应",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录失败且页面提示用户名或密码错误",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC113",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "用户名为空时登录校验",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名: 空；密码: Valid@123",
+    "expected_result": "登录失败，页面不跳转，提示用户名不能为空",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验结果显示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示用户名不能为空且未登录成功",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC115",
+    "case_no": "0006",
+    "priority": "P1",
+    "name": "密码为空时登录校验",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名: valid_user；密码: 空",
+    "expected_result": "登录失败，页面不跳转，提示密码不能为空",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "密码输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验结果显示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面提示密码不能为空且未登录成功",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC117",
+    "case_no": "0007",
+    "priority": "P1",
+    "name": "用户名和密码均为空时登录校验",
+    "precondition": "系统登录页面可正常访问",
+    "test_data": "用户名: 空；密码: 空",
+    "expected_result": "登录失败，页面不跳转，提示用户名和密码不能为空或分别提示必填项",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "密码输入框保持为空",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面校验结果显示",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面对用户名和密码必填项进行提示且未登录成功",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC119",
+    "case_no": "0008",
+    "priority": "P2",
+    "name": "用户名输入前后空格时登录处理",
+    "precondition": "系统登录页面可正常访问，存在有效账号信息",
+    "test_data": "用户名:  valid_user ；密码: Valid@123",
+    "expected_result": "系统应正确处理前后空格；若支持自动去除空格则登录成功，否则给出明确错误提示且行为符合产品设计",
+    "owner": "",
+    "remarks": "需结合实际产品规则确认是否自动去除前后空格",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入带前后空格的用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效密码",
+        "value": "Valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面响应",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证系统对用户名前后空格的处理结果符合预期",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC121",
+    "case_no": "0009",
+    "priority": "P2",
+    "name": "密码区分大小写校验",
+    "precondition": "系统登录页面可正常访问，存在有效账号信息且密码包含大小写组合",
+    "test_data": "用户名: valid_user；密码: valid@123",
+    "expected_result": "若原密码为 Valid@123，则输入大小写不同的密码应登录失败，并提示用户名或密码错误",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效用户名",
+        "value": "valid_user",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入大小写不同的密码",
+        "value": "valid@123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面响应",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证密码大小写敏感，登录失败并提示用户名或密码错误",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC123",
+    "case_no": "0010",
+    "priority": "P2",
+    "name": "登录页面基础展示校验",
+    "precondition": "系统可正常访问登录页面",
+    "test_data": "无",
+    "expected_result": "登录页面正常展示，包含用户名输入框、密码输入框、登录按钮，页面无明显错位或异常",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开系统登录页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面元素加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面存在用户名输入框、密码输入框和登录按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录页面布局正常、无明显样式错乱",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC115",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "多账户活动报名主流程-选择角色成功",
+    "precondition": "活动已开启多账户报名；当前用户已登录；后台已配置至少2个账户角色及介绍文案",
+    "test_data": "",
+    "expected_result": "点击报名后弹出角色选择弹窗；弹窗展示账户名称和介绍文案；点击确定后提示“您已选择当前账户作为XX账户”",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动详情页",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查是否显示角色选择弹窗，且展示后台配置的账户名称和介绍文案",
+        "value": "角色选择弹窗",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择一个角色并确认",
+        "value": "确定",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查是否出现选择成功提示",
+        "value": "您已选择当前账户作为XX账户",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC117",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "查看条件-展示角色不可参与限制范围",
+    "precondition": "活动已开启多账户报名；当前用户已登录；角色卡片存在“查看条件”入口且已配置限制范围",
+    "test_data": "",
+    "expected_result": "hover后可查看条件；展示该角色不可参与限制范围信息",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动详情页",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待角色选择弹窗加载完成",
+        "value": "1秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "查看角色卡片右上角是否有“查看条件”入口",
+        "value": "查看条件",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "触发查看条件",
+        "value": "查看条件",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查是否展示该角色不可参与限制范围",
+        "value": "不可参与限制范围",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC119",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "报名中断后可重新选择角色",
+    "precondition": "活动已开启多账户报名；当前用户已登录；存在可选角色",
+    "test_data": "",
+    "expected_result": "用户在报名过程中中断后，系统认定报名未完成；再次报名时可重新选择角色",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动详情页",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择一个角色并确认",
+        "value": "确定",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "在报名流程中途退出或中断",
+        "value": "中断流程",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "重新点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查是否可再次进入角色选择并重新选择角色",
+        "value": "角色选择弹窗",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC121",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "多语言展示-角色名称和介绍文案正确切换",
+    "precondition": "活动已开启多账户报名；当前用户已登录；后台已配置多语言的账户名称和介绍文案",
+    "test_data": "",
+    "expected_result": "在对应语言环境下，角色选择弹窗展示对应语言的账户名称和介绍文案",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动详情页并切换到目标语言环境",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查角色名称是否为目标语言",
+        "value": "账户名称",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查介绍文案是否为目标语言",
+        "value": "介绍文案",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC119",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "登录失败提示-密码错误",
+    "precondition": "存在有效用户名，输入错误密码",
+    "test_data": "输入用户名：有效用户名；输入密码：错误密码",
+    "expected_result": "点击登录后停留在登录页，并提示密码错误",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页",
+        "value": "登录页",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入用户名",
+        "value": "有效用户名",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入密码",
+        "value": "错误密码",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面与提示",
+        "value": "停留在登录页，提示密码错误",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC120",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "登录成功与密码错误提示校验",
+    "precondition": "已存在有效用户名和正确密码；同时准备一个相同用户名的错误密码。",
+    "test_data": "输入正确用户名：有效用户名；输入正确密码：正确密码；输入有效用户名：有效用户名；输入错误密码：错误密码",
+    "expected_result": "输入正确用户名和密码后登录成功并进入首页；输入错误密码后提示“用户名或密码错误”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页",
+        "value": "登录页",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确用户名",
+        "value": "有效用户名",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入正确密码",
+        "value": "正确密码",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证登录成功后进入首页",
+        "value": "首页",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "重新打开登录页",
+        "value": "登录页",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入有效用户名",
+        "value": "有效用户名",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入错误密码",
+        "value": "错误密码",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证错误提示",
+        "value": "用户名或密码错误",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC121",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "登录页展示与空值校验",
+    "precondition": "用户可访问登录页面，未登录状态",
+    "test_data": "用户名留空，输入密码：password123；输入用户名，密码留空：testuser",
+    "expected_result": "页面展示产品Logo、版权信息、记住我和忘记密码入口；用户名或密码为空时提示“请输入用户名/密码”",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页",
+        "value": "https://example.com/login",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面展示产品Logo",
+        "value": "产品Logo",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面展示版权信息",
+        "value": "版权信息",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面有记住我选项",
+        "value": "记住我",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证页面有忘记密码入口",
+        "value": "忘记密码",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名留空，输入密码",
+        "value": "password123",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证空用户名提示",
+        "value": "请输入用户名/密码",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入用户名，密码留空",
+        "value": "testuser",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证空密码提示",
+        "value": "请输入用户名/密码",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC122",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "登录页基础展示与空值校验",
+    "precondition": "用户可访问登录页面，未登录状态。",
+    "test_data": "用户名留空，输入密码：用户名=空；密码=123456；输入用户名，密码留空：用户名=testuser；密码=空",
+    "expected_result": "页面成功打开并展示 Logo、版权信息、记住我和忘记密码入口；用户名或密码为空时，提示“请输入用户名/密码”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开登录页面",
+        "value": "https://example.com/login",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查页面基础元素展示",
+        "value": "显示产品Logo、版权信息、记住我、忘记密码入口",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "用户名留空，输入密码",
+        "value": "用户名=空；密码=123456",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击登录按钮",
+        "value": "登录",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查空用户名提示",
+        "value": "请输入用户名/密码",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "输入用户名，密码留空",
+        "value": "用户名=testuser；密码=空",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "再次点击登录按钮",
+        "value": "登录",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查空密码提示",
+        "value": "请输入用户名/密码",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC123",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "开启多账户报名时点击报名显示角色选择弹窗",
+    "precondition": "活动已开启多账户报名，当前账号存在多个可选账户角色，后台已配置账户名称和介绍文案",
+    "test_data": "",
+    "expected_result": "点击报名按钮后显示账户角色选择弹窗；弹窗中展示后台配置的账户名称和介绍文案；页面文案支持当前语言显示",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1243335400822505472&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D&ru=tDXFH3",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证显示账户角色选择弹窗",
+        "value": "弹窗可见",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证弹窗展示账户名称和介绍文案",
+        "value": "与后台配置一致",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证弹窗文案语言",
+        "value": "显示为当前页面语言",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
   }
 ]

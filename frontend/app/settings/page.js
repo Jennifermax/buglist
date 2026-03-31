@@ -7,7 +7,7 @@ export default function Settings() {
     provider: 'openai',
     api_url: '',
     api_key: '',
-    model: 'gpt-4o'
+    model: 'gpt-5.3'
   })
   const [zentaoConfig, setZentaoConfig] = useState({
     url: '',

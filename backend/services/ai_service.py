@@ -4,11 +4,13 @@ import json
 import re
 from typing import Any, Dict, List, Optional
 
-from openai import APIConnectionError, APITimeoutError, AsyncOpenAI
+from openai import APIConnectionError, APIStatusError, APITimeoutError, AsyncOpenAI
 
 MAX_DOCUMENT_CHARS = 12000
-AI_REQUEST_TIMEOUT_SECONDS = 18
+AI_REQUEST_TIMEOUT_SECONDS = 25
 AI_REQUEST_MAX_ATTEMPTS = 1
+CHUNK_TARGET_CHARS = 1800
+MAX_CHUNKS = 6
 
 class AIService:
     def __init__(self, api_url: str, api_key: str, model: str):
@@ -19,6 +21,37 @@ class AIService:
             max_retries=0,
         )
         self.model = model
+        self.active_model = model
+
+    async def _chat_create_with_fallback(self, *, messages: List[Dict[str, Any]], temperature: float):
+        candidate_models = [self.active_model]
+        if self.active_model == "gpt-5.3":
+            candidate_models.append("gpt-5.2")
+
+        last_error: Optional[Exception] = None
+        for model_name in candidate_models:
+            try:
+                response = await self.client.chat.completions.create(
+                    model=model_name,
+                    messages=messages,
+                    temperature=temperature,
+                )
+                self.active_model = model_name
+                return response
+            except APIStatusError as exc:
+                last_error = exc
+                message = ""
+                try:
+                    message = exc.response.text
+                except Exception:
+                    message = str(exc)
+                if "model_not_found" in message or "not available" in message:
+                    continue
+                raise
+
+        if last_error:
+            raise last_error
+        raise RuntimeError("AI 请求失败")
 
     def _prepare_document_excerpt(self, document_content: str) -> str:
         normalized = re.sub(r"\n{3,}", "\n\n", document_content or "").strip()
@@ -33,15 +66,82 @@ class AIService:
         omitted_note = f"\n\n[文档中间已省略约 {omitted} 个字符，以避免 AI 生成超时]\n\n"
         return f"{head}{omitted_note}{tail}"
 
+    def split_document_chunks(self, document_content: str) -> List[str]:
+        normalized = re.sub(r"\n{3,}", "\n\n", document_content or "").strip()
+        if not normalized:
+            return []
+
+        blocks = [block.strip() for block in re.split(r"\n{2,}", normalized) if block.strip()]
+        if not blocks:
+            blocks = [normalized]
+
+        chunks: List[str] = []
+        current = ""
+
+        for block in blocks:
+            if len(block) > CHUNK_TARGET_CHARS:
+                pieces = [part.strip() for part in re.split(r"(?<=[。；;!?！？])", block) if part.strip()]
+                if not pieces:
+                    pieces = [block]
+                for piece in pieces:
+                    if not current:
+                        current = piece
+                    elif len(current) + len(piece) + 1 <= CHUNK_TARGET_CHARS:
+                        current = f"{current}\n{piece}"
+                    else:
+                        chunks.append(current.strip())
+                        current = piece
+                continue
+
+            if not current:
+                current = block
+            elif len(current) + len(block) + 2 <= CHUNK_TARGET_CHARS:
+                current = f"{current}\n\n{block}"
+            else:
+                chunks.append(current.strip())
+                current = block
+
+        if current.strip():
+            chunks.append(current.strip())
+
+        return chunks[:MAX_CHUNKS]
+
+    def _normalize_image_payloads(self, images: Optional[List[Dict[str, Any]]]) -> List[Dict[str, str]]:
+        normalized_images: List[Dict[str, str]] = []
+        if not isinstance(images, list):
+            return normalized_images
+
+        for image in images:
+            if not isinstance(image, dict):
+                continue
+
+            data_url = str(image.get("data_url") or "").strip()
+            if data_url.startswith("data:image/"):
+                normalized_images.append({
+                    "name": str(image.get("name") or "").strip(),
+                    "data_url": data_url,
+                })
+                continue
+
+            raw_base64 = str(image.get("base64") or "").strip()
+            if not raw_base64:
+                continue
+
+            mime_type = str(image.get("mime_type") or "").strip() or "image/png"
+            normalized_images.append({
+                "name": str(image.get("name") or "").strip(),
+                "data_url": f"data:{mime_type};base64,{raw_base64}",
+            })
+
+        return normalized_images
+
     def _estimate_case_count(self, document_content: str) -> int:
         length = len(document_content.strip())
-        if length >= 6000:
-            return 15
-        if length >= 3500:
-            return 12
-        if length >= 1800:
-            return 10
-        return 8
+        if length >= 3000:
+            return 3
+        if length >= 1200:
+            return 2
+        return 1
 
     def _extract_json_payload(self, content: str) -> Any:
         if not content:
@@ -227,6 +327,20 @@ class AIService:
         })
         return steps
 
+    def _dedupe_cases(self, cases: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        deduped: List[Dict[str, Any]] = []
+        seen = set()
+        for case in cases:
+            key = (
+                str(case.get("name") or "").strip().lower(),
+                str(case.get("expected_result") or "").strip().lower(),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(case)
+        return deduped
+
     def _normalize_case(self, raw_case: Any, index: int, default_url: str) -> Optional[Dict[str, Any]]:
         if isinstance(raw_case, str):
             raw_case = {"name": raw_case}
@@ -279,54 +393,34 @@ class AIService:
             "steps": steps,
         }
 
-    async def generate_testcases(self, document_content: str) -> list:
-        excerpt = self._prepare_document_excerpt(document_content)
+    async def generate_testcases_for_chunk(self, chunk_text: str, chunk_index: int = 0, total_chunks: int = 1) -> list:
+        excerpt = self._prepare_document_excerpt(chunk_text)
         expected_count = self._estimate_case_count(excerpt)
-        prompt = f"""你是一名资深测试分析师。请根据下面的产品文档，直接生成适合 Excel 表格展示的测试用例 JSON 数组。
+        prompt = f"""你是一名测试工程师。请根据下面这部分产品文档，生成测试用例 JSON 数组。
 
-硬性要求：
-1. 至少生成 {expected_count} 条测试用例；如果文档场景较多，可以生成更多。
-2. 每条测试用例必须包含以下字段：
-   - case_no: 用例编号，不存在时按 0001、0002 递增
-   - priority: 优先级，只能是 P0/P1/P2/P3
-   - name: 用例名称
-   - precondition: 前置条件
-   - test_data: 测试数据
-   - expected_result: 预期结果
-   - owner: 负责人，没有则为空字符串
-   - remarks: 备注，没有则为空字符串
-   - steps: 数组，至少 3 步
-3. steps 中每个步骤都必须包含：
-   - action: 只能是“打开页面”“输入”“点击”“等待”“验证”之一
-   - description: 步骤描述
-   - value: 可为空字符串
-4. 请尽量覆盖正常流程、异常流程、边界场景、页面展示与校验提示。
-5. 如果文档中出现 URL，请优先把 URL 放入“打开页面”步骤的 value。
-6. “等待”步骤默认使用 3 秒，适合页面加载后再截图判断。
-7. 输出必须是纯 JSON 数组，不要输出 Markdown，不要输出解释文字。
+要求：
+1. 返回纯 JSON 数组，不要解释，不要 Markdown。
+2. 当前是第 {chunk_index + 1}/{total_chunks} 段，生成 {expected_count} 条左右即可，不要过多。
+3. 每条用例包含这些字段：
+   - name
+   - precondition
+   - expected_result
+   - steps
+4. steps 是数组；每个 step 包含：
+   - action: 只能是 打开页面 / 输入 / 点击 / 等待 / 验证
+   - description
+   - value
+5. 如果这段文档里有 URL，请优先放到“打开页面”的 value。
+6. 只覆盖这段文档里提到的功能点、异常点和边界点。
+7. 步骤和预期结果写简洁一些，方便快速返回。
 
-产品文档：
+产品文档片段：
 {excerpt}"""
 
-        last_error: Optional[Exception] = None
-        for attempt in range(AI_REQUEST_MAX_ATTEMPTS):
-            try:
-                response = await asyncio.wait_for(
-                    self.client.chat.completions.create(
-                        model=self.model,
-                        messages=[{"role": "user", "content": prompt}],
-                        temperature=0.7
-                    ),
-                    timeout=AI_REQUEST_TIMEOUT_SECONDS,
-                )
-                break
-            except (APIConnectionError, APITimeoutError, asyncio.TimeoutError) as exc:
-                last_error = exc
-                if attempt == AI_REQUEST_MAX_ATTEMPTS - 1:
-                    raise
-                await asyncio.sleep(1.2 * (attempt + 1))
-        else:
-            raise last_error or RuntimeError("AI 请求失败")
+        response = await self._chat_create_with_fallback(
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+        )
 
         content = response.choices[0].message.content
         payload = self._extract_json_payload(content)
@@ -340,6 +434,106 @@ class AIService:
                 normalized_cases.append(normalized_case)
 
         return normalized_cases
+
+    async def generate_testcases_from_multimodal(
+        self,
+        *,
+        document_content: str,
+        description: str = "",
+        images: Optional[List[Dict[str, Any]]] = None,
+    ) -> List[Dict[str, Any]]:
+        excerpt = self._prepare_document_excerpt(document_content)
+        normalized_images = self._normalize_image_payloads(images)
+        combined_text = "\n\n".join(
+            part for part in [
+                f"产品文档内容：\n{excerpt}" if excerpt else "",
+                f"补充说明：\n{description.strip()}" if description and description.strip() else "",
+            ] if part
+        ).strip()
+
+        expected_count = 3
+        if combined_text:
+            expected_count = self._estimate_case_count(combined_text)
+        if normalized_images:
+            expected_count = max(expected_count, min(len(normalized_images) * 2, 6))
+
+        instructions = f"""你是一名资深测试工程师。请根据提供的产品文档文字、补充说明以及图片内容，生成测试用例 JSON 数组。
+
+要求：
+1. 返回纯 JSON 数组，不要解释，不要 Markdown。
+2. 生成 {expected_count} 条左右测试用例，覆盖主要功能、关键流程、异常场景和视觉/页面状态验证。
+3. 每条用例包含这些字段：
+   - name
+   - precondition
+   - expected_result
+   - steps
+4. steps 是数组；每个 step 包含：
+   - action: 只能是 打开页面 / 输入 / 点击 / 等待 / 验证
+   - description
+   - value
+5. 如果文字或图片里能识别到 URL、页面名称、按钮名称、字段名称，请尽量写进步骤。
+6. 如果只有图片没有完整文字文档，也要根据图片中的界面元素和补充说明生成合理测试用例。
+7. 输出内容简洁、结构稳定，方便系统直接解析。
+"""
+
+        content_parts: List[Dict[str, Any]] = [{"type": "text", "text": instructions}]
+        if combined_text:
+            content_parts.append({"type": "text", "text": combined_text})
+        for image in normalized_images[:4]:
+            content_parts.append({
+                "type": "image_url",
+                "image_url": {"url": image["data_url"]},
+            })
+
+        response = await self._chat_create_with_fallback(
+            messages=[{"role": "user", "content": content_parts}],
+            temperature=0.3,
+        )
+
+        content = response.choices[0].message.content
+        payload = self._extract_json_payload(content)
+        raw_cases = self._coerce_cases(payload)
+        default_url = self._extract_document_url(combined_text)
+
+        normalized_cases: List[Dict[str, Any]] = []
+        for index, raw_case in enumerate(raw_cases):
+            normalized_case = self._normalize_case(raw_case, index, default_url)
+            if normalized_case:
+                normalized_cases.append(normalized_case)
+
+        return self._dedupe_cases(normalized_cases)
+
+    async def generate_testcases(self, document_content: str) -> list:
+        chunks = self.split_document_chunks(document_content)
+        if not chunks:
+            return []
+
+        all_cases: List[Dict[str, Any]] = []
+        total_chunks = len(chunks)
+
+        for chunk_index, chunk in enumerate(chunks):
+            last_error: Optional[Exception] = None
+            for attempt in range(AI_REQUEST_MAX_ATTEMPTS):
+                try:
+                    chunk_cases = await asyncio.wait_for(
+                        self.generate_testcases_for_chunk(chunk, chunk_index, total_chunks),
+                        timeout=AI_REQUEST_TIMEOUT_SECONDS,
+                    )
+                    all_cases.extend(chunk_cases)
+                    break
+                except (APIConnectionError, APITimeoutError, asyncio.TimeoutError) as exc:
+                    last_error = exc
+                    if attempt == AI_REQUEST_MAX_ATTEMPTS - 1:
+                        raise
+                    await asyncio.sleep(1.2 * (attempt + 1))
+            else:
+                raise last_error or RuntimeError("AI 请求失败")
+
+        deduped_cases = self._dedupe_cases(all_cases)
+        for index, case in enumerate(deduped_cases, start=1):
+            case["case_no"] = f"{index:04d}"
+
+        return deduped_cases
 
     async def analyze_screenshot(self, image_data: bytes, description: str) -> Dict[str, Any]:
         """使用视觉模型分析截图"""
@@ -355,8 +549,7 @@ class AIService:
 }}
 只返回 JSON，不要返回其他内容。"""
 
-        response = await self.client.chat.completions.create(
-            model=self.model,
+        response = await self._chat_create_with_fallback(
             messages=[
                 {
                     "role": "user",
@@ -365,7 +558,8 @@ class AIService:
                         {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
                     ]
                 }
-            ]
+            ],
+            temperature=0.0,
         )
 
         content = response.choices[0].message.content

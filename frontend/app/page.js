@@ -105,17 +105,40 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState(1)
   const [uploadType, setUploadType] = useState('file')
   const [stepThreeTab, setStepThreeTab] = useState('执行用例列表')
-  const [document, setDocument] = useState('')
+  const [document, setDocument] = useState(`登录功能需求文档
+
+功能描述：
+用户通过用户名和密码登录系统。登录页面地址：https://example.com/login
+
+正常流程：
+1. 用户打开登录页面
+2. 输入正确的用户名和密码
+3. 点击登录按钮
+4. 系统验证成功后跳转到首页
+
+异常场景：
+- 用户名或密码为空时，提示"请输入用户名/密码"
+- 密码错误时，提示"用户名或密码错误"
+- 连续失败5次后，账号锁定30分钟
+- 用户名不存在时，提示"用户名或密码错误"
+
+其他说明：
+- 支持记住登录状态（勾选"记住我"）
+- 提供"忘记密码"入口
+- 页面需展示产品 Logo 和版权信息`)
   const [documentFileName, setDocumentFileName] = useState('')
   const [documentPreview, setDocumentPreview] = useState('')
   const [documentPreviewUrl, setDocumentPreviewUrl] = useState('')
   const [documentPreviewMode, setDocumentPreviewMode] = useState('text')
   const [documentUrl, setDocumentUrl] = useState('')
+  const [manualDocImages, setManualDocImages] = useState([])
   const [isFetchingDocumentUrl, setIsFetchingDocumentUrl] = useState(false)
   const [isGeneratingCases, setIsGeneratingCases] = useState(false)
   const [generationError, setGenerationError] = useState('')
+  const [generationJob, setGenerationJob] = useState(null)
   const [manualCaseInput, setManualCaseInput] = useState(MANUAL_CASE_TEMPLATE)
   const [testcases, setTestcases] = useState([])
+  const [selectedExecutionCaseIndex, setSelectedExecutionCaseIndex] = useState(0)
   const [progress, setProgress] = useState(null)
   const [isExecuting, setIsExecuting] = useState(false)
   const [executionError, setExecutionError] = useState('')
@@ -127,6 +150,7 @@ export default function Home() {
 
   const testcaseFileInputRef = useRef(null)
   const documentFileInputRef = useRef(null)
+  const manualImageInputRef = useRef(null)
 
   useEffect(() => {
     const baseUrl = getApiBaseUrl()
@@ -238,9 +262,13 @@ export default function Home() {
     }
   }
 
-  const generateTestcasesFromDocument = async (sourceDocument) => {
-    if (!sourceDocument.trim()) {
-      alert('请先提供文档内容')
+  const generateTestcasesFromDocument = async (source) => {
+    const payload = typeof source === 'string' ? { document: source } : (source || {})
+    const sourceDocument = String(payload.document || '')
+    const images = Array.isArray(payload.images) ? payload.images : []
+
+    if (!sourceDocument.trim() && images.length === 0) {
+      alert('请先提供文档内容或图片')
       return false
     }
 
@@ -252,45 +280,75 @@ export default function Home() {
     setIsGeneratingCases(true)
     setGenerationError('')
     setTestcases([])
+    setGenerationJob(null)
     try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 25000)
-      let res
-      try {
-        res = await fetch(`${apiBaseUrl}/api/testcases/generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sourceDocument),
-          signal: controller.signal,
-        })
-      } finally {
-        clearTimeout(timeoutId)
-      }
+      const res = await fetch(`${apiBaseUrl}/api/testcase-jobs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          document: sourceDocument,
+          images,
+        }),
+      })
 
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         throw new Error(data.detail || '生成失败，请稍后重试')
       }
-
-      const normalizedCases = normalizeGeneratedCases(data.cases || [])
-      if (normalizedCases.length === 0) {
-        throw new Error('AI 未生成有效测试用例，请检查文档内容或 AI 配置')
-      }
-
-      setTestcases(normalizedCases)
+      setGenerationJob(data)
       return true
     } catch (err) {
       console.error(err)
-      const nextMessage = err.name === 'AbortError'
-        ? 'AI 生成超时，请检查当前 AI 配置是否可用；如果持续失败，请更换 Base URL、API Key 或模型。'
-        : (err.message || '生成失败，请检查后端服务')
+      const nextMessage = err.message || '生成失败，请检查后端服务'
       setGenerationError(nextMessage)
       alert(nextMessage)
       return false
-    } finally {
-      setIsGeneratingCases(false)
     }
   }
+
+  useEffect(() => {
+    if (!generationJob?.job_id || !isGeneratingCases) return
+
+    let stopped = false
+    const poll = async () => {
+      while (!stopped) {
+        try {
+          const res = await fetch(`${apiBaseUrl}/api/testcase-jobs/${generationJob.job_id}`)
+          const data = await res.json()
+          if (!res.ok) {
+            throw new Error(data.detail || '获取生成进度失败')
+          }
+
+          setGenerationJob(data)
+          if (Array.isArray(data.cases)) {
+            setTestcases(normalizeGeneratedCases(data.cases))
+          }
+
+          if (data.status === 'completed') {
+            setIsGeneratingCases(false)
+            return
+          }
+
+          if (data.status === 'failed') {
+            setGenerationError(data.error || '生成失败')
+            setIsGeneratingCases(false)
+            return
+          }
+        } catch (error) {
+          setGenerationError(error.message || '获取生成进度失败')
+          setIsGeneratingCases(false)
+          return
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1500))
+      }
+    }
+
+    poll()
+    return () => {
+      stopped = true
+    }
+  }, [apiBaseUrl, generationJob?.job_id, isGeneratingCases])
 
   const fetchDocumentFromUrl = async () => {
     if (!documentUrl.trim()) {
@@ -329,6 +387,67 @@ export default function Home() {
     }
   }
 
+  const handleManualImageUpload = async (e) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    await appendManualImages(files)
+
+    e.target.value = ''
+  }
+
+  const appendManualImages = async (files) => {
+    const imageFiles = Array.from(files || [])
+      .filter(file => file?.type?.startsWith('image/'))
+      .slice(0, 4)
+
+    if (imageFiles.length === 0) return
+
+    const nextImages = await Promise.all(
+      imageFiles.map(file => new Promise(resolve => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          resolve({
+            id: `${file.name}-${file.lastModified}-${file.size}`,
+            name: file.name,
+            mime_type: file.type || 'image/png',
+            data_url: String(reader.result || ''),
+          })
+        }
+        reader.readAsDataURL(file)
+      }))
+    )
+
+    setManualDocImages(prev => {
+      const merged = [...prev, ...nextImages]
+      const deduped = []
+      const seen = new Set()
+      for (const item of merged) {
+        if (!item?.data_url || seen.has(item.id)) continue
+        seen.add(item.id)
+        deduped.push(item)
+      }
+      return deduped.slice(0, 4)
+    })
+  }
+
+  const handleManualDocumentPaste = async (e) => {
+    const clipboardItems = Array.from(e.clipboardData?.items || [])
+    const imageFiles = clipboardItems
+      .filter(item => item.type?.startsWith('image/'))
+      .map(item => item.getAsFile())
+      .filter(Boolean)
+
+    if (imageFiles.length === 0) return
+
+    e.preventDefault()
+    await appendManualImages(imageFiles)
+  }
+
+  const removeManualImage = (imageId) => {
+    setManualDocImages(prev => prev.filter(image => image.id !== imageId))
+  }
+
   const applyManualCases = () => {
     try {
       const parsed = JSON.parse(manualCaseInput)
@@ -345,17 +464,27 @@ export default function Home() {
     }
   }
 
-  const goToStepTwoWithGeneratedCases = async (sourceDocument, sourceName) => {
-    if (!sourceDocument.trim()) {
-      alert('请先提供产品文档内容')
+  const goToStepTwoWithGeneratedCases = async (sourceDocument, sourceName, options = {}) => {
+    const nextDocument = String(sourceDocument || '')
+    const nextImages = Array.isArray(options.images) ? options.images : []
+
+    if (!nextDocument.trim() && nextImages.length === 0) {
+      alert('请先提供产品文档内容或图片')
       return
     }
 
-    setDocument(sourceDocument)
-    setDocumentPreview(sourceDocument)
+    setDocument(nextDocument)
+    setDocumentPreview(nextDocument)
     setDocumentFileName(sourceName)
     setCurrentStep(2)
-    await generateTestcasesFromDocument(sourceDocument)
+    await generateTestcasesFromDocument({
+      document: nextDocument,
+      images: nextImages.map(image => ({
+        name: image.name,
+        mime_type: image.mime_type,
+        data_url: image.data_url,
+      })),
+    })
   }
 
   const downloadCasesAsExcel = () => {
@@ -370,6 +499,28 @@ export default function Home() {
     XLSX.utils.book_append_sheet(workbook, worksheet, '测试用例')
     XLSX.writeFile(workbook, 'generated-testcases.xlsx')
   }
+
+  const buildExecutionCaseCode = (testcase, index) => {
+    if (!testcase) return ''
+
+    const payload = {
+      id: testcase.id || `TC${index + 1}`,
+      case_no: testcase.case_no || String(index + 1).padStart(4, '0'),
+      priority: testcase.priority || 'P1',
+      name: testcase.name || '',
+      precondition: testcase.precondition || '',
+      test_data: testcase.test_data || '',
+      expected_result: testcase.expected_result || '',
+      owner: testcase.owner || '',
+      remarks: testcase.remarks || '',
+      status: testcase.status || 'pending',
+      steps: Array.isArray(testcase.steps) ? testcase.steps : [],
+    }
+
+    return JSON.stringify(payload, null, 2)
+  }
+
+  const selectedExecutionCase = testcases[selectedExecutionCaseIndex] || null
 
   const executeTests = async () => {
     if (!config?.api_key) {
@@ -488,6 +639,14 @@ export default function Home() {
         type="file"
         accept=".xlsx,.xls,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
         onChange={handleDocumentUpload}
+        style={{ display: 'none' }}
+      />
+      <input
+        ref={manualImageInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleManualImageUpload}
         style={{ display: 'none' }}
       />
 
@@ -614,12 +773,46 @@ export default function Home() {
             <div className="stack-lg">
               <div className="form-group">
                 <label className="form-label">产品文档内容</label>
-                <textarea
-                  className="form-input"
-                  value={document}
-                  onChange={e => setDocument(e.target.value)}
-                  placeholder="粘贴产品需求文档内容，下一步可根据文档生成文案用例；也可以直接跳到第 2 步手动上传测试用例"
-                />
+                <div className="manual-doc-input-wrap">
+                  <textarea
+                    className="form-input manual-doc-textarea"
+                    value={document}
+                    onChange={e => setDocument(e.target.value)}
+                    onPaste={handleManualDocumentPaste}
+                    placeholder="粘贴产品需求文档内容，也可以直接在这里粘贴截图或点击右下角上传图片"
+                  />
+                  <div className="manual-doc-toolbar">
+                    <span className="manual-doc-toolbar-tip">
+                      支持粘贴图片 / 上传图片，最多 4 张
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => manualImageInputRef.current?.click()}
+                    >
+                      上传图片
+                    </button>
+                  </div>
+                </div>
+                {manualDocImages.length > 0 && (
+                  <div className="manual-image-grid">
+                    {manualDocImages.map(image => (
+                      <div key={image.id} className="manual-image-card">
+                        <img src={image.data_url} alt={image.name} className="manual-image-preview" />
+                        <div className="manual-image-meta">
+                          <span title={image.name}>{image.name}</span>
+                          <button
+                            type="button"
+                            className="manual-image-remove"
+                            onClick={() => removeManualImage(image.id)}
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {documentPreview && (
@@ -636,8 +829,10 @@ export default function Home() {
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={() => goToStepTwoWithGeneratedCases(document, '手动输入文档')}
-                  disabled={!document.trim()}
+                  onClick={() => goToStepTwoWithGeneratedCases(document, '手动输入文档', {
+                    images: manualDocImages,
+                  })}
+                  disabled={!document.trim() && manualDocImages.length === 0}
                 >
                   下一步 →
                 </button>
@@ -711,10 +906,14 @@ export default function Home() {
                 <div className="cases-generating">
                   <div className="cases-generating-badge">
                     <span className="cases-generating-dot" />
-                    AI 正在生成 Excel 测试用例
+                    AI 正在生成测试用例
                   </div>
-                  <h3>正在根据产品文档生成测试用例表格</h3>
-                  <p>系统会先提炼测试场景，再按 Excel 表格结构整理成多条测试用例，请稍等。</p>
+                  <h3>正在根据产品文档生成测试用例</h3>
+                  <p>
+                    {generationJob?.total_chunks
+                      ? `当前进度：第 ${generationJob.current_chunk || 0}/${generationJob.total_chunks} 段，已生成 ${testcases.length} 条用例`
+                      : '系统正在拆分文档并逐段生成测试用例，请稍等。'}
+                  </p>
                   <div className="cases-generating-bar">
                     <div className="cases-generating-bar-fill" />
                   </div>
@@ -824,19 +1023,71 @@ export default function Home() {
                 </div>
 
                 {testcases.length > 0 ? (
-                  <div className="testcase-list">
-                    {testcases.map((tc, index) => (
-                      <div key={tc.id || index} className="testcase-item">
-                        <span className="testcase-id">{tc.id || `TC${index + 1}`}</span>
-                        <div className="testcase-content">
-                          <div className="testcase-name">{tc.name}</div>
-                          <div className="testcase-steps">
-                            {tc.steps?.length || 0} 个步骤 · {tc.precondition || '无前置条件'}
+                  <div className="execution-cases-layout">
+                    <div className="testcase-list">
+                      {testcases.map((tc, index) => (
+                        <button
+                          key={tc.id || index}
+                          type="button"
+                          className={`testcase-item ${selectedExecutionCaseIndex === index ? 'active' : ''}`}
+                          onClick={() => setSelectedExecutionCaseIndex(index)}
+                        >
+                          <span className="testcase-id">{tc.id || `TC${index + 1}`}</span>
+                          <div className="testcase-content">
+                            <div className="testcase-name">{tc.name}</div>
+                            <div className="testcase-steps">
+                              {tc.steps?.length || 0} 个步骤 · {tc.precondition || '无前置条件'}
+                            </div>
+                          </div>
+                          <span className="testcase-status pending">待执行</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="execution-case-detail">
+                      <div className="execution-case-detail-header">
+                        <div>
+                          <div className="execution-case-detail-title">执行用例详情</div>
+                          <div className="execution-case-detail-subtitle">
+                            点击左侧列表即可查看当前执行用例对应的代码内容
                           </div>
                         </div>
-                        <span className="testcase-status pending">待执行</span>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={async () => {
+                            const code = buildExecutionCaseCode(selectedExecutionCase, selectedExecutionCaseIndex)
+                            if (!code) return
+                            try {
+                              await navigator.clipboard.writeText(code)
+                              alert('已复制执行用例代码')
+                            } catch {
+                              alert('复制失败，请手动复制')
+                            }
+                          }}
+                          disabled={!selectedExecutionCase}
+                        >
+                          复制代码
+                        </button>
                       </div>
-                    ))}
+
+                      {selectedExecutionCase ? (
+                        <>
+                          <div className="execution-case-meta">
+                            <span className="testcase-id">{selectedExecutionCase.id || `TC${selectedExecutionCaseIndex + 1}`}</span>
+                            <span className="execution-case-meta-name">{selectedExecutionCase.name}</span>
+                          </div>
+                          <pre className="execution-case-code">
+                            <code>{buildExecutionCaseCode(selectedExecutionCase, selectedExecutionCaseIndex)}</code>
+                          </pre>
+                        </>
+                      ) : (
+                        <div className="empty-state">
+                          <h3>还没有可查看的执行用例</h3>
+                          <p>当左侧列表有数据后，点击任意一条即可查看对应代码。</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="empty-state">

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 const NAV_ITEMS = [
   { href: '/', label: '测试平台', icon: '▸', match: path => path === '/' },
+  { href: '/chat', label: '聊天 Chat', icon: '✦', match: path => path === '/chat' },
   { href: '/settings', label: '设置', icon: '⚙', match: path => path === '/settings' },
 ]
 

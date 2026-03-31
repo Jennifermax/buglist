@@ -1,4 +1,6 @@
 export const OPENAI_MODEL_OPTIONS = [
+  { value: 'gpt-5.3', label: 'GPT-5.3' },
+  { value: 'gpt-5.3-chat-latest', label: 'GPT-5.3 Chat' },
   { value: 'gpt-5.2-chat-latest', label: 'GPT-5.2 Chat (ChatGPT 当前聊天模型)' },
   { value: 'gpt-5.1-chat-latest', label: 'GPT-5.1 Chat' },
   { value: 'gpt-5-chat-latest', label: 'GPT-5 Chat' },
@@ -22,9 +24,10 @@ export function getApiBaseUrl() {
     return 'http://127.0.0.1:8000'
   }
 
-  const hostname = window.location.hostname || '127.0.0.1'
+  const hostname = window.location.hostname
+  const resolvedHost = (hostname === 'localhost' || !hostname) ? '127.0.0.1' : hostname
   const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:'
-  return `${protocol}//${hostname}:8000`
+  return `${protocol}//${resolvedHost}:8000`
 }
 
 export function getWebSocketBaseUrl() {
@@ -32,7 +35,8 @@ export function getWebSocketBaseUrl() {
     return 'ws://127.0.0.1:8000'
   }
 
-  const hostname = window.location.hostname || '127.0.0.1'
+  const hostname = window.location.hostname
+  const resolvedHost = (hostname === 'localhost' || !hostname) ? '127.0.0.1' : hostname
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  return `${protocol}//${hostname}:8000`
+  return `${protocol}//${resolvedHost}:8000`
 }
