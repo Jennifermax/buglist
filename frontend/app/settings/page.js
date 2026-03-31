@@ -12,12 +12,17 @@ export default function Settings() {
   const [zentaoConfig, setZentaoConfig] = useState({
     url: '',
     account: '',
+    password: '',
     token: ''
   })
   const [customModel, setCustomModel] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
   const [apiBaseUrl, setApiBaseUrl] = useState('http://127.0.0.1:8000')
+  const [zentaoTesting, setZentaoTesting] = useState(false)
+  const [zentaoProducts, setZentaoProducts] = useState([])
+  const [loadingProducts, setLoadingProducts] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState(null)
 
   useEffect(() => {
     const baseUrl = getApiBaseUrl()
@@ -41,6 +46,9 @@ export default function Settings() {
       .then(r => r.json())
       .then(data => {
         setZentaoConfig(data)
+        if (data.url && data.account && data.token) {
+          testZentaoConnection(baseUrl, data)
+        }
       })
       .catch(() => {})
   }, [])
@@ -79,6 +87,7 @@ export default function Settings() {
       })
       if (res.ok) {
         showMessage('禅道配置已保存')
+        testZentaoConnection(apiBaseUrl, zentaoConfig)
       } else {
         showMessage('保存失败', 'error')
       }
@@ -86,6 +95,44 @@ export default function Settings() {
       showMessage('保存失败，请检查后端服务', 'error')
     }
     setSaving(false)
+  }
+
+  const testZentaoConnection = async (baseUrl, config = zentaoConfig) => {
+    if (!config.url || !config.account) {
+      setConnectionStatus(null)
+      return
+    }
+
+    setZentaoTesting(true)
+    try {
+      const res = await fetch(`${baseUrl}/api/zentao/test-connection`, {
+        method: 'POST'
+      })
+      const data = await res.json()
+      setConnectionStatus(data)
+      if (data.success) {
+        loadZentaoProducts(baseUrl)
+      }
+    } catch (e) {
+      setConnectionStatus({ success: false, message: '连接失败: ' + e.message })
+    }
+    setZentaoTesting(false)
+  }
+
+  const loadZentaoProducts = async (baseUrl) => {
+    setLoadingProducts(true)
+    try {
+      const res = await fetch(`${baseUrl}/api/zentao/products`)
+      const data = await res.json()
+      if (data.success) {
+        setZentaoProducts(data.data || [])
+      } else {
+        setZentaoProducts([])
+      }
+    } catch {
+      setZentaoProducts([])
+    }
+    setLoadingProducts(false)
   }
 
   return (
@@ -205,19 +252,25 @@ export default function Settings() {
         <div className="card">
           <div className="card-header">
             <h3 className="card-title">禅道配置</h3>
-            <span className="badge badge-warning">预留功能</span>
+            {connectionStatus && (
+              <span className={`badge ${connectionStatus.success ? 'badge-success' : 'badge-danger'}`}>
+                {connectionStatus.success ? '已连接' : '未连接'}
+              </span>
+            )}
           </div>
 
-          <div style={{
-            padding: 12,
-            background: 'var(--warning-bg)',
-            borderRadius: 'var(--radius)',
-            marginBottom: 20,
-            fontSize: 13,
-            color: 'var(--warning)'
-          }}>
-            禅道集成功能预留中，暂不需要配置
-          </div>
+          {connectionStatus && connectionStatus.message && (
+            <div style={{
+              padding: 12,
+              background: connectionStatus.success ? 'var(--success-bg)' : 'var(--danger-bg)',
+              borderRadius: 'var(--radius)',
+              marginBottom: 20,
+              fontSize: 13,
+              color: connectionStatus.success ? 'var(--success)' : 'var(--danger)'
+            }}>
+              {connectionStatus.message}
+            </div>
+          )}
 
           <div className="form-group">
             <label className="form-label">禅道地址</label>
@@ -242,24 +295,78 @@ export default function Settings() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Token</label>
+            <label className="form-label">密码</label>
+            <input
+              type="password"
+              className="form-input"
+              value={zentaoConfig.password}
+              onChange={e => setZentaoConfig({ ...zentaoConfig, password: e.target.value })}
+              placeholder="禅道登录密码"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Token (可选)</label>
             <input
               type="password"
               className="form-input"
               value={zentaoConfig.token}
               onChange={e => setZentaoConfig({ ...zentaoConfig, token: e.target.value })}
-              placeholder="API Token"
+              placeholder="API Token (在禅道个人设置中获取)"
             />
+            <small style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4, display: 'block' }}>
+              填入密码后会自动获取 Token
+            </small>
           </div>
 
-          <button
-            className="btn btn-secondary"
-            onClick={saveZentaoConfig}
-            disabled={saving}
-            style={{ width: '100%' }}
-          >
-            保存禅道配置
-          </button>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+            <button
+              className="btn btn-secondary"
+              onClick={saveZentaoConfig}
+              disabled={saving}
+              style={{ flex: 1 }}
+            >
+              保存配置
+            </button>
+            <button
+              className="btn btn-outline"
+              onClick={() => testZentaoConnection(apiBaseUrl)}
+              disabled={zentaoTesting || !zentaoConfig.url || !zentaoConfig.account}
+              style={{ flex: 1 }}
+            >
+              {zentaoTesting ? '测试中...' : '测试连接'}
+            </button>
+          </div>
+
+          {loadingProducts ? (
+            <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)' }}>
+              加载产品列表...
+            </div>
+          ) : zentaoProducts.length > 0 ? (
+            <div>
+              <label className="form-label">产品列表</label>
+              <div style={{
+                maxHeight: 200,
+                overflowY: 'auto',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                padding: 8
+              }}>
+                {zentaoProducts.map((product, index) => (
+                  <div key={index} style={{
+                    padding: '8px 12px',
+                    borderBottom: '1px solid var(--border)',
+                    fontSize: 13
+                  }}>
+                    <div style={{ fontWeight: 500 }}>{product.name || product.title}</div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
+                      ID: {product.id}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </>

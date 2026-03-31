@@ -9,6 +9,7 @@ class AIConfig(BaseModel):
 class ZentaoConfig(BaseModel):
     url: str = ""
     account: str = ""
+    password: str = ""
     token: str = ""
 
 class AppConfig(BaseModel):

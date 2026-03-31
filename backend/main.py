@@ -1,8 +1,40 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import config, testcases, generate, execute, document, chat, generate_jobs
+from contextlib import asynccontextmanager
+from .routers import config, testcases, generate, execute, document, chat, generate_jobs, zentao
+from .services.zentao_init import init_zentao, create_test_bug
 
-app = FastAPI(title="Buglist API")
+# 禅道服务实例（全局）
+zentao_service = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用启动和关闭时的处理"""
+    global zentao_service
+
+    # 启动时：初始化禅道
+    print("\n" + "="*50)
+    print("Buglist 后端服务启动中...")
+    print("="*50)
+
+    zentao_service = await init_zentao()
+
+    if zentao_service:
+        # 创建测试 Bug
+        await create_test_bug(zentao_service, product_id=1)
+
+    print("="*50)
+    print("后端服务启动完成!")
+    print("="*50 + "\n")
+
+    yield
+
+    # 关闭时：清理资源
+    if zentao_service:
+        await zentao_service.close()
+        print("禅道连接已关闭")
+
+app = FastAPI(title="Buglist API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,6 +55,7 @@ app.include_router(execute.router)
 app.include_router(document.router)
 app.include_router(chat.router)
 app.include_router(generate_jobs.router)
+app.include_router(zentao.router)
 
 @app.get("/")
 async def root():

@@ -5091,5 +5091,623 @@
       }
     ],
     "status": "pending"
+  },
+  {
+    "id": "TC124",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "报名用户角色范围设为指定代理UID且填写非代理UID时用户不可报名",
+    "precondition": "已存在一个活动，用户角色参与范围配置为指定代理UID，且填写的UID为非代理UID；前端有报名按钮。",
+    "test_data": "",
+    "expected_result": "用户点击报名后弹出提示：不符合报名条件，请参加其他活动。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动详情页",
+        "value": "活动详情页",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面加载完成",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证报名失败提示文案",
+        "value": "不符合报名条件，请参加其他活动",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC126",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "任务参与范围中新用户与老用户不可同时选择",
+    "precondition": "进入活动任务管理页面，已打开任务参与范围配置区域",
+    "test_data": "设置新用户注册时间：2024-01-01",
+    "expected_result": "新用户与老用户不能同时生效；选中新用户后老用户不可选或取消，新用户需可设置注册时间。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动任务管理页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择任务参与范围为新用户",
+        "value": "新用户",
+        "expected_image": null
+      },
+      {
+        "action": "输入",
+        "description": "设置新用户注册时间",
+        "value": "2024-01-01",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "尝试再选择老用户",
+        "value": "老用户",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认老用户不可同时选中或新用户被取消，二者不可同时生效",
+        "value": "新用户和老用户互斥",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC128",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "活动类型选择抽奖活动时奖品内容仅显示抽奖次数",
+    "precondition": "进入活动任务管理页面，存在活动类型与奖品内容配置区域",
+    "test_data": "",
+    "expected_result": "选择抽奖活动后，下面奖品内容仅保留抽奖次数选项，其他奖品内容不显示或不可选。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动任务管理页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择活动类型为抽奖活动",
+        "value": "抽奖活动",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待页面联动刷新",
+        "value": "1秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查奖品内容区域选项",
+        "value": "仅显示抽奖次数",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC130",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "净充值（所有代币）任务展示与感叹号文案校验",
+    "precondition": "已登录活动页面；后台已配置净充值（所有代币）任务，配置净充值时间与任务门槛X；账号在统计时间内存在快捷买币买入、P2P购买、链上充币、快捷买币卖出、P2P出售、链上提币、内部转出、红包转出数据。",
+    "test_data": "",
+    "expected_result": "页面展示“净充值”任务；显示累计净充值X USDT及进度条/任务条件数据；感叹号图标显示为圆形；悬停后提示文案为“充值包含快捷买币、P2P、链上充币功能，折合成USDT的数据汇总”；净充值按配置时间统计，且链上充币仅统计充值存入/充值补偿，链上提币仅统计提款取出。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动任务页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "查看净充值任务标题、累计净充值数值与进度条",
+        "value": "净充值，累计净充值 X USDT + 进度条/任务条件数据",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "查看感叹号图标样式",
+        "value": "圆形感叹号",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "鼠标移动到感叹号图标上",
+        "value": "1",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "查看悬浮提示文案",
+        "value": "充值包含快捷买币、P2P、链上充币功能，折合成USDT的数据汇总",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC132",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "合约交易指定币对任务统计范围与提示文案校验",
+    "precondition": "已登录活动页面；后台已配置单个或多个指定合约币对任务，任务门槛X；账号在指定合约币对有交易量，同时存在体验金或抵扣金相关交易数据。",
+    "test_data": "",
+    "expected_result": "页面展示“合约交易”任务；显示累计交易量X USDT及进度条/任务条件数据；仅统计指定合约币对交易量；交易量不包含体验金、抵扣金；悬停感叹号后提示文案为“完成指定合约交易对的交易量，折合成USDT的数据汇总”。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开活动任务页面",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "查看合约交易任务标题、累计交易量与进度条",
+        "value": "合约交易，累计交易量 X USDT + 进度条/任务条件数据",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "核对统计范围",
+        "value": "仅指定X币对，且不包含体验金、抵扣金",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "鼠标移动到感叹号图标上",
+        "value": "1",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "查看悬浮提示文案",
+        "value": "完成指定合约交易对的交易量，折合成USDT的数据汇总",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC134",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "校验合约累计Taker交易量统计范围与排除项",
+    "precondition": "存在合约交易任务页；测试账号在W001~W006、Copy钱包、Grid钱包均有合约成交数据，且W001含体验金、抵扣金成交记录。",
+    "test_data": "",
+    "expected_result": "累计Taker交易量按U本位合约、币本位合约、合约跟单、合约网格汇总并折算USDT；仅统计taker交易量；不包含体验金、抵扣金；页面展示X USDT与进度条，提示文案正确。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入合约交易任务页",
+        "value": "合约交易任务页",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待任务数据加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证累计Taker交易量数值展示",
+        "value": "显示X USDT",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证进度条和任务条件数据展示",
+        "value": "展示进度条/任务条件数据",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击Taker交易量提示图标",
+        "value": "！",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证移动端提示文案",
+        "value": "包含U本位合约、币本位合约、合约跟单交易、合约网格交易功能，折合成USDT的Taker交易量数据汇总",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证统计口径",
+        "value": "统计W001~006、Copy钱包、Grid钱包的taker交易量，且不包含体验金、抵扣金",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC136",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "校验邀请好友人数任务条件与提示文案",
+    "precondition": "存在邀请任务页；测试账号已邀请多名用户，其中部分用户满足充值量≥X且累计交易量≥X，部分用户不满足条件。",
+    "test_data": "",
+    "expected_result": "邀请人数仅统计同时满足充值量和累计交易量门槛的邀请用户；页面展示X人与进度条/任务条件数据；提示文案正确。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入邀请任务页",
+        "value": "邀请任务页",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待任务数据加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证邀请人数展示",
+        "value": "显示X人",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证任务进度展示",
+        "value": "展示进度条/任务条件数据",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击邀请人数提示图标",
+        "value": "！",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证提示文案",
+        "value": "邀请好友且完成对应条件人数",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "验证统计条件",
+        "value": "仅统计充值量≥X且累计交易量≥X的邀请用户；充值量含快捷买币买入、P2P购买、链上充币，交易量含现货+合约，均折算U",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC138",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "活动列表上线/下线影响前端显示与已报名用户数据计算",
+    "precondition": "后台已存在一个未上线活动，且有已报名用户",
+    "test_data": "",
+    "expected_result": "活动状态为待上线时前端不显示；点击上线后前端显示且状态变为已上线；再次下线后前端不显示；已报名用户数据持续正常计算",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动列表页",
+        "value": "活动列表",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "查看目标活动当前状态和操作按钮",
+        "value": "状态为待上线，按钮为上线",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击上线按钮",
+        "value": "上线",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待状态刷新",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认活动已上线且前端可见",
+        "value": "状态为已上线，前端显示活动",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击下线按钮",
+        "value": "下线",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待状态刷新",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认活动前端不显示且已报名用户数据仍正常计算",
+        "value": "前端隐藏活动，已报名用户数据正常",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC140",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "活动列表预览可打开非上线状态活动页面",
+    "precondition": "后台存在一个非上线状态活动",
+    "test_data": "",
+    "expected_result": "点击预览可打开对应前端活动页面，用于检查页面文案和元素，且不影响活动上线状态",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入活动列表页",
+        "value": "活动列表",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认目标活动为非上线状态",
+        "value": "待上线或已结束",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击预览按钮",
+        "value": "预览",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待预览页加载",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "检查前端活动页面是否正常展示",
+        "value": "页面文案和元素可查看",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认活动状态未被改变",
+        "value": "仍为原状态",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC142",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "阶梯活动配置任务模板数量与类型限制校验",
+    "precondition": "已进入阶梯活动配置页，存在多种任务模板可选",
+    "test_data": "",
+    "expected_result": "任务模板至少选择2个，最多6个；所选模板需为相同任务类型且任务更新次数为“一次，直至活动结束”时才允许保存",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入阶梯活动配置页",
+        "value": "阶梯活动配置页",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择1个任务模板",
+        "value": "1个模板",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "尝试保存配置",
+        "value": "保存",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认少于2个模板时不可保存",
+        "value": "保存失败并有校验提示",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择2个不同任务类型或非“一次，直至活动结束”的模板",
+        "value": "不符合条件模板",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "尝试保存配置",
+        "value": "保存",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认类型或更新次数不符合时不可保存",
+        "value": "保存失败并有校验提示",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择6个符合条件的同类型模板",
+        "value": "6个合规模板",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认最多可选6个",
+        "value": "可正常选择6个模板",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC144",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "抽奖活动任务模板仅支持抽奖次数类型",
+    "precondition": "后台已登录，进入创建抽奖活动页面；存在一个非“抽奖次数”奖品内容的任务模板和一个“抽奖次数”任务模板。",
+    "test_data": "",
+    "expected_result": "选择非“抽奖次数”任务模板时不可选或保存失败并提示；选择至少1个“抽奖次数”任务模板时可保存活动任务配置。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入创建抽奖活动页面",
+        "value": "创建抽奖活动页面",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择活动类型为抽奖活动",
+        "value": "抽奖活动",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "进入活动任务模板选择",
+        "value": "活动任务板块",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "选择非抽奖次数类型任务模板",
+        "value": "非抽奖次数任务模板",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "校验该模板不可用或保存时报错",
+        "value": "仅支持奖品内容为抽奖次数的模板",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "改为选择抽奖次数类型任务模板",
+        "value": "抽奖次数任务模板",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "保存活动配置",
+        "value": "保存",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "校验保存成功",
+        "value": "活动任务配置保存成功",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC146",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "自动派发活动达标后奖励自动派发且需手工领取",
+    "precondition": "已配置任务活动，奖励派奖模式为自动派奖；活动进行中；测试用户已报名且即将满足任务条件。",
+    "test_data": "",
+    "expected_result": "用户达到任务条件后奖励自动派发到待领取状态；用户手工领取后奖励到账。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "进入前端活动详情页",
+        "value": "活动详情页",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "完成报名",
+        "value": "报名参与",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待用户完成任务条件",
+        "value": "达到任务门槛后",
+        "expected_image": null
+      },
+      {
+        "action": "打开页面",
+        "description": "进入我的活动奖励页面",
+        "value": "我的活动-活动奖励",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "校验奖励已自动生成且可领取",
+        "value": "奖励为待领取状态",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "手工领取奖励",
+        "value": "领取奖励",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "校验奖励到账",
+        "value": "奖励领取成功并到账",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
   }
 ]

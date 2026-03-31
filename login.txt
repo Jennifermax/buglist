@@ -1,0 +1,7 @@
+禅道网址：
+https://cfazendao.chandao.net/bug-browse-1.html
+
+账号和密码如下
+account="felix"
+password="qwer123"
+

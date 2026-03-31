@@ -6,8 +6,9 @@
     "model": "gpt-5.2"
   },
   "zentao": {
-    "url": "https://demo.zentao.pm",
-    "account": "admin",
-    "token": "test-token"
+    "url": "https://cfazendao.chandao.net",
+    "account": "felix",
+    "password": "qwer123",
+    "token": "j3t6otqfr2gui5s68spcqbbov3"
   }
 }
