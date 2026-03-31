@@ -1,9 +1,34 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from pathlib import Path
 import time
 
 router = APIRouter()
 
 connections = {}
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _normalize_runtime_error(error: Exception) -> str:
+    raw_message = str(error or "").strip()
+    if not raw_message:
+        return "执行测试时发生未知异常"
+
+    lowered = raw_message.lower()
+    if "target page, context or browser has been closed" in lowered:
+        return "执行过程中浏览器被关闭或页面上下文已失效，请重新执行一次；如果持续出现，说明当前步骤导致页面跳转或关闭后，执行器没有正确等待新页面稳定。"
+
+    if len(raw_message) > 220:
+        return raw_message[:220] + "..."
+
+    return raw_message
+
+
+def _resolve_execution_mode(execution_mode: str, *, has_live_context: bool, has_saved_state: bool, has_saved_profile: bool) -> bool:
+    if execution_mode == "logged":
+        return has_live_context or has_saved_state or has_saved_profile
+    if execution_mode == "auto":
+        return has_live_context or has_saved_state or has_saved_profile
+    return False
 
 @router.websocket("/ws/execute/{task_id}")
 async def websocket_endpoint(websocket: WebSocket, task_id: str):
@@ -14,16 +39,41 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
     try:
         from ..services.test_runner import TestRunner
         from ..services.ai_service import AIService
+        from .browser_auth import get_auth_context, has_saved_auth_profile, has_saved_auth_state
 
         data = await websocket.receive_json()
         testcases = data.get("testcases", [])
         ai_config = data.get("ai_config", {})
+        execution_mode = data.get("execution_mode", "auto")
 
-        runner = TestRunner()
+        auth_context = get_auth_context()
+        saved_auth_state = has_saved_auth_state()
+        saved_auth_profile = has_saved_auth_profile()
+        use_logged_browser = _resolve_execution_mode(
+            execution_mode,
+            has_live_context=auth_context is not None,
+            has_saved_state=saved_auth_state,
+            has_saved_profile=saved_auth_profile,
+        )
+
+        if execution_mode == "logged" and not use_logged_browser:
+            await websocket.send_json({
+                "type": "error",
+                "data": {"message": "当前选择了已登录测试，但没有可复用的登录态。请先打开专用浏览器登录并保存登录态。"}
+            })
+            return
+
+        runner = TestRunner(
+            context=auth_context if use_logged_browser else None,
+            mode="logged" if use_logged_browser else "anonymous",
+        )
         ai_service = None
 
         await runner.start()
-        page = await runner.context.new_page()
+        if use_logged_browser:
+            page = runner.context.pages[0] if runner.context.pages else await runner.context.new_page()
+        else:
+            page = await runner.context.new_page()
 
         passed = 0
         failed = 0
@@ -47,9 +97,23 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
             testcase_failed = False
             testcase_reason = "测试执行完成"
             vision_details = []
+            screenshots = []
 
             # 处理视觉验证步骤
             for step_result in result.get("results", []):
+                screenshot_path = step_result.get("screenshot_path")
+                if screenshot_path:
+                    try:
+                        relative_path = Path(screenshot_path).resolve().relative_to(PROJECT_ROOT)
+                        screenshots.append({
+                            "name": Path(screenshot_path).name,
+                            "url": f"/{relative_path.as_posix()}",
+                            "description": step_result.get("description", ""),
+                            "action": step_result.get("action", ""),
+                        })
+                    except Exception:
+                        pass
+
                 if step_result.get("needs_vision_check"):
                     if ai_service is None:
                         ai_service = AIService(
@@ -85,7 +149,8 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
                     "testcase_name": tc.get("name"),
                     "result": testcase_result,
                     "reason": testcase_reason,
-                    "vision_details": vision_details
+                    "vision_details": vision_details,
+                    "screenshots": screenshots,
                 }
             })
 
@@ -108,7 +173,7 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
         try:
             await websocket.send_json({
                 "type": "error",
-                "data": {"message": str(e)}
+                "data": {"message": _normalize_runtime_error(e)}
             })
         except:
             pass

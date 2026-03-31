@@ -135,13 +135,23 @@ class AIService:
 
         return normalized_images
 
-    def _estimate_case_count(self, document_content: str) -> int:
-        length = len(document_content.strip())
-        if length >= 3000:
-            return 3
-        if length >= 1200:
-            return 2
-        return 1
+    def _estimate_scene_count(self, document_content: str) -> int:
+        text = str(document_content or "").strip()
+        if not text:
+            return 0
+
+        numbered_markers = re.findall(r"(?:测试|用例|场景)\s*[：:\-]?\s*\d+", text, flags=re.IGNORECASE)
+        if numbered_markers:
+            return len(numbered_markers)
+
+        line_markers = re.findall(r"(?m)^\s*(?:\d+[\.\)、]|[-*])\s+", text)
+        urls = re.findall(r"https?://[^\s)]+", text)
+
+        candidates = [
+            len(urls),
+            len(line_markers),
+        ]
+        return max(candidates) if candidates else 0
 
     def _extract_json_payload(self, content: str) -> Any:
         if not content:
@@ -169,6 +179,90 @@ class AIService:
                 continue
 
         return []
+
+    def _coerce_scene_items(self, payload: Any) -> List[Dict[str, str]]:
+        items: List[Dict[str, str]] = []
+        candidates = payload if isinstance(payload, list) else payload.get("scenes", []) if isinstance(payload, dict) else []
+        if not isinstance(candidates, list):
+            return items
+
+        for item in candidates:
+            if isinstance(item, str):
+                text = item.strip()
+                if text:
+                    items.append({"name": text[:40], "content": text})
+                continue
+
+            if not isinstance(item, dict):
+                continue
+
+            name = str(item.get("name") or item.get("title") or item.get("label") or "").strip()
+            content = str(item.get("content") or item.get("text") or item.get("description") or "").strip()
+            if not content:
+                continue
+            items.append({
+                "name": name or content[:40],
+                "content": content,
+            })
+
+        return items
+
+    def _fallback_split_scenes(self, document_content: str) -> List[Dict[str, str]]:
+        text = str(document_content or "").strip()
+        if not text:
+            return []
+
+        numbered_blocks = re.split(r"(?=(?:测试|用例|场景)\s*[：:\-]?\s*\d+)", text, flags=re.IGNORECASE)
+        scenes = []
+        for block in numbered_blocks:
+            content = block.strip()
+            if not content:
+                continue
+            first_line = content.splitlines()[0].strip()
+            scenes.append({
+                "name": first_line[:40] or f"场景 {len(scenes) + 1}",
+                "content": content,
+            })
+
+        if len(scenes) > 1:
+            return scenes
+
+        return [{"name": "场景 1", "content": text}]
+
+    async def infer_test_scenes(self, document_content: str) -> List[Dict[str, str]]:
+        excerpt = self._prepare_document_excerpt(document_content)
+        if not excerpt:
+            return []
+
+        prompt = f"""请阅读下面的产品文档，并判断其中包含几个独立测试场景。
+
+要求：
+1. 返回纯 JSON 数组，不要解释，不要 Markdown。
+2. 每一项表示一个独立测试场景，包含：
+   - name
+   - content
+3. 如果文档里写了“测试1、测试2、测试3”，必须拆成多个场景。
+4. 如果文档里有多个不同 URL、多个不同页面、或多个明确不同的操作目标，也要拆成多个场景。
+5. 不要把不同编号、不同 URL、不同活动页面合并成一个场景。
+6. 如果整个文档只有一个测试目标，就只返回一个场景。
+
+产品文档：
+{excerpt}"""
+
+        try:
+            response = await self._chat_create_with_fallback(
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.0,
+            )
+            content = response.choices[0].message.content
+            payload = self._extract_json_payload(content)
+            scenes = self._coerce_scene_items(payload)
+            if scenes:
+                return scenes
+        except Exception:
+            pass
+
+        return self._fallback_split_scenes(excerpt)
 
     def _coerce_cases(self, payload: Any) -> List[Any]:
         if isinstance(payload, list):
@@ -331,9 +425,25 @@ class AIService:
         deduped: List[Dict[str, Any]] = []
         seen = set()
         for case in cases:
+            steps = case.get("steps") or []
+            open_urls = tuple(
+                str(step.get("value") or "").strip().lower()
+                for step in steps
+                if str(step.get("action") or "").strip() == "打开页面" and str(step.get("value") or "").strip()
+            )
+            step_signature = tuple(
+                (
+                    str(step.get("action") or "").strip(),
+                    str(step.get("description") or "").strip().lower(),
+                    str(step.get("value") or "").strip().lower(),
+                )
+                for step in steps
+            )
             key = (
                 str(case.get("name") or "").strip().lower(),
                 str(case.get("expected_result") or "").strip().lower(),
+                open_urls,
+                step_signature,
             )
             if key in seen:
                 continue
@@ -393,30 +503,59 @@ class AIService:
             "steps": steps,
         }
 
-    async def generate_testcases_for_chunk(self, chunk_text: str, chunk_index: int = 0, total_chunks: int = 1) -> list:
-        excerpt = self._prepare_document_excerpt(chunk_text)
-        expected_count = self._estimate_case_count(excerpt)
-        prompt = f"""你是一名测试工程师。请根据下面这部分产品文档，生成测试用例 JSON 数组。
+    def _build_chunk_generation_prompt(
+        self,
+        *,
+        excerpt: str,
+        chunk_index: int,
+        total_chunks: int,
+        inferred_scene_count: int,
+        scene_list_text: str,
+        current_scene_name: str = "",
+        current_scene_content: str = "",
+    ) -> str:
+        scene_scope_text = ""
+        if current_scene_content.strip():
+            scene_scope_text = f"""
+当前只允许覆盖这一个独立测试场景：
+场景名称：{current_scene_name or '未命名场景'}
+场景内容：
+{current_scene_content}
+
+输出要求补充：
+- 这次只生成和当前场景直接相关的测试用例。
+- 不要把其他场景合并进来。
+- 当前场景至少输出 1 条测试用例。
+"""
+
+        return f"""你是一名测试工程师。请根据下面这部分产品文档，生成测试用例 JSON 数组。
 
 要求：
 1. 返回纯 JSON 数组，不要解释，不要 Markdown。
-2. 当前是第 {chunk_index + 1}/{total_chunks} 段，生成 {expected_count} 条左右即可，不要过多。
-3. 每条用例包含这些字段：
+2. 当前是第 {chunk_index + 1}/{total_chunks} 段。AI 已识别出 {inferred_scene_count or 1} 个独立测试场景，请至少覆盖这些场景，不要合并不同场景。
+3. 如果文档里明确写了“测试1、测试2”或多个独立场景，就分别输出多条测试用例。
+4. 每条用例包含这些字段：
    - name
    - precondition
    - expected_result
    - steps
-4. steps 是数组；每个 step 包含：
+5. steps 是数组；每个 step 包含：
    - action: 只能是 打开页面 / 输入 / 点击 / 等待 / 验证
    - description
    - value
-5. 如果这段文档里有 URL，请优先放到“打开页面”的 value。
-6. 只覆盖这段文档里提到的功能点、异常点和边界点。
-7. 步骤和预期结果写简洁一些，方便快速返回。
+6. 如果这段文档里有多个不同 URL，请优先拆成不同用例，并把对应 URL 放到各自“打开页面”的 value。
+7. 返回的测试用例总数不得少于 AI 识别出的独立测试场景数；如果当前只针对单个场景生成，则当前场景至少返回 1 条。
+8. 只覆盖这段文档里提到的功能点、异常点和边界点。
+9. 步骤和预期结果写简洁一些，方便快速返回。
+
+AI 识别出的独立测试场景：
+{scene_list_text or '未识别出明确编号场景，请根据原文自行拆分'}
+{scene_scope_text}
 
 产品文档片段：
 {excerpt}"""
 
+    async def _generate_cases_from_prompt(self, prompt: str, default_url: str) -> List[Dict[str, Any]]:
         response = await self._chat_create_with_fallback(
             messages=[{"role": "user", "content": prompt}],
             temperature=0.4,
@@ -425,7 +564,6 @@ class AIService:
         content = response.choices[0].message.content
         payload = self._extract_json_payload(content)
         raw_cases = self._coerce_cases(payload)
-        default_url = self._extract_document_url(excerpt)
 
         normalized_cases = []
         for index, raw_case in enumerate(raw_cases):
@@ -434,6 +572,46 @@ class AIService:
                 normalized_cases.append(normalized_case)
 
         return normalized_cases
+
+    async def generate_testcases_for_chunk(self, chunk_text: str, chunk_index: int = 0, total_chunks: int = 1) -> list:
+        excerpt = self._prepare_document_excerpt(chunk_text)
+        inferred_scenes = await self.infer_test_scenes(excerpt)
+        inferred_scene_count = len(inferred_scenes)
+        scene_list_text = "\n".join(
+            f"{index + 1}. {scene.get('name', f'场景 {index + 1}')}\n{scene.get('content', '').strip()}"
+            for index, scene in enumerate(inferred_scenes[:12])
+            if str(scene.get("content") or "").strip()
+        ).strip()
+        scenario_hint = f"2. 当前是第 {chunk_index + 1}/{total_chunks} 段。AI 已识别出 {inferred_scene_count or 1} 个独立测试场景，请至少覆盖这些场景，不要合并不同场景。\n"
+        default_url = self._extract_document_url(excerpt)
+        if inferred_scene_count > 1:
+            all_cases: List[Dict[str, Any]] = []
+            for scene in inferred_scenes:
+                scene_content = str(scene.get("content") or "").strip()
+                if not scene_content:
+                    continue
+                scene_prompt = self._build_chunk_generation_prompt(
+                    excerpt=excerpt,
+                    chunk_index=chunk_index,
+                    total_chunks=total_chunks,
+                    inferred_scene_count=inferred_scene_count,
+                    scene_list_text=scene_list_text,
+                    current_scene_name=str(scene.get("name") or "").strip(),
+                    current_scene_content=scene_content,
+                )
+                scene_default_url = self._extract_document_url(scene_content) or default_url
+                scene_cases = await self._generate_cases_from_prompt(scene_prompt, scene_default_url)
+                all_cases.extend(scene_cases)
+            return self._dedupe_cases(all_cases)
+
+        prompt = self._build_chunk_generation_prompt(
+            excerpt=excerpt,
+            chunk_index=chunk_index,
+            total_chunks=total_chunks,
+            inferred_scene_count=inferred_scene_count,
+            scene_list_text=scene_list_text,
+        )
+        return await self._generate_cases_from_prompt(prompt, default_url)
 
     async def generate_testcases_from_multimodal(
         self,
@@ -451,29 +629,36 @@ class AIService:
             ] if part
         ).strip()
 
-        expected_count = 3
-        if combined_text:
-            expected_count = self._estimate_case_count(combined_text)
-        if normalized_images:
-            expected_count = max(expected_count, min(len(normalized_images) * 2, 6))
+        inferred_scenes = await self.infer_test_scenes(combined_text)
+        inferred_scene_count = len(inferred_scenes)
+        scene_list_text = "\n".join(
+            f"{index + 1}. {scene.get('name', f'场景 {index + 1}')}\n{scene.get('content', '').strip()}"
+            for index, scene in enumerate(inferred_scenes[:12])
+            if str(scene.get("content") or "").strip()
+        ).strip()
+        scenario_hint = f"2. AI 已识别出 {inferred_scene_count or 1} 个独立测试场景，请至少覆盖这些场景，不要把不同 URL、不同编号或不同活动页面合并成一条。\n"
 
         instructions = f"""你是一名资深测试工程师。请根据提供的产品文档文字、补充说明以及图片内容，生成测试用例 JSON 数组。
 
 要求：
 1. 返回纯 JSON 数组，不要解释，不要 Markdown。
-2. 生成 {expected_count} 条左右测试用例，覆盖主要功能、关键流程、异常场景和视觉/页面状态验证。
-3. 每条用例包含这些字段：
+{scenario_hint}3. 如果文档里明确写了“测试1、测试2”或多个独立场景，就分别输出多条测试用例。
+4. 每条用例包含这些字段：
    - name
    - precondition
    - expected_result
    - steps
-4. steps 是数组；每个 step 包含：
+5. steps 是数组；每个 step 包含：
    - action: 只能是 打开页面 / 输入 / 点击 / 等待 / 验证
    - description
    - value
-5. 如果文字或图片里能识别到 URL、页面名称、按钮名称、字段名称，请尽量写进步骤。
-6. 如果只有图片没有完整文字文档，也要根据图片中的界面元素和补充说明生成合理测试用例。
-7. 输出内容简洁、结构稳定，方便系统直接解析。
+6. 如果文字或图片里能识别到多个 URL、页面名称、按钮名称、字段名称，请尽量拆成对应的多条测试用例。
+7. 返回的测试用例总数不得少于 AI 识别出的独立测试场景数。
+8. 如果只有图片没有完整文字文档，也要根据图片中的界面元素和补充说明生成合理测试用例。
+9. 输出内容简洁、结构稳定，方便系统直接解析。
+
+AI 识别出的独立测试场景：
+{scene_list_text or '未识别出明确编号场景，请结合原文和图片自行拆分'}
 """
 
         content_parts: List[Dict[str, Any]] = [{"type": "text", "text": instructions}]

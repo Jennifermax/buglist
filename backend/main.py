@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from .routers import config, testcases, generate, execute, document, chat, generate_jobs, zentao
+from pathlib import Path
+from .routers import config, testcases, generate, execute, document, chat, generate_jobs, zentao, browser_auth
 from .services.zentao_init import init_zentao, create_test_bug
 
 # 禅道服务实例（全局）
@@ -34,6 +36,7 @@ async def lifespan(app: FastAPI):
         await zentao_service.close()
         print("禅道连接已关闭")
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 app = FastAPI(title="Buglist API", lifespan=lifespan)
 
 app.add_middleware(
@@ -56,6 +59,8 @@ app.include_router(document.router)
 app.include_router(chat.router)
 app.include_router(generate_jobs.router)
 app.include_router(zentao.router)
+app.include_router(browser_auth.router)
+app.mount("/artifacts", StaticFiles(directory=PROJECT_ROOT / "artifacts"), name="artifacts")
 
 @app.get("/")
 async def root():

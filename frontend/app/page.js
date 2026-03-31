@@ -144,6 +144,10 @@ export default function Home() {
   const [executionError, setExecutionError] = useState('')
   const [latestStepResult, setLatestStepResult] = useState(null)
   const [reportItems, setReportItems] = useState([])
+  const [previewImage, setPreviewImage] = useState(null)
+  const [browserAuthStatus, setBrowserAuthStatus] = useState(null)
+  const [browserAuthBusy, setBrowserAuthBusy] = useState(false)
+  const [executionMode, setExecutionMode] = useState('auto')
   const [config, setConfig] = useState(null)
   const [apiBaseUrl, setApiBaseUrl] = useState('http://127.0.0.1:8000')
   const [wsBaseUrl, setWsBaseUrl] = useState('ws://127.0.0.1:8000')
@@ -161,6 +165,11 @@ export default function Home() {
     fetch(`${baseUrl}/api/config/ai`)
       .then(r => r.json())
       .then(setConfig)
+      .catch(() => {})
+
+    fetch(`${baseUrl}/api/browser-auth/status`)
+      .then(r => r.json())
+      .then(setBrowserAuthStatus)
       .catch(() => {})
   }, [])
 
@@ -521,6 +530,11 @@ export default function Home() {
   }
 
   const selectedExecutionCase = testcases[selectedExecutionCaseIndex] || null
+  const getAssetUrl = (path) => {
+    if (!path) return ''
+    if (/^https?:\/\//i.test(path)) return path
+    return `${apiBaseUrl}${path}`
+  }
 
   const executeTests = async () => {
     if (!config?.api_key) {
@@ -554,6 +568,7 @@ export default function Home() {
         ws.send(JSON.stringify({
           testcases,
           ai_config: config,
+          execution_mode: executionMode,
         }))
       }
 
@@ -609,6 +624,35 @@ export default function Home() {
       console.error(err)
       alert('执行失败，请检查后端服务')
       setIsExecuting(false)
+    }
+  }
+
+  const refreshBrowserAuthStatus = async () => {
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/browser-auth/status`)
+      const data = await res.json()
+      if (res.ok) {
+        setBrowserAuthStatus(data)
+      }
+    } catch {}
+  }
+
+  const handleBrowserAuthAction = async (action) => {
+    setBrowserAuthBusy(true)
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/browser-auth/${action}`, {
+        method: 'POST',
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.detail || '操作失败')
+      }
+      setBrowserAuthStatus(data)
+      alert(data.message || '操作成功')
+    } catch (error) {
+      alert(error.message || '操作失败')
+    } finally {
+      setBrowserAuthBusy(false)
     }
   }
 
@@ -1010,6 +1054,95 @@ export default function Home() {
 
             {stepThreeTab === '执行用例列表' && (
               <>
+                <div className="browser-auth-panel">
+                  <div className="browser-auth-panel-header">
+                    <div>
+                      <div className="browser-auth-title">测试专用浏览器登录态</div>
+                      <div className="browser-auth-subtitle">
+                        打开专用浏览器后手动登录一次，保存登录态，后续执行测试会自动复用该登录状态。
+                      </div>
+                    </div>
+                    <span className={`badge ${browserAuthStatus?.state_ready ? 'badge-success' : 'badge-warning'}`}>
+                      {browserAuthStatus?.state_ready ? '已保存登录态' : '未保存登录态'}
+                    </span>
+                  </div>
+
+                  <div className="browser-auth-meta">
+                    <span>浏览器状态：{browserAuthStatus?.browser_open ? '已打开' : '未打开'}</span>
+                    <span>目标地址：{browserAuthStatus?.login_url || '未获取'}</span>
+                    <span>最近保存：{browserAuthStatus?.last_updated || '暂无'}</span>
+                  </div>
+
+                  <div className="browser-auth-actions">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => handleBrowserAuthAction('open')}
+                      disabled={browserAuthBusy}
+                    >
+                      打开测试专用浏览器
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => handleBrowserAuthAction('save')}
+                      disabled={browserAuthBusy}
+                    >
+                      保存当前登录态
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => handleBrowserAuthAction('close')}
+                      disabled={browserAuthBusy}
+                    >
+                      关闭专用浏览器
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={refreshBrowserAuthStatus}
+                      disabled={browserAuthBusy}
+                    >
+                      刷新状态
+                    </button>
+                  </div>
+                </div>
+
+                <div className="browser-auth-panel">
+                  <div className="browser-auth-panel-header">
+                    <div>
+                      <div className="browser-auth-title">执行浏览器模式</div>
+                      <div className="browser-auth-subtitle">
+                        已登录测试就直接复用当前打开的测试专用浏览器；未登录测试则使用全新匿名浏览器。
+                      </div>
+                    </div>
+                  </div>
+                  <div className="browser-auth-actions">
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${executionMode === 'auto' ? 'btn-primary' : 'btn-secondary'}`}
+                      onClick={() => setExecutionMode('auto')}
+                    >
+                      自动判断
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${executionMode === 'logged' ? 'btn-primary' : 'btn-secondary'}`}
+                      onClick={() => setExecutionMode('logged')}
+                    >
+                      使用已登录专用浏览器
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${executionMode === 'anonymous' ? 'btn-primary' : 'btn-secondary'}`}
+                      onClick={() => setExecutionMode('anonymous')}
+                    >
+                      使用匿名浏览器
+                    </button>
+                  </div>
+                </div>
+
                 <div style={{
                   padding: 16,
                   background: 'var(--bg-primary)',
@@ -1278,6 +1411,7 @@ export default function Home() {
                     <th>结果</th>
                     <th>执行说明</th>
                     <th>AI 判定</th>
+                    <th>执行截图</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1294,12 +1428,37 @@ export default function Home() {
                         </td>
                         <td>{item.reason || '-'}</td>
                         <td>{visionReason}</td>
+                        <td>
+                          {item.screenshots?.length > 0 ? (
+                            <div className="report-screenshot-list">
+                              {item.screenshots.map((shot, shotIndex) => (
+                                <button
+                                  key={`${shot.url}-${shotIndex}`}
+                                  type="button"
+                                  className="report-screenshot-thumb"
+                                  onClick={() => setPreviewImage({
+                                    url: getAssetUrl(shot.url),
+                                    title: shot.description || shot.name || '执行截图',
+                                  })}
+                                >
+                                  <img
+                                    src={getAssetUrl(shot.url)}
+                                    alt={shot.description || shot.name || '执行截图'}
+                                  />
+                                  <span>{shot.action || `截图 ${shotIndex + 1}`}</span>
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
                       </tr>
                     )
                   })}
                   {reportItems.length === 0 && (
                     <tr>
-                      <td colSpan="5" className="report-empty">
+                      <td colSpan="6" className="report-empty">
                         {progress?.status === 'complete' ? '暂无可展示的测试结果' : '执行后这里会展示逐条测试报告'}
                       </td>
                     </tr>
@@ -1314,6 +1473,24 @@ export default function Home() {
               </button>
               <button className="btn btn-primary">提交禅道 (预留)</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {previewImage && (
+        <div className="image-preview-modal" onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="image-preview-header">
+              <strong>{previewImage.title || '执行截图'}</strong>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => setPreviewImage(null)}
+              >
+                关闭
+              </button>
+            </div>
+            <img className="image-preview-full" src={previewImage.url} alt={previewImage.title || '执行截图'} />
           </div>
         </div>
       )}
