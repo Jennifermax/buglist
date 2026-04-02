@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from enum import Enum
 
@@ -38,3 +38,13 @@ class TestCaseCreate(BaseModel):
     owner: str = ""
     remarks: str = ""
     steps: List[TestStep]
+
+
+class TestCaseBatch(BaseModel):
+    id: str
+    created_at: str
+    source_name: str = ""
+    source_document: str = ""
+    generated_count: int = 0
+    status: str = "completed"
+    cases: List[TestCase] = Field(default_factory=list)

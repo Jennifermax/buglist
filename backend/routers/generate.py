@@ -43,7 +43,7 @@ async def generate_testcases(payload: Any = Body(...)):
     ai_service = AIService(
         config.get("api_url", ""),
         config.get("api_key", ""),
-        config.get("model", "gpt-4o")
+        config.get("model", "gpt-5.4")
     )
 
     try:

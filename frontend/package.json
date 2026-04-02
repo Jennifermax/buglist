@@ -9,6 +9,8 @@
     "clean": "rm -rf .next .next-dev .next-prod"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.1",
+    "antd": "^5.29.3",
     "next": "14.x",
     "react": "18.x",
     "react-dom": "18.x",

@@ -21,6 +21,43 @@ class TestRunner:
         self.auth_profile_dir = self.auth_dir / "persistent-profile"
         self.auth_state_file = self.auth_dir / "storage-state.json"
 
+    async def _launch_browser(self, *, headless: bool):
+        launch_options = {"headless": headless}
+        attempts = []
+        chrome_binary = os.getenv("BUGLIST_CHROME_EXECUTABLE", "").strip()
+        if chrome_binary:
+            attempts.append({**launch_options, "executable_path": chrome_binary})
+        else:
+            attempts.append({**launch_options, "channel": "chrome"})
+        attempts.append(launch_options)
+
+        last_error = None
+        for options in attempts:
+            try:
+                return await self.playwright.chromium.launch(**options)
+            except Exception as exc:
+                last_error = exc
+
+        raise last_error
+
+    async def _launch_persistent_context(self, launch_options: Dict[str, Any]):
+        attempts = []
+        chrome_binary = os.getenv("BUGLIST_CHROME_EXECUTABLE", "").strip()
+        if chrome_binary:
+            attempts.append({**launch_options, "executable_path": chrome_binary})
+        else:
+            attempts.append({**launch_options, "channel": "chrome"})
+        attempts.append(launch_options)
+
+        last_error = None
+        for options in attempts:
+            try:
+                return await self.playwright.chromium.launch_persistent_context(**options)
+            except Exception as exc:
+                last_error = exc
+
+        raise last_error
+
     def _parse_wait_ms(self, value: Any) -> int:
         if value is None:
             return 3000
@@ -154,7 +191,10 @@ class TestRunner:
 
                     try:
                         await target.click(timeout=3000)
-                        await page.wait_for_timeout(1200)
+                        try:
+                            await page.wait_for_timeout(1200)
+                        except Exception:
+                            pass
                         return
                     except Exception:
                         continue
@@ -178,7 +218,7 @@ class TestRunner:
             if self.auth_state_file.exists():
                 context_options["storage_state"] = str(self.auth_state_file)
             if "storage_state" in context_options:
-                self.browser = await self.playwright.chromium.launch(headless=True)
+                self.browser = await self._launch_browser(headless=True)
                 self.context = await self.browser.new_context(**context_options)
                 return
 
@@ -189,16 +229,10 @@ class TestRunner:
                     "headless": False,
                     "viewport": {"width": 1280, "height": 720},
                 }
-                chrome_binary = os.getenv("BUGLIST_CHROME_EXECUTABLE", "").strip()
-                if chrome_binary:
-                    launch_options["executable_path"] = chrome_binary
-                else:
-                    launch_options["channel"] = "chrome"
-
-                self.context = await self.playwright.chromium.launch_persistent_context(**launch_options)
+                self.context = await self._launch_persistent_context(launch_options)
                 return
 
-        self.browser = await self.playwright.chromium.launch(headless=True)
+        self.browser = await self._launch_browser(headless=True)
         self.context = await self.browser.new_context(
             viewport={'width': 1280, 'height': 720},
         )
@@ -216,14 +250,26 @@ class TestRunner:
         description = step.get("description", "")
         value = step.get("value", "")
 
+        async def _save_screenshot(page_obj: Page, act: str, desc: str) -> tuple:
+            """Try to save screenshot, return (screenshot_bytes, path_str_or_None)"""
+            try:
+                import time
+                ts = time.strftime("%Y%m%d-%H%M%S-") + f"{time.time():06.0f}"[:6]
+                safe = "".join(c if c.isalnum() else "-" for c in (f"{act}-{desc}").strip("-"))[:80] or "step"
+                path = self.screenshot_dir / f"{ts}-{safe}.png"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                img = await page_obj.screenshot(path=str(path))
+                return img, str(path)
+            except Exception:
+                return None, None
+
         try:
             if action == "打开页面":
                 target_url = value.strip() if isinstance(value, str) else ""
                 if not target_url:
                     target_url = self.base_url
                 elif not target_url.startswith(("http://", "https://")):
-                    target_url = urljoin(f"{self.base_url}/", target_url.lstrip("/"))
-
+                    target_url = urljoin(f"{self.base_url}/", value.lstrip("/"))
                 await page.goto(target_url, wait_until="domcontentloaded")
                 await page.wait_for_timeout(3000)
                 return {
@@ -239,26 +285,36 @@ class TestRunner:
                 return {"success": True, "action": action, "description": description}
 
             elif action == "点击":
-                await self._click_target(page, description, value)
-                return {"success": True, "action": action, "description": description}
+                try:
+                    await self._click_target(page, description, value)
+                    return {"success": True, "action": action, "description": description}
+                except RuntimeError as exc:
+                    screenshot, screenshot_path = await _save_screenshot(page, action, description)
+                    return {
+                        "success": False,
+                        "action": action,
+                        "description": description,
+                        "error": str(exc),
+                        "screenshot": screenshot,
+                        "screenshot_path": screenshot_path,
+                        "needs_vision_check": screenshot is not None,
+                        "vision_check_purpose": "click_failure",
+                    }
 
             elif action == "等待":
                 await page.wait_for_timeout(self._parse_wait_ms(value))
                 return {"success": True, "action": action, "description": description}
 
             elif action == "验证":
-                # 截图并返回用于 AI 分析
-                await page.wait_for_timeout(3000)
-                screenshot = await page.screenshot()
-                screenshot_path = self._build_screenshot_path(action, description)
-                screenshot_path.write_bytes(screenshot)
+                screenshot, screenshot_path = await _save_screenshot(page, action, description)
                 return {
                     "success": True,
                     "action": action,
                     "description": description,
+                    "expected_value": value,
                     "screenshot": screenshot,
-                    "screenshot_path": str(screenshot_path),
-                    "needs_vision_check": True
+                    "screenshot_path": screenshot_path,
+                    "needs_vision_check": screenshot is not None
                 }
 
         except Exception as e:
@@ -271,6 +327,7 @@ class TestRunner:
 
     async def execute_testcase(self, page: Page, testcase: dict) -> dict:
         """执行单个测试用例的所有步骤"""
+        import sys; sys.stderr.write(f"[DEBUG execute_testcase] START steps={len(testcase.get('steps', []))}\n"); sys.stderr.flush()
         results = []
         for step in testcase.get("steps", []):
             result = await self.execute_step(page, step)

@@ -1,10 +1,9 @@
 from pydantic import BaseModel
 
 class AIConfig(BaseModel):
-    provider: str = "openai"
-    api_url: str = ""
+    api_url: str = "https://api.openai.com/v1"
     api_key: str = ""
-    model: str = "gpt-4o"
+    model: str = "gpt-5.4"
 
 class ZentaoConfig(BaseModel):
     url: str = ""

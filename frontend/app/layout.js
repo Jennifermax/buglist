@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { App as AntdApp } from 'antd'
 import { usePathname } from 'next/navigation'
 import './globals.css'
 import SidebarNav from '../components/sidebar-nav'
@@ -29,49 +30,51 @@ export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN">
       <body>
-        {isLoginPage ? (
-          // Login page without sidebar
-          children
-        ) : (
-          // Main app with sidebar and auth check
-          <AuthCheck>
-            {/* Theme Toggle Button */}
-            <button className="theme-toggle-main" onClick={toggleTheme}>
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
+        <AntdApp>
+          {isLoginPage ? (
+            // Login page without sidebar
+            children
+          ) : (
+            // Main app with sidebar and auth check
+            <AuthCheck>
+              {/* Theme Toggle Button */}
+              <button className="theme-toggle-main" onClick={toggleTheme}>
+                {theme === 'light' ? '🌙' : '☀️'}
+              </button>
 
-            <div className="app-layout">
-              {/* Sidebar */}
-              <aside className="sidebar">
-                <div className="sidebar-logo">
-                  <h1>
-                    <span className="logo-icon">
-                      <BuglistLogo size={28} />
-                    </span>
-                    <span className="brand-text-animated">
-                      {'Buglist'.split('').map((char, index) => (
-                        <span key={index}>
-                          {char}
-                        </span>
-                      ))}
-                    </span>
-                  </h1>
-                </div>
+              <div className="app-layout">
+                {/* Sidebar */}
+                <aside className="sidebar">
+                  <div className="sidebar-logo">
+                    <h1>
+                      <span className="logo-icon">
+                        <BuglistLogo size={28} />
+                      </span>
+                      <span className="brand-text-animated">
+                        {'Buglist'.split('').map((char, index) => (
+                          <span key={index}>
+                            {char}
+                          </span>
+                        ))}
+                      </span>
+                    </h1>
+                  </div>
 
-                <SidebarNav />
+                  <SidebarNav />
 
-                <div className="sidebar-footer">
-                  <p className="version">v1.0.0</p>
-                </div>
-              </aside>
+                  <div className="sidebar-footer">
+                    <p className="version">v1.0.0</p>
+                  </div>
+                </aside>
 
-              {/* Main Content */}
-              <main className="main-content">
-                {children}
-              </main>
-            </div>
-          </AuthCheck>
-        )}
+                {/* Main Content */}
+                <main className="main-content">
+                  {children}
+                </main>
+              </div>
+            </AuthCheck>
+          )}
+        </AntdApp>
       </body>
     </html>
   )

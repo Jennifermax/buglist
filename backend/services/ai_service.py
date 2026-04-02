@@ -4,7 +4,8 @@ import json
 import re
 from typing import Any, Dict, List, Optional
 
-from openai import APIConnectionError, APIStatusError, APITimeoutError, AsyncOpenAI
+import httpx
+from openai import APIConnectionError, APIStatusError, APITimeoutError
 
 MAX_DOCUMENT_CHARS = 12000
 AI_REQUEST_TIMEOUT_SECONDS = 25
@@ -12,42 +13,83 @@ AI_REQUEST_MAX_ATTEMPTS = 1
 CHUNK_TARGET_CHARS = 1800
 MAX_CHUNKS = 6
 
+
+def _normalize_openai_base_url(api_url: str) -> str:
+    url = (api_url or "").strip().rstrip("/")
+    if not url:
+        return ""
+    if re.match(r"^https?://[^/]+$", url):
+        return f"{url}/v1"
+    return url
+
+
+def _chat_completions_url(api_url: str) -> str:
+    normalized = _normalize_openai_base_url(api_url)
+    if normalized.endswith("/chat/completions"):
+        return normalized
+    return f"{normalized}/chat/completions"
+
+
+def _openai_compatible_headers(api_key: str) -> Dict[str, str]:
+    return {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0",
+        "Origin": "http://localhost:3000",
+        "Referer": "http://localhost:3000/",
+    }
+
+
+class _ChatMessage:
+    def __init__(self, content: str):
+        self.content = content
+
+
+class _ChatChoice:
+    def __init__(self, content: str):
+        self.message = _ChatMessage(content)
+
+
+class _ChatResponse:
+    def __init__(self, content: str):
+        self.choices = [_ChatChoice(content)]
+
+
 class AIService:
     def __init__(self, api_url: str, api_key: str, model: str):
-        self.client = AsyncOpenAI(
-            api_key=api_key,
-            base_url=api_url or None,
-            timeout=AI_REQUEST_TIMEOUT_SECONDS,
-            max_retries=0,
-        )
+        self.api_url = _normalize_openai_base_url(api_url)
+        self.api_key = api_key
         self.model = model
         self.active_model = model
 
     async def _chat_create_with_fallback(self, *, messages: List[Dict[str, Any]], temperature: float):
         candidate_models = [self.active_model]
-        if self.active_model == "gpt-5.3":
-            candidate_models.append("gpt-5.2")
 
         last_error: Optional[Exception] = None
         for model_name in candidate_models:
             try:
-                response = await self.client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    temperature=temperature,
-                )
+                async with httpx.AsyncClient(timeout=AI_REQUEST_TIMEOUT_SECONDS) as client:
+                    response = await client.post(
+                        _chat_completions_url(self.api_url),
+                        headers=_openai_compatible_headers(self.api_key),
+                        json={
+                            "model": model_name,
+                            "messages": messages,
+                            "temperature": temperature,
+                        },
+                    )
+                response.raise_for_status()
+                payload = response.json()
+                content = (((payload.get("choices") or [{}])[0].get("message") or {}).get("content") or "")
                 self.active_model = model_name
-                return response
-            except APIStatusError as exc:
-                last_error = exc
-                message = ""
-                try:
-                    message = exc.response.text
-                except Exception:
-                    message = str(exc)
-                if "model_not_found" in message or "not available" in message:
+                return _ChatResponse(content)
+            except httpx.HTTPStatusError as exc:
+                body = exc.response.text if exc.response is not None else str(exc)
+                last_error = APIStatusError("AI 服务返回异常", response=exc.response, body=body)
+                if "model_not_found" in body or "not available" in body:
                     continue
-                raise
+                raise last_error
 
         if last_error:
             raise last_error
@@ -720,39 +762,101 @@ AI 识别出的独立测试场景：
 
         return deduped_cases
 
-    async def analyze_screenshot(self, image_data: bytes, description: str) -> Dict[str, Any]:
-        """使用视觉模型分析截图"""
+    async def analyze_screenshot(
+        self,
+        image_data: bytes,
+        description: str,
+        expected_value: str = "",
+        purpose: str = "validation",
+    ) -> Dict[str, Any]:
+        """使用统一 AI 配置分析截图。purpose 可选: validation(默认) | click_failure"""
         image_base64 = base64.b64encode(image_data).decode('utf-8')
 
-        prompt = f"""请分析这张截图，判断是否符合以下预期描述：
-"{description}"
+        if not self.api_key:
+            return {"passed": False, "reason": "未配置 AI API Key，请在设置页面填写统一 AI 配置"}
 
-请返回 JSON 格式：
-{{
-  "passed": true 或 false,
-  "reason": "判断原因"
-}}
-只返回 JSON，不要返回其他内容。"""
+        if purpose == "click_failure":
+            prompt = f"""观察这张网页截图：
 
-        response = await self._chat_create_with_fallback(
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
-                    ]
-                }
-            ],
-            temperature=0.0,
-        )
+1. 截图中的主要内容是什么？
+2. 截图中是否包含「{description}」？
+3. 如果不包含，页面显示的是什么？
 
-        content = response.choices[0].message.content
+只返回JSON格式：
+{{"passed": true, "reason": "说明"}}
+或
+{{"passed": false, "reason": "说明"}}"""
+        else:
+            expected_text = (expected_value or "").strip()
+            if expected_text:
+                prompt = f"""你正在做严格的 UI 测试验收，请只根据截图中明确可见的内容做判断，不要猜测。
+
+验证目标：
+1. 场景描述：{description}
+2. 期望看到的关键文本：{expected_text}
+
+判定规则：
+1. 只有当截图里明确可见「{expected_text}」或它的简繁体等价文本时，才能返回 passed=true。
+2. 如果截图里没有明确看到该文本，哪怕有其他按钮、状态、相似区域，也必须返回 passed=false。
+3. 不允许因为“页面上有按钮”或“看起来像正确区域”而判定通过。
+4. reason 要明确说明截图里实际看到了什么文本，是否看到目标文本。
+
+只返回JSON格式：
+{{"passed": true, "reason": "说明"}}
+或
+{{"passed": false, "reason": "说明"}}"""
+            else:
+                prompt = f"""你正在做严格的 UI 测试验收，请只根据截图中明确可见的内容做判断，不要猜测。
+
+验证目标：{description}
+
+如果截图中没有足够证据证明该描述成立，就返回 passed=false。
+
+只返回JSON格式：
+{{"passed": true, "reason": "说明"}}
+或
+{{"passed": false, "reason": "说明"}}"""
+
         try:
-            start = content.find('{')
-            end = content.rfind('}') + 1
-            if start >= 0 and end > start:
-                return json.loads(content[start:end])
-        except:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    _chat_completions_url(self.api_url),
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": self.active_model,
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": prompt},
+                                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}},
+                                ],
+                            }
+                        ],
+                        "temperature": 0.0,
+                    },
+                )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception as api_exc:
+            return {"passed": False, "reason": f"视觉模型请求失败: {str(api_exc)[:200]}"}
+
+        content = (((payload.get("choices") or [{}])[0].get("message") or {}).get("content") or "")
+        try:
+            # 找最后一个 { 和最后一个 }，避免被模型的思考过程干扰
+            last_brace = content.rfind('}')
+            if last_brace < 0:
+                return {"passed": False, "reason": "解析失败: 响应中无 JSON"}
+            search_start = max(0, last_brace - 2000)
+            first_brace = content.find('{', search_start)
+            if first_brace < 0:
+                return {"passed": False, "reason": "解析失败: 响应中无 JSON 开头"}
+            json_str = content[first_brace:last_brace + 1]
+            return json.loads(json_str)
+        except json.JSONDecodeError as e:
+            return {"passed": False, "reason": f"解析失败: {e}"}
+        except Exception:
             return {"passed": False, "reason": "解析失败"}
-        return {"passed": False, "reason": "解析失败"}

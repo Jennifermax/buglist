@@ -1,14 +1,13 @@
 {
   "ai": {
-    "provider": "openai",
-    "api_url": "https://clawfather.up.railway.app/v1",
-    "api_key": "sk_cc__YSo6Y2Msj-XU8eoWAL-mcevzFljRBVN",
-    "model": "gpt-5.2"
+    "api_url": "https://hi5.de5.net/v1",
+    "api_key": "sk-0a21825fcf36eaa2abb67407265b2a6bde68a251b1333b60222d8429d751a464",
+    "model": "gpt-5.4"
   },
   "zentao": {
     "url": "https://cfazendao.chandao.net",
     "account": "felix",
     "password": "qwer123",
-    "token": "j3t6otqfr2gui5s68spcqbbov3"
+    "token": "6qq9nr6vvnemuq9ltsn7912n1r"
   }
 }

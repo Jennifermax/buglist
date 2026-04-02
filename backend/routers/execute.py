@@ -46,6 +46,8 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
         ai_config = data.get("ai_config", {})
         execution_mode = data.get("execution_mode", "auto")
 
+        import sys; sys.stderr.write(f"[DEBUG WS] received testcases={len(testcases)}, ai_config_keys={list(ai_config.keys())}\n"); sys.stderr.flush()
+
         auth_context = get_auth_context()
         saved_auth_state = has_saved_auth_state()
         saved_auth_profile = has_saved_auth_profile()
@@ -69,11 +71,22 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
         )
         ai_service = None
 
-        await runner.start()
-        if use_logged_browser:
-            page = runner.context.pages[0] if runner.context.pages else await runner.context.new_page()
-        else:
-            page = await runner.context.new_page()
+        try:
+            await runner.start()
+            import sys; sys.stderr.write(f"[DEBUG] runner.start() OK\n"); sys.stderr.flush()
+        except Exception as e:
+            import sys; sys.stderr.write(f"[DEBUG] runner.start() error: {e}\n"); sys.stderr.flush()
+
+        try:
+            if use_logged_browser:
+                page = runner.context.pages[0] if runner.context.pages else await runner.context.new_page()
+            else:
+                page = await runner.context.new_page()
+            import sys; sys.stderr.write(f"[DEBUG] new_page() OK\n"); sys.stderr.flush()
+        except Exception as e:
+            import sys; sys.stderr.write(f"[DEBUG] new_page() error: {e}\n"); sys.stderr.flush()
+            await websocket.send_json({"type": "error", "data": {"message": f"浏览器创建失败: {e}"}})
+            return
 
         passed = 0
         failed = 0
@@ -81,6 +94,7 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
         start_time = time.time()
 
         for i, tc in enumerate(testcases):
+            import sys; sys.stderr.write(f"[DEBUG] execute_testcase loop i={i} tc={tc.get('name','?')[:30]}\n"); sys.stderr.flush()
             await websocket.send_json({
                 "type": "progress",
                 "data": {
@@ -119,27 +133,31 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
                         ai_service = AIService(
                             ai_config.get("api_url", ""),
                             ai_config.get("api_key", ""),
-                            ai_config.get("model", "gpt-4o")
+                            ai_config.get("model", "gpt-5.4")
                         )
-                    vision_result = await ai_service.analyze_screenshot(
-                        step_result.get("screenshot"),
-                        step_result.get("description", "")
-                    )
+                    try:
+                        vision_result = await ai_service.analyze_screenshot(
+                            step_result.get("screenshot"),
+                            step_result.get("description", ""),
+                            expected_value=step_result.get("expected_value", ""),
+                            purpose=step_result.get("vision_check_purpose", "validation"),
+                        )
+                    except Exception as vision_exc:
+                        import sys; sys.stderr.write(f"[DEBUG] vision analysis error: {vision_exc}\n"); sys.stderr.flush()
+                        vision_result = {"passed": False, "reason": f"视觉分析请求失败: {str(vision_exc)[:200]}"}
                     step_result["vision_result"] = vision_result
                     vision_details.append(vision_result)
-                    if vision_result.get("passed"):
-                        passed += 1
-                    else:
-                        failed += 1
+                    if not vision_result.get("passed"):
                         testcase_failed = True
                         testcase_reason = vision_result.get("reason", "AI 视觉校验未通过")
                 elif not step_result.get("success"):
-                    failed += 1
                     testcase_failed = True
                     testcase_reason = step_result.get("error", "测试步骤执行失败")
 
             testcase_result = "failed" if testcase_failed else "passed"
-            if not testcase_failed:
+            if testcase_failed:
+                failed += 1
+            else:
                 passed += 1
 
             await websocket.send_json({
@@ -170,6 +188,7 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
     except WebSocketDisconnect:
         pass
     except Exception as e:
+        import sys; sys.stderr.write(f"[DEBUG] Exception in WS: {type(e).__name__}: {e}\n"); sys.stderr.flush()
         try:
             await websocket.send_json({
                 "type": "error",

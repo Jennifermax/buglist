@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from pathlib import Path
-from .routers import config, testcases, generate, execute, document, chat, generate_jobs, zentao, browser_auth
+from .routers import config, testcases, generate, execute, document, chat, generate_jobs, zentao, browser_auth, vision
 from .services.zentao_init import init_zentao, create_test_bug
 
 # 禅道服务实例（全局）
@@ -60,6 +60,7 @@ app.include_router(chat.router)
 app.include_router(generate_jobs.router)
 app.include_router(zentao.router)
 app.include_router(browser_auth.router)
+app.include_router(vision.router)
 app.mount("/artifacts", StaticFiles(directory=PROJECT_ROOT / "artifacts"), name="artifacts")
 
 @app.get("/")

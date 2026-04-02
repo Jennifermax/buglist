@@ -1,10 +1,12 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { App, Drawer, Table } from 'antd'
 import * as XLSX from 'xlsx'
 import { getApiBaseUrl, getWebSocketBaseUrl } from '../lib/api'
 
 const STEPS = ['产品文档上传', '生成文案用例', '生成执行用例', '测试报告']
 const STEP_THREE_TABS = ['执行用例列表', '手动输入测试用例']
+const WORKFLOW_CACHE_KEY = 'buglist-workflow-cache'
 
 const MANUAL_CASE_TEMPLATE = `[
   {
@@ -56,6 +58,37 @@ function normalizeGeneratedCases(cases = []) {
   }))
 }
 
+function normalizeBatch(batch = {}) {
+  return {
+    id: batch.id || '',
+    created_at: batch.created_at || '',
+    source_name: batch.source_name || '未命名批次',
+    source_document: batch.source_document || '',
+    generated_count: Number(batch.generated_count || 0),
+    status: batch.status || 'completed',
+    cases: normalizeGeneratedCases(Array.isArray(batch.cases) ? batch.cases : []),
+  }
+}
+
+function sortBatchesByCreatedAt(batches = []) {
+  return [...batches].sort((a, b) => {
+    const timeA = a?.created_at ? new Date(a.created_at).getTime() : 0
+    const timeB = b?.created_at ? new Date(b.created_at).getTime() : 0
+    if (timeA !== timeB) return timeB - timeA
+    return String(b?.id || '').localeCompare(String(a?.id || ''))
+  })
+}
+
+function buildExecutionHistoryBatchFromSource(batch = {}) {
+  const normalized = normalizeBatch(batch)
+  return {
+    ...normalized,
+    id: `EXEC-HIST-${normalized.id}`,
+    status: 'ready',
+    source_batch_id: normalized.id,
+  }
+}
+
 function buildDocumentFromWorkbook(fileName, workbook) {
   const sheetSummaries = workbook.SheetNames.map(sheetName => {
     const sheet = workbook.Sheets[sheetName]
@@ -101,7 +134,30 @@ function deriveSheetGroupLabel(documentName = '') {
   return baseName || '测试用例'
 }
 
+function isBrowserAuthRuntimeIssue(message = '') {
+  const lowered = String(message || '').toLowerCase()
+  return (
+    lowered.includes('target page, context or browser has been closed') ||
+    lowered.includes('浏览器被关闭') ||
+    lowered.includes('页面上下文已失效') ||
+    lowered.includes('专用浏览器') ||
+    lowered.includes('登录态')
+  )
+}
+
+function buildManualImageId(file, fallbackIndex = 0) {
+  return [
+    file?.name || 'pasted-image',
+    file?.type || 'image/png',
+    typeof file?.size === 'number' ? file.size : 'unknown-size',
+    typeof file?.lastModified === 'number' ? file.lastModified : Date.now(),
+    fallbackIndex,
+    Math.random().toString(36).slice(2, 8),
+  ].join('-')
+}
+
 export default function Home() {
+  const { message, modal } = App.useApp()
   const [currentStep, setCurrentStep] = useState(1)
   const [uploadType, setUploadType] = useState('file')
   const [stepThreeTab, setStepThreeTab] = useState('执行用例列表')
@@ -130,14 +186,19 @@ export default function Home() {
   const [documentPreview, setDocumentPreview] = useState('')
   const [documentPreviewUrl, setDocumentPreviewUrl] = useState('')
   const [documentPreviewMode, setDocumentPreviewMode] = useState('text')
-  const [documentUrl, setDocumentUrl] = useState('')
   const [manualDocImages, setManualDocImages] = useState([])
-  const [isFetchingDocumentUrl, setIsFetchingDocumentUrl] = useState(false)
   const [isGeneratingCases, setIsGeneratingCases] = useState(false)
+  const [isLoadingSavedCases, setIsLoadingSavedCases] = useState(false)
   const [generationError, setGenerationError] = useState('')
   const [generationJob, setGenerationJob] = useState(null)
   const [manualCaseInput, setManualCaseInput] = useState(MANUAL_CASE_TEMPLATE)
   const [testcases, setTestcases] = useState([])
+  const [testcaseBatches, setTestcaseBatches] = useState([])
+  const [selectedBatchId, setSelectedBatchId] = useState('')
+  const [isBatchDrawerOpen, setIsBatchDrawerOpen] = useState(false)
+  const [executionBatches, setExecutionBatches] = useState([])
+  const [selectedExecutionBatchId, setSelectedExecutionBatchId] = useState('')
+  const [isExecutionBatchDrawerOpen, setIsExecutionBatchDrawerOpen] = useState(false)
   const [selectedExecutionCaseIndex, setSelectedExecutionCaseIndex] = useState(0)
   const [progress, setProgress] = useState(null)
   const [isExecuting, setIsExecuting] = useState(false)
@@ -147,7 +208,6 @@ export default function Home() {
   const [previewImage, setPreviewImage] = useState(null)
   const [browserAuthStatus, setBrowserAuthStatus] = useState(null)
   const [browserAuthBusy, setBrowserAuthBusy] = useState(false)
-  const [executionMode, setExecutionMode] = useState('auto')
   const [config, setConfig] = useState(null)
   const [apiBaseUrl, setApiBaseUrl] = useState('http://127.0.0.1:8000')
   const [wsBaseUrl, setWsBaseUrl] = useState('ws://127.0.0.1:8000')
@@ -156,11 +216,64 @@ export default function Home() {
   const documentFileInputRef = useRef(null)
   const manualImageInputRef = useRef(null)
 
+  const loadSavedTestcases = async (baseUrlOverride, preferredBatchId = '') => {
+    const baseUrl = baseUrlOverride || apiBaseUrl
+    if (!baseUrl) return []
+
+    setIsLoadingSavedCases(true)
+    try {
+      const res = await fetch(`${baseUrl}/api/testcases/batches`)
+      const data = await res.json().catch(() => [])
+      if (!res.ok) {
+        throw new Error(data.detail || '获取已保存用例失败')
+      }
+
+      const normalized = sortBatchesByCreatedAt((Array.isArray(data) ? data : []).map(normalizeBatch))
+      setTestcaseBatches(normalized)
+      const targetBatchId = preferredBatchId || selectedBatchId
+      const nextSelectedBatchId = normalized.find(batch => batch.id === targetBatchId)?.id || normalized[0]?.id || ''
+      setSelectedBatchId(nextSelectedBatchId)
+      const selectedBatch = normalized.find(batch => batch.id === nextSelectedBatchId)
+      const nextCases = selectedBatch?.cases || []
+      setTestcases(nextCases)
+      setSelectedExecutionCaseIndex(prev => (
+        nextCases.length === 0 ? 0 : Math.min(prev, nextCases.length - 1)
+      ))
+      return normalized
+    } catch (error) {
+      console.error(error)
+      return []
+    } finally {
+      setIsLoadingSavedCases(false)
+    }
+  }
+
   useEffect(() => {
     const baseUrl = getApiBaseUrl()
     const wsUrl = getWebSocketBaseUrl()
     setApiBaseUrl(baseUrl)
     setWsBaseUrl(wsUrl)
+
+    let cachedSelectedBatchId = ''
+    try {
+      const cachedRaw = localStorage.getItem(WORKFLOW_CACHE_KEY)
+      if (cachedRaw) {
+        const cached = JSON.parse(cachedRaw)
+        cachedSelectedBatchId = String(cached.selectedBatchId || '')
+        setCurrentStep(Number(cached.currentStep || 1))
+        setStepThreeTab(String(cached.stepThreeTab || '执行用例列表'))
+        setSelectedBatchId(cachedSelectedBatchId)
+        setIsBatchDrawerOpen(Boolean(cached.isBatchDrawerOpen))
+        setExecutionBatches(sortBatchesByCreatedAt(Array.isArray(cached.executionBatches) ? cached.executionBatches.map(normalizeBatch) : []))
+        setSelectedExecutionBatchId(String(cached.selectedExecutionBatchId || ''))
+        setIsExecutionBatchDrawerOpen(Boolean(cached.isExecutionBatchDrawerOpen))
+        setManualCaseInput(String(cached.manualCaseInput || MANUAL_CASE_TEMPLATE))
+        setTestcases(normalizeGeneratedCases(Array.isArray(cached.testcases) ? cached.testcases : []))
+        setSelectedExecutionCaseIndex(Number(cached.selectedExecutionCaseIndex || 0))
+        setProgress(cached.progress || null)
+        setReportItems(Array.isArray(cached.reportItems) ? cached.reportItems : [])
+      }
+    } catch {}
 
     fetch(`${baseUrl}/api/config/ai`)
       .then(r => r.json())
@@ -171,7 +284,91 @@ export default function Home() {
       .then(r => r.json())
       .then(setBrowserAuthStatus)
       .catch(() => {})
+
+    loadSavedTestcases(baseUrl, cachedSelectedBatchId).catch(() => {})
   }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(WORKFLOW_CACHE_KEY, JSON.stringify({
+        currentStep,
+        stepThreeTab,
+        selectedBatchId,
+        isBatchDrawerOpen,
+        executionBatches,
+        selectedExecutionBatchId,
+        isExecutionBatchDrawerOpen,
+        manualCaseInput,
+        testcases,
+        selectedExecutionCaseIndex,
+        progress,
+        reportItems,
+      }))
+    } catch {}
+  }, [
+    currentStep,
+    stepThreeTab,
+    selectedBatchId,
+    isBatchDrawerOpen,
+    executionBatches,
+    selectedExecutionBatchId,
+    isExecutionBatchDrawerOpen,
+    manualCaseInput,
+    testcases,
+    selectedExecutionCaseIndex,
+    progress,
+    reportItems,
+  ])
+
+  useEffect(() => {
+    if (testcaseBatches.length === 0) {
+      setTestcases([])
+      setSelectedExecutionCaseIndex(0)
+      return
+    }
+
+    const selectedBatch = testcaseBatches.find(batch => batch.id === selectedBatchId) || testcaseBatches[0]
+    if (selectedBatch.id !== selectedBatchId) {
+      setSelectedBatchId(selectedBatch.id)
+    }
+    setTestcases(selectedBatch.cases || [])
+    setSelectedExecutionCaseIndex(prev => (
+      (selectedBatch.cases || []).length === 0 ? 0 : Math.min(prev, (selectedBatch.cases || []).length - 1)
+    ))
+  }, [selectedBatchId, testcaseBatches])
+
+  useEffect(() => {
+    if (testcaseBatches.length === 0) return
+
+    setExecutionBatches(prev => {
+      const existingIds = new Set(prev.map(batch => String(batch.id || '')))
+      const derivedHistory = testcaseBatches
+        .map(buildExecutionHistoryBatchFromSource)
+        .filter(batch => !existingIds.has(batch.id))
+
+      if (derivedHistory.length === 0) {
+        return prev
+      }
+
+      return sortBatchesByCreatedAt([...prev, ...derivedHistory])
+    })
+  }, [testcaseBatches])
+
+  useEffect(() => {
+    if (executionBatches.length === 0) {
+      setSelectedExecutionCaseIndex(0)
+      return
+    }
+
+    const nextSelectedBatch = executionBatches.find(batch => batch.id === selectedExecutionBatchId) || executionBatches[0]
+    if (nextSelectedBatch.id !== selectedExecutionBatchId) {
+      setSelectedExecutionBatchId(nextSelectedBatch.id)
+    }
+
+    setSelectedExecutionCaseIndex(prev => (
+      (nextSelectedBatch.cases || []).length === 0 ? 0 : Math.min(prev, (nextSelectedBatch.cases || []).length - 1)
+    ))
+  }, [executionBatches, selectedExecutionBatchId])
 
   const getStepClass = (stepNum) => {
     if (stepNum < currentStep) return 'step-complete'
@@ -186,6 +383,134 @@ export default function Home() {
   const handleStepClick = (stepNum) => {
     if (!canNavigateToStep(stepNum)) return
     setCurrentStep(stepNum)
+  }
+
+  const openBatchDrawer = (batchId) => {
+    if (!batchId) return
+    setSelectedBatchId(batchId)
+    setIsBatchDrawerOpen(true)
+  }
+
+  const createExecutionBatchRecord = ({ sourceBatchId = '', sourceName = '执行用例批次', cases = [] } = {}) => {
+    const normalizedCases = normalizeGeneratedCases(Array.isArray(cases) ? cases : [])
+    if (normalizedCases.length === 0) {
+      return null
+    }
+
+    const nextBatch = {
+      id: `EXEC${Date.now()}`,
+      created_at: new Date().toISOString(),
+      source_name: sourceName,
+      source_document: '',
+      generated_count: normalizedCases.length,
+      status: 'ready',
+      source_batch_id: sourceBatchId,
+      cases: normalizedCases,
+    }
+
+    setExecutionBatches(prev => sortBatchesByCreatedAt([nextBatch, ...prev]))
+    setSelectedExecutionBatchId(nextBatch.id)
+    setSelectedExecutionCaseIndex(0)
+    return nextBatch
+  }
+
+  const goToExecutionStepFromBatch = (batchId) => {
+    const sourceBatch = testcaseBatches.find(batch => batch.id === batchId) || null
+    if (!sourceBatch) return
+
+    setSelectedBatchId(sourceBatch.id)
+    const createdBatch = createExecutionBatchRecord({
+      sourceBatchId: sourceBatch.id,
+      sourceName: sourceBatch.source_name || '执行用例批次',
+      cases: sourceBatch.cases || [],
+    })
+
+    if (!createdBatch) {
+      message.warning('当前批次没有可生成的执行用例')
+      return
+    }
+
+    setStepThreeTab('执行用例列表')
+    setIsBatchDrawerOpen(false)
+    setCurrentStep(3)
+  }
+
+  const openExecutionBatchDrawer = (batchId) => {
+    if (!batchId) return
+    setSelectedExecutionBatchId(batchId)
+    setSelectedExecutionCaseIndex(0)
+    setIsExecutionBatchDrawerOpen(true)
+  }
+
+  const deleteGeneratedBatch = async (batchId) => {
+    if (!batchId || !apiBaseUrl) return
+
+    modal.confirm({
+      title: '确认删除',
+      content: '确定要永久删除这个文案生成批次吗？',
+      okText: '确定',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const res = await fetch(`${apiBaseUrl}/api/testcases/batches/${batchId}`, {
+            method: 'DELETE',
+          })
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            throw new Error(data.detail || '删除批次失败')
+          }
+
+          setExecutionBatches(prev => {
+            const next = prev.filter(batch => batch.source_batch_id !== batchId && batch.id !== `EXEC-HIST-${batchId}`)
+            const hasSelected = next.some(batch => batch.id === selectedExecutionBatchId)
+            setSelectedExecutionBatchId(hasSelected ? selectedExecutionBatchId : (next[0]?.id || ''))
+            if (next.length === 0) {
+              setIsExecutionBatchDrawerOpen(false)
+              setSelectedExecutionCaseIndex(0)
+            }
+            return sortBatchesByCreatedAt(next)
+          })
+
+          setIsBatchDrawerOpen(false)
+          await loadSavedTestcases(apiBaseUrl)
+          message.success('删除成功')
+        } catch (error) {
+          message.error(error.message || '删除批次失败')
+          throw error
+        }
+      },
+    })
+  }
+
+  const deleteExecutionBatch = (batchId) => {
+    if (!batchId) return
+
+    modal.confirm({
+      title: '确认删除',
+      content: '确定要永久删除这个执行批次吗？',
+      okText: '确定',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: () => {
+        setExecutionBatches(prev => {
+          const next = prev.filter(batch => batch.id !== batchId)
+          const nextSelectedBatchId = next.find(batch => batch.id === selectedExecutionBatchId)?.id || next[0]?.id || ''
+          setSelectedExecutionBatchId(nextSelectedBatchId)
+          setSelectedExecutionCaseIndex(0)
+          if (batchId === selectedExecutionBatchId || next.length === 0) {
+            setIsExecutionBatchDrawerOpen(false)
+          }
+          return sortBatchesByCreatedAt(next)
+        })
+        message.success('删除成功')
+      },
+    })
+  }
+
+  const selectExecutionCaseInDrawer = (index) => {
+    if (typeof index !== 'number' || index < 0) return
+    setSelectedExecutionCaseIndex(index)
   }
 
   const handleTestcaseUpload = async (e) => {
@@ -205,7 +530,7 @@ export default function Home() {
     }
 
     e.target.value = ''
-    alert('仅支持 JSON 格式的测试用例文件')
+    message.warning('仅支持 JSON 格式的测试用例文件')
   }
 
   const handleDocumentUpload = async (e) => {
@@ -219,7 +544,7 @@ export default function Home() {
 
     if (!isExcel && !isPdf && !isWord) {
       e.target.value = ''
-      alert('请上传 Excel、PDF 或 Word 文档')
+      message.warning('请上传 Excel、PDF 或 Word 文档')
       return
     }
 
@@ -265,7 +590,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error(error)
-      alert(error.message || '文档解析失败，请检查文件内容')
+      message.error(error.message || '文档解析失败，请检查文件内容')
     } finally {
       e.target.value = ''
     }
@@ -275,14 +600,15 @@ export default function Home() {
     const payload = typeof source === 'string' ? { document: source } : (source || {})
     const sourceDocument = String(payload.document || '')
     const images = Array.isArray(payload.images) ? payload.images : []
+    const sourceName = String(payload.source_name || payload.sourceName || documentFileName || '手动输入文档')
 
     if (!sourceDocument.trim() && images.length === 0) {
-      alert('请先提供文档内容或图片')
+      message.warning('请先提供文档内容或图片')
       return false
     }
 
     if (!config?.api_key) {
-      alert('请先在设置页面配置 AI API')
+      message.warning('请先在设置页面配置 AI API')
       return false
     }
 
@@ -297,6 +623,7 @@ export default function Home() {
         body: JSON.stringify({
           document: sourceDocument,
           images,
+          source_name: sourceName,
         }),
       })
 
@@ -310,7 +637,7 @@ export default function Home() {
       console.error(err)
       const nextMessage = err.message || '生成失败，请检查后端服务'
       setGenerationError(nextMessage)
-      alert(nextMessage)
+      message.error(nextMessage)
       return false
     }
   }
@@ -334,6 +661,7 @@ export default function Home() {
           }
 
           if (data.status === 'completed') {
+            await loadSavedTestcases()
             setIsGeneratingCases(false)
             return
           }
@@ -359,43 +687,6 @@ export default function Home() {
     }
   }, [apiBaseUrl, generationJob?.job_id, isGeneratingCases])
 
-  const fetchDocumentFromUrl = async () => {
-    if (!documentUrl.trim()) {
-      alert('请先输入产品文档 URL')
-      return null
-    }
-
-    setIsFetchingDocumentUrl(true)
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/documents/fetch`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: documentUrl.trim() }),
-      })
-
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.detail || '抓取失败')
-      }
-
-      const nextDocument = data.document || ''
-      const nextName = data.url || documentUrl.trim()
-      setDocument(nextDocument)
-      setDocumentPreview(nextDocument)
-      setDocumentFileName(nextName)
-      return {
-        document: nextDocument,
-        sourceName: nextName,
-      }
-    } catch (error) {
-      console.error(error)
-      alert(error.message || '文档 URL 抓取失败，请检查链接')
-      return null
-    } finally {
-      setIsFetchingDocumentUrl(false)
-    }
-  }
-
   const handleManualImageUpload = async (e) => {
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
@@ -413,12 +704,12 @@ export default function Home() {
     if (imageFiles.length === 0) return
 
     const nextImages = await Promise.all(
-      imageFiles.map(file => new Promise(resolve => {
+      imageFiles.map((file, index) => new Promise(resolve => {
         const reader = new FileReader()
         reader.onload = () => {
           resolve({
-            id: `${file.name}-${file.lastModified}-${file.size}`,
-            name: file.name,
+            id: buildManualImageId(file, index),
+            name: file.name || `image-${Date.now()}-${index + 1}.png`,
             mime_type: file.type || 'image/png',
             data_url: String(reader.result || ''),
           })
@@ -432,8 +723,8 @@ export default function Home() {
       const deduped = []
       const seen = new Set()
       for (const item of merged) {
-        if (!item?.data_url || seen.has(item.id)) continue
-        seen.add(item.id)
+        if (!item?.data_url || seen.has(item.data_url)) continue
+        seen.add(item.data_url)
         deduped.push(item)
       }
       return deduped.slice(0, 4)
@@ -465,10 +756,18 @@ export default function Home() {
       }
 
       setTestcases(normalizeGeneratedCases(parsed))
+      setSelectedBatchId('')
+      const createdBatch = createExecutionBatchRecord({
+        sourceName: '手动输入执行用例',
+        cases: parsed,
+      })
+      if (createdBatch) {
+        setSelectedExecutionBatchId(createdBatch.id)
+      }
       setStepThreeTab('手动输入测试用例')
       return true
     } catch {
-      alert('手动输入的测试用例必须是合法的 JSON 数组')
+      message.warning('手动输入的测试用例必须是合法的 JSON 数组')
       return false
     }
   }
@@ -478,7 +777,7 @@ export default function Home() {
     const nextImages = Array.isArray(options.images) ? options.images : []
 
     if (!nextDocument.trim() && nextImages.length === 0) {
-      alert('请先提供产品文档内容或图片')
+      message.warning('请先提供产品文档内容或图片')
       return
     }
 
@@ -498,7 +797,7 @@ export default function Home() {
 
   const downloadCasesAsExcel = () => {
     if (testcases.length === 0) {
-      alert('当前没有可下载的测试用例')
+      message.warning('当前没有可下载的测试用例')
       return
     }
 
@@ -529,31 +828,59 @@ export default function Home() {
     return JSON.stringify(payload, null, 2)
   }
 
-  const selectedExecutionCase = testcases[selectedExecutionCaseIndex] || null
+  const selectedExecutionBatch = executionBatches.find(batch => batch.id === selectedExecutionBatchId) || null
+  const selectedExecutionCase = selectedExecutionBatch?.cases?.[selectedExecutionCaseIndex] || null
+  const selectedBatch = testcaseBatches.find(batch => batch.id === selectedBatchId) || null
+  const browserAuthIssueMessage = [
+    executionError,
+    latestStepResult?.reason,
+    ...reportItems.map(item => item?.reason || ''),
+  ].find(isBrowserAuthRuntimeIssue) || ''
+  const browserAuthBadgeClass = browserAuthIssueMessage
+    ? 'badge-danger'
+    : browserAuthStatus?.browser_open && browserAuthStatus?.state_ready
+      ? 'badge-success'
+      : 'badge-warning'
+  const browserAuthBadgeText = browserAuthIssueMessage
+    ? '登录态异常'
+    : browserAuthStatus?.browser_open && browserAuthStatus?.state_ready
+      ? '已保存登录态'
+      : browserAuthStatus?.state_ready
+        ? '登录态未验证'
+        : '未保存登录态'
   const getAssetUrl = (path) => {
     if (!path) return ''
     if (/^https?:\/\//i.test(path)) return path
     return `${apiBaseUrl}${path}`
   }
 
-  const executeTests = async () => {
+  const executeTests = async (casesOverride = null) => {
+    const casesToExecute = normalizeGeneratedCases(
+      Array.isArray(casesOverride)
+        ? casesOverride
+        : Array.isArray(selectedExecutionBatch?.cases) && selectedExecutionBatch.cases.length > 0
+          ? selectedExecutionBatch.cases
+          : testcases
+    )
+
     if (!config?.api_key) {
-      alert('请先在设置页面配置 AI API')
+      message.warning('请先在设置页面配置 AI API')
       return
     }
 
-    if (testcases.length === 0) {
-      alert('没有可执行的测试用例')
+    if (casesToExecute.length === 0) {
+      message.warning('没有可执行的测试用例')
       return
     }
 
+    setTestcases(casesToExecute)
     setIsExecuting(true)
     setExecutionError('')
     setLatestStepResult(null)
     setReportItems([])
     setProgress({
       current_step: 0,
-      total_steps: testcases.length,
+      total_steps: casesToExecute.length,
       current_testcase: '准备启动执行...',
       passed: 0,
       failed: 0,
@@ -566,9 +893,9 @@ export default function Home() {
 
       ws.onopen = () => {
         ws.send(JSON.stringify({
-          testcases,
+          testcases: casesToExecute,
           ai_config: config,
-          execution_mode: executionMode,
+          execution_mode: 'auto',
         }))
       }
 
@@ -613,7 +940,7 @@ export default function Home() {
       }
 
       ws.onerror = () => {
-        alert('WebSocket 连接失败')
+        message.error('WebSocket 连接失败')
         setIsExecuting(false)
       }
 
@@ -622,7 +949,7 @@ export default function Home() {
       }
     } catch (err) {
       console.error(err)
-      alert('执行失败，请检查后端服务')
+      message.error('执行失败，请检查后端服务')
       setIsExecuting(false)
     }
   }
@@ -648,9 +975,9 @@ export default function Home() {
         throw new Error(data.detail || '操作失败')
       }
       setBrowserAuthStatus(data)
-      alert(data.message || '操作成功')
+      message.success(data.message || '操作成功')
     } catch (error) {
-      alert(error.message || '操作失败')
+      message.error(error.message || '操作失败')
     } finally {
       setBrowserAuthBusy(false)
     }
@@ -746,12 +1073,6 @@ export default function Home() {
             >
               手动输入产品文档
             </button>
-            <button
-              className={`tab ${uploadType === 'url' ? 'active' : ''}`}
-              onClick={() => setUploadType('url')}
-            >
-              输入产品文档 URL
-            </button>
           </div>
 
           {uploadType === 'file' ? (
@@ -827,7 +1148,7 @@ export default function Home() {
                   />
                   <div className="manual-doc-toolbar">
                     <span className="manual-doc-toolbar-tip">
-                      支持粘贴图片 / 上传图片，最多 4 张
+                      支持粘贴图片 / 上传图片，最多 4 张；只贴截图也可以直接生成文案用例
                     </span>
                     <button
                       type="button"
@@ -882,35 +1203,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
-          ) : (
-            <div className="stack-lg">
-              <div className="form-group">
-                <label className="form-label">产品文档 URL</label>
-                <input
-                  type="url"
-                  className="form-input"
-                  value={documentUrl}
-                  onChange={e => setDocumentUrl(e.target.value)}
-                  placeholder="https://example.com/prd"
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={async () => {
-                    const fetched = await fetchDocumentFromUrl()
-                    if (!fetched) return
-                    await goToStepTwoWithGeneratedCases(fetched.document, fetched.sourceName)
-                  }}
-                  disabled={!documentUrl.trim() || isFetchingDocumentUrl}
-                >
-                  {isFetchingDocumentUrl ? '处理中...' : '下一步 →'}
-                </button>
-              </div>
-            </div>
-          )}
+          ) : null}
         </div>
       )}
 
@@ -918,8 +1211,16 @@ export default function Home() {
         <div className="animate-fadeIn">
           <div className="card" style={{ marginBottom: 24 }}>
             <div className="card-header">
-              <h3 className="card-title">文案用例生成与导入 ({testcases.length} 个)</h3>
+              <h3 className="card-title">文案生成批次管理 ({testcaseBatches.length} 个批次)</h3>
               <div className="card-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => loadSavedTestcases()}
+                  disabled={isGeneratingCases || isLoadingSavedCases}
+                >
+                  {isLoadingSavedCases ? '刷新中...' : '刷新已保存用例'}
+                </button>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
@@ -939,10 +1240,25 @@ export default function Home() {
             </div>
 
             <div className="stack-lg">
+              <div style={{
+                padding: 16,
+                background: 'var(--bg-primary)',
+                borderRadius: 'var(--radius)',
+                fontSize: 14,
+                color: 'var(--text-secondary)',
+                lineHeight: 1.7,
+              }}>
+                每次生成都会形成一条独立批次记录，使用生成时间作为唯一标识。默认不展开 Excel 明细，你可以点击下方任意批次，从右侧抽屉查看该批的详细文案用例，并基于该批次继续执行测试。
+              </div>
+
               {!document.trim() && !documentPreview && (
                 <div className="empty-state">
-                  <h3>还没有产品文档</h3>
-                  <p>你可以回到第 1 步上传产品文档，或者直接使用右上角按钮上传测试用例，跳过产品文档生成流程。</p>
+                  <h3>{testcases.length > 0 ? '已恢复已保存文案用例' : '还没有产品文档'}</h3>
+                  <p>
+                    {testcases.length > 0
+                      ? '你可以直接在下方表格继续维护已保存的文案用例，也可以回到第 1 步继续补充新的产品文档重新生成。'
+                      : '你可以回到第 1 步上传产品文档，或者直接使用右上角按钮上传测试用例，跳过产品文档生成流程。'}
+                  </p>
                 </div>
               )}
 
@@ -964,49 +1280,72 @@ export default function Home() {
                 </div>
               )}
 
-              {!isGeneratingCases && testcases.length > 0 && (
-                <div className="cases-sheet-wrap">
-                  <table className="cases-sheet-table">
-                    <thead>
-                      <tr className="cases-sheet-group-row">
-                        <th colSpan="10">{deriveSheetGroupLabel(documentFileName)}</th>
-                      </tr>
-                      <tr>
-                        <th>用例编号</th>
-                        <th>优先级</th>
-                        <th>用例名称</th>
-                        <th>前置条件</th>
-                        <th>测试数据</th>
-                        <th>测试步骤</th>
-                        <th>预期结果</th>
-                        <th>是否通过</th>
-                        <th>负责人</th>
-                        <th>备注</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {testcases.map((tc, index) => (
-                        <tr key={tc.id || index}>
-                          <td className="mono">{tc.case_no || String(index + 1).padStart(4, '0')}</td>
-                          <td>{tc.priority || 'P1'}</td>
-                          <td>{tc.name || '-'}</td>
-                          <td>{tc.precondition || '-'}</td>
-                          <td>{tc.test_data || '-'}</td>
-                          <td className="cases-sheet-multiline">{buildStepText(tc.steps) || '-'}</td>
-                          <td className="cases-sheet-multiline">{tc.expected_result || '-'}</td>
-                          <td>{tc.status === 'passed' ? '通过' : tc.status === 'failed' ? '不通过' : ''}</td>
-                          <td>{tc.owner || '-'}</td>
-                          <td className="cases-sheet-multiline">{tc.remarks || '-'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              {!isGeneratingCases && testcaseBatches.length > 0 && (
+                <>
+                  <Table
+                    rowKey="id"
+                    dataSource={testcaseBatches}
+                    pagination={false}
+                    size="middle"
+                    rowSelection={{
+                      type: 'radio',
+                      selectedRowKeys: selectedBatchId ? [selectedBatchId] : [],
+                      onChange: keys => openBatchDrawer(String(keys[0] || '')),
+                    }}
+                    columns={[
+                      {
+                        title: '批次时间',
+                        dataIndex: 'created_at',
+                        key: 'created_at',
+                        render: value => value ? new Date(value).toLocaleString() : '-',
+                      },
+                      {
+                        title: '批次 ID',
+                        dataIndex: 'id',
+                        key: 'id',
+                      },
+                      {
+                        title: '来源',
+                        dataIndex: 'source_name',
+                        key: 'source_name',
+                      },
+                      {
+                        title: '用例数',
+                        dataIndex: 'generated_count',
+                        key: 'generated_count',
+                      },
+                      {
+                        title: '状态',
+                        dataIndex: 'status',
+                        key: 'status',
+                      },
+                      {
+                        title: '操作',
+                        key: 'actions',
+                        render: (_, record) => (
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={e => {
+                              e.stopPropagation()
+                              deleteGeneratedBatch(record.id)
+                            }}
+                          >
+                            删除
+                          </button>
+                        ),
+                      },
+                    ]}
+                    onRow={record => ({
+                      onClick: () => openBatchDrawer(record.id),
+                    })}
+                  />
+                </>
               )}
 
-              {!isGeneratingCases && testcases.length === 0 && (document.trim() || documentPreview) && (
+              {!isGeneratingCases && testcaseBatches.length === 0 && (document.trim() || documentPreview) && (
                 <div className="empty-state">
-                  <h3>{generationError ? '生成失败' : '还没有生成文案用例'}</h3>
+                  <h3>{generationError ? '生成失败' : '还没有生成批次'}</h3>
                   <p>{generationError || '如果你不想基于产品文档生成，也可以直接使用右上角按钮上传测试用例。'}</p>
                 </div>
               )}
@@ -1026,6 +1365,73 @@ export default function Home() {
               下一步：生成执行用例 →
             </button>
           </div>
+
+          <Drawer
+            title={selectedBatch ? `批次明细：${deriveSheetGroupLabel(selectedBatch.source_name)}` : '批次明细'}
+            placement="right"
+            width="72vw"
+            onClose={() => setIsBatchDrawerOpen(false)}
+            open={isBatchDrawerOpen && !!selectedBatch}
+            destroyOnClose={false}
+            extra={selectedBatch ? (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => goToExecutionStepFromBatch(selectedBatch.id)}
+              >
+                去生成执行用例
+              </button>
+            ) : null}
+          >
+            {selectedBatch ? (
+              <div className="cases-sheet-wrap" style={{ marginTop: 0 }}>
+                <div style={{
+                  padding: '12px 16px',
+                  fontSize: 14,
+                  color: 'var(--text-secondary)',
+                  borderBottom: '1px solid var(--border-color)',
+                  background: 'var(--bg-secondary)',
+                }}>
+                  当前查看批次：{new Date(selectedBatch.created_at).toLocaleString()} · {selectedBatch.source_name} · {selectedBatch.generated_count} 条
+                </div>
+                <table className="cases-sheet-table">
+                  <thead>
+                    <tr className="cases-sheet-group-row">
+                      <th colSpan="10">{deriveSheetGroupLabel(selectedBatch.source_name)}</th>
+                    </tr>
+                    <tr>
+                      <th>用例编号</th>
+                      <th>优先级</th>
+                      <th>用例名称</th>
+                      <th>前置条件</th>
+                      <th>测试数据</th>
+                      <th>测试步骤</th>
+                      <th>预期结果</th>
+                      <th>是否通过</th>
+                      <th>负责人</th>
+                      <th>备注</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedBatch.cases.map((tc, index) => (
+                      <tr key={tc.id || index}>
+                        <td className="mono">{tc.case_no || String(index + 1).padStart(4, '0')}</td>
+                        <td>{tc.priority || 'P1'}</td>
+                        <td>{tc.name || '-'}</td>
+                        <td>{tc.precondition || '-'}</td>
+                        <td>{tc.test_data || '-'}</td>
+                        <td className="cases-sheet-multiline">{buildStepText(tc.steps) || '-'}</td>
+                        <td className="cases-sheet-multiline">{tc.expected_result || '-'}</td>
+                        <td>{tc.status === 'passed' ? '通过' : tc.status === 'failed' ? '不通过' : ''}</td>
+                        <td>{tc.owner || '-'}</td>
+                        <td className="cases-sheet-multiline">{tc.remarks || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+          </Drawer>
         </div>
       )}
 
@@ -1062,8 +1468,8 @@ export default function Home() {
                         打开专用浏览器后手动登录一次，保存登录态，后续执行测试会自动复用该登录状态。
                       </div>
                     </div>
-                    <span className={`badge ${browserAuthStatus?.state_ready ? 'badge-success' : 'badge-warning'}`}>
-                      {browserAuthStatus?.state_ready ? '已保存登录态' : '未保存登录态'}
+                    <span className={`badge ${browserAuthBadgeClass}`}>
+                      {browserAuthBadgeText}
                     </span>
                   </div>
 
@@ -1072,6 +1478,20 @@ export default function Home() {
                     <span>目标地址：{browserAuthStatus?.login_url || '未获取'}</span>
                     <span>最近保存：{browserAuthStatus?.last_updated || '暂无'}</span>
                   </div>
+
+                  {browserAuthIssueMessage ? (
+                    <div style={{
+                      marginTop: 10,
+                      padding: '10px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'var(--danger-bg)',
+                      color: 'var(--danger)',
+                      fontSize: 13,
+                      lineHeight: 1.6,
+                    }}>
+                      登录态/浏览器上下文最近一次执行异常：{browserAuthIssueMessage}
+                    </div>
+                  ) : null}
 
                   <div className="browser-auth-actions">
                     <button
@@ -1109,40 +1529,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="browser-auth-panel">
-                  <div className="browser-auth-panel-header">
-                    <div>
-                      <div className="browser-auth-title">执行浏览器模式</div>
-                      <div className="browser-auth-subtitle">
-                        已登录测试就直接复用当前打开的测试专用浏览器；未登录测试则使用全新匿名浏览器。
-                      </div>
-                    </div>
-                  </div>
-                  <div className="browser-auth-actions">
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${executionMode === 'auto' ? 'btn-primary' : 'btn-secondary'}`}
-                      onClick={() => setExecutionMode('auto')}
-                    >
-                      自动判断
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${executionMode === 'logged' ? 'btn-primary' : 'btn-secondary'}`}
-                      onClick={() => setExecutionMode('logged')}
-                    >
-                      使用已登录专用浏览器
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${executionMode === 'anonymous' ? 'btn-primary' : 'btn-secondary'}`}
-                      onClick={() => setExecutionMode('anonymous')}
-                    >
-                      使用匿名浏览器
-                    </button>
-                  </div>
-                </div>
-
                 <div style={{
                   padding: 16,
                   background: 'var(--bg-primary)',
@@ -1152,80 +1538,213 @@ export default function Home() {
                   color: 'var(--text-secondary)',
                   lineHeight: 1.7,
                 }}>
-                  当前文案用例会直接作为执行用例使用。你可以在这里确认清单，或者切换到“手动输入测试用例”继续补充 JSON。
+                  每次从第 2 步选择批次进入这里，都会生成一条独立的执行批次记录。执行批次按时间倒序显示，点击任意时间批次后，会从右侧抽屉展示该时间下的多个执行用例，并可继续执行测试。
                 </div>
 
-                {testcases.length > 0 ? (
-                  <div className="execution-cases-layout">
-                    <div className="testcase-list">
-                      {testcases.map((tc, index) => (
-                        <button
-                          key={tc.id || index}
-                          type="button"
-                          className={`testcase-item ${selectedExecutionCaseIndex === index ? 'active' : ''}`}
-                          onClick={() => setSelectedExecutionCaseIndex(index)}
-                        >
-                          <span className="testcase-id">{tc.id || `TC${index + 1}`}</span>
-                          <div className="testcase-content">
-                            <div className="testcase-name">{tc.name}</div>
-                            <div className="testcase-steps">
-                              {tc.steps?.length || 0} 个步骤 · {tc.precondition || '无前置条件'}
-                            </div>
-                          </div>
-                          <span className="testcase-status pending">待执行</span>
-                        </button>
-                      ))}
-                    </div>
+                {executionBatches.length > 0 ? (
+                  <>
+                    <Table
+                      rowKey="id"
+                      dataSource={executionBatches}
+                      pagination={false}
+                      size="middle"
+                      rowSelection={{
+                        type: 'radio',
+                        selectedRowKeys: selectedExecutionBatchId ? [selectedExecutionBatchId] : [],
+                        onChange: keys => {
+                          const nextBatchId = String(keys[0] || '')
+                          if (nextBatchId) {
+                            openExecutionBatchDrawer(nextBatchId)
+                          }
+                        },
+                      }}
+                      columns={[
+                        {
+                          title: '批次时间',
+                          dataIndex: 'created_at',
+                          key: 'created_at',
+                          render: value => value ? new Date(value).toLocaleString() : '-',
+                        },
+                        {
+                          title: '执行批次 ID',
+                          dataIndex: 'id',
+                          key: 'id',
+                        },
+                        {
+                          title: '来源',
+                          dataIndex: 'source_name',
+                          key: 'source_name',
+                        },
+                        {
+                          title: '执行用例数',
+                          dataIndex: 'generated_count',
+                          key: 'generated_count',
+                        },
+                        {
+                          title: '状态',
+                          dataIndex: 'status',
+                          key: 'status',
+                          render: value => value || 'ready',
+                        },
+                        {
+                          title: '操作',
+                          key: 'actions',
+                          render: (_, record) => (
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              onClick={e => {
+                                e.stopPropagation()
+                                deleteExecutionBatch(record.id)
+                              }}
+                            >
+                              删除
+                            </button>
+                          ),
+                        },
+                      ]}
+                      onRow={record => ({
+                        onClick: () => openExecutionBatchDrawer(record.id),
+                      })}
+                    />
 
-                    <div className="execution-case-detail">
-                      <div className="execution-case-detail-header">
-                        <div>
-                          <div className="execution-case-detail-title">执行用例详情</div>
-                          <div className="execution-case-detail-subtitle">
-                            点击左侧列表即可查看当前执行用例对应的代码内容
-                          </div>
-                        </div>
+                    <Drawer
+                      title={selectedExecutionBatch ? `执行批次详情：${deriveSheetGroupLabel(selectedExecutionBatch.source_name)}` : '执行批次详情'}
+                      placement="right"
+                      width="72vw"
+                      onClose={() => setIsExecutionBatchDrawerOpen(false)}
+                      open={isExecutionBatchDrawerOpen && !!selectedExecutionBatch}
+                      destroyOnClose={false}
+                      extra={selectedExecutionBatch ? (
                         <button
                           type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={async () => {
-                            const code = buildExecutionCaseCode(selectedExecutionCase, selectedExecutionCaseIndex)
-                            if (!code) return
-                            try {
-                              await navigator.clipboard.writeText(code)
-                              alert('已复制执行用例代码')
-                            } catch {
-                              alert('复制失败，请手动复制')
-                            }
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            setIsExecutionBatchDrawerOpen(false)
+                            executeTests(selectedExecutionBatch.cases || [])
                           }}
-                          disabled={!selectedExecutionCase}
                         >
-                          复制代码
+                          去执行测试
                         </button>
-                      </div>
-
-                      {selectedExecutionCase ? (
-                        <>
-                          <div className="execution-case-meta">
-                            <span className="testcase-id">{selectedExecutionCase.id || `TC${selectedExecutionCaseIndex + 1}`}</span>
-                            <span className="execution-case-meta-name">{selectedExecutionCase.name}</span>
+                      ) : null}
+                    >
+                      {selectedExecutionBatch ? (
+                        <div className="stack-lg">
+                          <div style={{
+                            padding: '12px 16px',
+                            fontSize: 14,
+                            color: 'var(--text-secondary)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius)',
+                            background: 'var(--bg-secondary)',
+                          }}>
+                            当前查看执行批次：{new Date(selectedExecutionBatch.created_at).toLocaleString()} · {selectedExecutionBatch.source_name} · {selectedExecutionBatch.generated_count} 条
                           </div>
-                          <pre className="execution-case-code">
-                            <code>{buildExecutionCaseCode(selectedExecutionCase, selectedExecutionCaseIndex)}</code>
-                          </pre>
-                        </>
-                      ) : (
-                        <div className="empty-state">
-                          <h3>还没有可查看的执行用例</h3>
-                          <p>当左侧列表有数据后，点击任意一条即可查看对应代码。</p>
+
+                          <Table
+                            rowKey={record => record.id || `execution-detail-${record.executionIndex}`}
+                            dataSource={(selectedExecutionBatch.cases || []).map((tc, index) => ({
+                              ...tc,
+                              executionIndex: index,
+                            }))}
+                            pagination={false}
+                            size="small"
+                            rowSelection={{
+                              type: 'radio',
+                              selectedRowKeys: selectedExecutionCase ? [selectedExecutionCase.id || `execution-detail-${selectedExecutionCaseIndex}`] : [],
+                              onChange: (_keys, rows) => {
+                                const nextIndex = rows[0]?.executionIndex
+                                if (typeof nextIndex === 'number') {
+                                  selectExecutionCaseInDrawer(nextIndex)
+                                }
+                              },
+                            }}
+                            columns={[
+                              {
+                                title: '用例编号',
+                                key: 'case_no',
+                                render: (_, record) => record.case_no || String(record.executionIndex + 1).padStart(4, '0'),
+                              },
+                              {
+                                title: '用例名称',
+                                dataIndex: 'name',
+                                key: 'name',
+                                render: value => value || '-',
+                              },
+                              {
+                                title: '步骤数',
+                                key: 'steps_count',
+                                render: (_, record) => `${record.steps?.length || 0} 步`,
+                              },
+                              {
+                                title: '状态',
+                                dataIndex: 'status',
+                                key: 'status',
+                                render: value => value === 'passed' ? '通过' : value === 'failed' ? '失败' : '待执行',
+                              },
+                            ]}
+                            onRow={record => ({
+                              onClick: () => selectExecutionCaseInDrawer(record.executionIndex),
+                            })}
+                          />
+
+                          {selectedExecutionCase ? (
+                            <>
+                              <div style={{
+                                padding: 16,
+                                background: 'var(--bg-primary)',
+                                borderRadius: 'var(--radius)',
+                                fontSize: 14,
+                                color: 'var(--text-secondary)',
+                                lineHeight: 1.8,
+                              }}>
+                                <div><strong>用例编号：</strong>{selectedExecutionCase.case_no || String(selectedExecutionCaseIndex + 1).padStart(4, '0')}</div>
+                                <div><strong>优先级：</strong>{selectedExecutionCase.priority || 'P1'}</div>
+                                <div><strong>前置条件：</strong>{selectedExecutionCase.precondition || '-'}</div>
+                                <div><strong>测试数据：</strong>{selectedExecutionCase.test_data || '-'}</div>
+                                <div><strong>预期结果：</strong>{selectedExecutionCase.expected_result || '-'}</div>
+                              </div>
+
+                              <div className="execution-case-detail">
+                                <div className="execution-case-detail-header">
+                                  <div>
+                                    <div className="execution-case-detail-title">执行代码内容</div>
+                                    <div className="execution-case-detail-subtitle">
+                                      当前抽屉展示的是这条执行用例的完整 JSON 明细
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="btn btn-secondary btn-sm"
+                                    onClick={async () => {
+                                      const code = buildExecutionCaseCode(selectedExecutionCase, selectedExecutionCaseIndex)
+                                      if (!code) return
+                                      try {
+                                        await navigator.clipboard.writeText(code)
+                                        message.success('已复制执行用例代码')
+                                      } catch {
+                                        message.error('复制失败，请手动复制')
+                                      }
+                                    }}
+                                  >
+                                    复制代码
+                                  </button>
+                                </div>
+
+                                <pre className="execution-case-code">
+                                  <code>{buildExecutionCaseCode(selectedExecutionCase, selectedExecutionCaseIndex)}</code>
+                                </pre>
+                              </div>
+                            </>
+                          ) : null}
                         </div>
-                      )}
-                    </div>
-                  </div>
+                      ) : null}
+                    </Drawer>
+                  </>
                 ) : (
                   <div className="empty-state">
-                    <h3>还没有可执行用例</h3>
-                    <p>请先回到第 2 步生成或上传文案用例，或者切换到“手动输入测试用例”直接补充 JSON。</p>
+                    <h3>还没有执行批次</h3>
+                    <p>请先回到第 2 步选择某个时间批次并进入第 3 步，这里会按时间倒序记录每一批执行用例。</p>
                   </div>
                 )}
               </>

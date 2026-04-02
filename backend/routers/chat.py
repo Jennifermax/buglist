@@ -5,7 +5,9 @@ from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import StreamingResponse
 from pathlib import Path
 import json
-from openai import APIConnectionError, APIError, APIStatusError, APITimeoutError, AsyncOpenAI
+import httpx
+from openai import APIConnectionError, APIError, APIStatusError, APITimeoutError
+from ..services.ai_service import _chat_completions_url, _normalize_openai_base_url, _openai_compatible_headers
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
@@ -30,26 +32,26 @@ async def chat(payload: dict = Body(...)):
     if not config.get("api_key"):
         raise HTTPException(status_code=400, detail="请先在设置页配置 AI API")
 
-    client = AsyncOpenAI(
-        api_key=config.get("api_key", ""),
-        base_url=config.get("api_url") or None,
-        timeout=CHAT_TIMEOUT_SECONDS,
-        max_retries=0,
-    )
+    api_url = _normalize_openai_base_url(config.get("api_url") or "")
 
     async def stream():
         try:
-            response = await asyncio.wait_for(
-                client.chat.completions.create(
-                    model=config.get("model", "gpt-4o"),
-                    messages=messages,
-                    temperature=0.7,
-                ),
-                timeout=CHAT_TIMEOUT_SECONDS,
-            )
-            content = ""
-            if response.choices and response.choices[0].message:
-                content = response.choices[0].message.content or ""
+            async with httpx.AsyncClient(timeout=CHAT_TIMEOUT_SECONDS) as client:
+                response = await asyncio.wait_for(
+                    client.post(
+                        _chat_completions_url(api_url),
+                        headers=_openai_compatible_headers(config.get("api_key", "")),
+                        json={
+                            "model": config.get("model", "gpt-5.4"),
+                            "messages": messages,
+                            "temperature": 0.7,
+                        },
+                    ),
+                    timeout=CHAT_TIMEOUT_SECONDS,
+                )
+            response.raise_for_status()
+            payload = response.json()
+            content = (((payload.get("choices") or [{}])[0].get("message") or {}).get("content") or "")
 
             if not content.strip():
                 yield f"data: {json.dumps({'error': 'AI 没有返回有效内容'}, ensure_ascii=False)}\n\n"

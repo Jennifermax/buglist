@@ -1,13 +1,14 @@
 import asyncio
 import json
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import APIRouter, Body, HTTPException
 from openai import APIConnectionError, APIError, APIStatusError, APITimeoutError
 
-from ..models.testcase import TestCase
+from ..models.testcase import TestCase, TestCaseBatch
 from ..services.ai_service import AIService
 
 router = APIRouter(prefix="/api/testcase-jobs", tags=["generate-jobs"])
@@ -40,12 +41,19 @@ def _extract_generation_payload(payload: Any) -> Dict[str, Any]:
     document = _extract_document(payload)
     description = ""
     images = []
+    source_name = ""
 
     if isinstance(payload, dict):
         description = str(
             payload.get("description")
             or payload.get("note")
             or payload.get("instructions")
+            or ""
+        ).strip()
+        source_name = str(
+            payload.get("source_name")
+            or payload.get("document_name")
+            or payload.get("file_name")
             or ""
         ).strip()
         raw_images = payload.get("images")
@@ -56,6 +64,7 @@ def _extract_generation_payload(payload: Any) -> Dict[str, Any]:
         "document": document,
         "description": description,
         "images": images,
+        "source_name": source_name,
     }
 
 
@@ -82,11 +91,12 @@ async def _run_generation_job(job_id: str, payload: Dict[str, Any]):
     ai_service = AIService(
         config.get("api_url", ""),
         config.get("api_key", ""),
-        config.get("model", "gpt-5.3")
+        config.get("model", "gpt-5.4")
     )
     document = str(payload.get("document") or "").strip()
     description = str(payload.get("description") or "").strip()
     images = payload.get("images") or []
+    source_name = str(payload.get("source_name") or "").strip()
 
     try:
         job["status"] = "running"
@@ -117,7 +127,7 @@ async def _run_generation_job(job_id: str, payload: Dict[str, Any]):
                 _append_cases(job, chunk_cases)
                 job["generated"] = len(job["cases"])
 
-        from .testcases import load_testcases, save_testcases
+        from .testcases import load_batches, load_testcases, save_batches, save_testcases
 
         existing = load_testcases()
         new_cases = []
@@ -132,9 +142,24 @@ async def _run_generation_job(job_id: str, payload: Dict[str, Any]):
             existing.append(case)
 
         save_testcases(existing)
+
+        batch_id = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        batches = load_batches()
+        batches.append(TestCaseBatch(
+            id=batch_id,
+            created_at=datetime.now().isoformat(),
+            source_name=source_name or "手动输入文档",
+            source_document=document,
+            generated_count=len(new_cases),
+            status="completed",
+            cases=[TestCase(**case) for case in new_cases],
+        ))
+        save_batches(batches)
+
         job["cases"] = new_cases
         job["generated"] = len(new_cases)
         job["model"] = ai_service.active_model
+        job["batch_id"] = batch_id
         job["status"] = "completed"
     except (APIConnectionError, APITimeoutError, asyncio.TimeoutError):
         job["status"] = "failed"
@@ -175,9 +200,10 @@ async def create_generation_job(payload: Any = Body(...)):
         "current_chunk": 0,
         "total_chunks": 0,
         "generated": 0,
+        "batch_id": "",
         "cases": [],
         "error": "",
-        "model": config.get("model", "gpt-5.3"),
+        "model": config.get("model", "gpt-5.4"),
     }
     asyncio.create_task(_run_generation_job(job_id, generation_payload))
     return JOBS[job_id]
