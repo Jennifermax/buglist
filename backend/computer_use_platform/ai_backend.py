@@ -38,6 +38,25 @@ class AIStepNormalizationResult:
     raw_text: str
 
 
+@dataclass
+class AITabSwitchDecisionResult:
+    should_switch: bool
+    page_index: int
+    confidence: float
+    reason: str
+    details: Dict[str, Any]
+    raw_text: str
+
+
+@dataclass
+class AIValidationToolDecisionResult:
+    use_tool: bool
+    confidence: float
+    reason: str
+    details: Dict[str, Any]
+    raw_text: str
+
+
 class AIVisionBackend:
     def __init__(self, config: RuntimeConfig):
         self.config = config
@@ -206,6 +225,182 @@ class AIVisionBackend:
             parsed_step=step_data,
             confidence=float(parsed.get("confidence", 0)),
             reason=str(parsed.get("reason", "")).strip() or "AI 未提供原因",
+            raw_text=content,
+        )
+
+    def decide_tab_switch(
+        self,
+        *,
+        current_step: Dict[str, Any],
+        next_step: Dict[str, Any] | None,
+        current_page_url: str,
+        current_page_title: str,
+        pages: list[dict[str, Any]],
+    ) -> AITabSwitchDecisionResult:
+        if not self.config.ai_enabled:
+            raise RuntimeError("AI backend is not configured")
+
+        prompt = (
+            "你是软件测试平台的工具调用决策器。"
+            "现在有一个可选工具 switch_new_tab，用来切换到浏览器中的其他标签页。"
+            "请判断当前步骤之后，是否应该调用这个工具。"
+            "只有当测试意图明显需要外部新标签页，且候选标签页里存在比当前页更匹配的目标页时，should_switch 才返回 true。"
+            "如果没有足够证据，should_switch 返回 false。"
+            "必须返回 JSON，不要返回 markdown。"
+            'JSON 格式为 {"should_switch": boolean, "page_index": number, "confidence": number, "reason": string, "details": object}。'
+            f" 当前步骤: {json.dumps(current_step, ensure_ascii=False)}。"
+            f" 下一步骤: {json.dumps(next_step, ensure_ascii=False) if next_step else 'null'}。"
+            f" 当前页面 URL: {current_page_url}。"
+            f" 当前页面标题: {current_page_title}。"
+            f" 可用标签页: {json.dumps(pages, ensure_ascii=False)}。"
+            " page_index 必须对应可用标签页中的 page_index；如果当前还没出现目标页，但你判断这个场景应该调用 switch_new_tab 工具等待并切换新标签页，也返回 should_switch=true 且 page_index=-1。"
+        )
+        payload = {
+            "model": self.config.ai_model,
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        response = requests.post(
+            f"{self.config.ai_base_url.rstrip('/')}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {self.config.ai_api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=self.config.ai_timeout,
+        )
+        response.raise_for_status()
+        raw = response.json()
+        content = self._extract_content_text(raw)
+        parsed = self._parse_json(content)
+        page_index = parsed.get("page_index", -1)
+        try:
+            page_index = int(page_index)
+        except Exception:
+            page_index = -1
+        return AITabSwitchDecisionResult(
+            should_switch=bool(parsed.get("should_switch", False)),
+            page_index=page_index,
+            confidence=float(parsed.get("confidence", 0)),
+            reason=str(parsed.get("reason", "")).strip() or "AI 未提供原因",
+            details=parsed.get("details", {}) if isinstance(parsed.get("details", {}), dict) else {},
+            raw_text=content,
+        )
+
+    def decide_validation_tool(
+        self,
+        *,
+        current_step: Dict[str, Any],
+        target: str,
+        current_page_url: str,
+        current_page_title: str,
+    ) -> AIValidationToolDecisionResult:
+        if not self.config.ai_enabled:
+            raise RuntimeError("AI backend is not configured")
+
+        prompt = (
+            "你是软件测试平台的工具调用决策器。"
+            "现在有一个可选工具 validate_page_target，用来判断当前页面是否已经是测试目标页面。"
+            "请判断当前这个验证步骤是否应该调用这个工具。"
+            "只有当步骤意图是在确认“当前页面/跳转结果/外部目标页”时，use_tool 才返回 true。"
+            "如果步骤是在判断弹窗、按钮、图片、logo、二维码、邀请码等页内元素，则返回 false。"
+            "必须返回 JSON，不要返回 markdown。"
+            'JSON 格式为 {"use_tool": boolean, "confidence": number, "reason": string, "details": object}。'
+            f" 当前步骤: {json.dumps(current_step, ensure_ascii=False)}。"
+            f" 当前目标: {target}。"
+            f" 当前页面 URL: {current_page_url}。"
+            f" 当前页面标题: {current_page_title}。"
+        )
+        payload = {
+            "model": self.config.ai_model,
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        response = requests.post(
+            f"{self.config.ai_base_url.rstrip('/')}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {self.config.ai_api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=self.config.ai_timeout,
+        )
+        response.raise_for_status()
+        raw = response.json()
+        content = self._extract_content_text(raw)
+        parsed = self._parse_json(content)
+        return AIValidationToolDecisionResult(
+            use_tool=bool(parsed.get("use_tool", False)),
+            confidence=float(parsed.get("confidence", 0)),
+            reason=str(parsed.get("reason", "")).strip() or "AI 未提供原因",
+            details=parsed.get("details", {}) if isinstance(parsed.get("details", {}), dict) else {},
+            raw_text=content,
+        )
+
+    def analyze_page_target(
+        self,
+        *,
+        image_path: str,
+        target: str,
+        current_page_url: str,
+        current_page_title: str,
+        body_preview: str,
+    ) -> AIAnalysisResult:
+        if not self.config.ai_enabled:
+            raise RuntimeError("AI backend is not configured")
+
+        prompt = (
+            "你是软件测试平台的页面目标验证引擎。"
+            "请根据当前页面截图，以及页面 URL、标题、正文摘要，判断当前页面是否已经是目标页面。"
+            "必须返回 JSON，不要返回 markdown。"
+            'JSON 格式为 {"passed": boolean, "confidence": number, "reason": string, "extracted_text": string, "details": object}。'
+            f" 目标页面: {target}。"
+            f" 当前 URL: {current_page_url}。"
+            f" 当前标题: {current_page_title}。"
+            f" 当前正文摘要: {body_preview[:1200]}。"
+            " 请综合这些信息判断，而不是只看其中一项。"
+            " 如果截图、URL、标题都不足以证明当前已经到达目标页面，则必须返回 passed=false。"
+        )
+        payload = {
+            "model": self.config.ai_model,
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": self._image_data_url(image_path),
+                            },
+                        },
+                    ],
+                }
+            ],
+        }
+        response = requests.post(
+            f"{self.config.ai_base_url.rstrip('/')}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {self.config.ai_api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=self.config.ai_timeout,
+        )
+        response.raise_for_status()
+        raw = response.json()
+        content = self._extract_content_text(raw)
+        parsed = self._parse_json(content)
+        return AIAnalysisResult(
+            passed=bool(parsed.get("passed", False)),
+            confidence=float(parsed.get("confidence", 0)),
+            reason=str(parsed.get("reason", "")).strip() or "AI 未提供原因",
+            extracted_text=str(parsed.get("extracted_text", "")).strip(),
+            details=parsed.get("details", {}) if isinstance(parsed.get("details", {}), dict) else {},
             raw_text=content,
         )
 

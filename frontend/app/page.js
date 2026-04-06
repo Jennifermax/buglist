@@ -205,6 +205,7 @@ export default function Home() {
   const [executionError, setExecutionError] = useState('')
   const [latestStepResult, setLatestStepResult] = useState(null)
   const [reportItems, setReportItems] = useState([])
+  const [isSubmittingZentao, setIsSubmittingZentao] = useState(false)
   const [previewImage, setPreviewImage] = useState(null)
   const [browserAuthStatus, setBrowserAuthStatus] = useState(null)
   const [browserAuthBusy, setBrowserAuthBusy] = useState(false)
@@ -831,6 +832,7 @@ export default function Home() {
   const selectedExecutionBatch = executionBatches.find(batch => batch.id === selectedExecutionBatchId) || null
   const selectedExecutionCase = selectedExecutionBatch?.cases?.[selectedExecutionCaseIndex] || null
   const selectedBatch = testcaseBatches.find(batch => batch.id === selectedBatchId) || null
+  const failedReportItems = reportItems.filter(item => item?.result === 'failed')
   const browserAuthIssueMessage = [
     executionError,
     latestStepResult?.reason,
@@ -980,6 +982,87 @@ export default function Home() {
       message.error(error.message || '操作失败')
     } finally {
       setBrowserAuthBusy(false)
+    }
+  }
+
+  const submitFailedResultsToZentao = async () => {
+    if (reportItems.length === 0) {
+      message.info('当前还没有测试报告，先执行测试后再提交禅道')
+      return
+    }
+
+    if (failedReportItems.length === 0) {
+      message.info('当前报告里没有失败用例，所以这次不会提交到禅道')
+      return
+    }
+
+    setIsSubmittingZentao(true)
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/zentao/bugs/submit-failures`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          report_items: failedReportItems,
+          testcases,
+          artifact_base_url: apiBaseUrl,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.detail || data.message || '提交禅道失败')
+      }
+
+      if (data.failed_count > 0) {
+        message.warning(data.message || '部分提交成功')
+      } else {
+        message.success(data.message || '已提交到禅道')
+      }
+
+      modal.info({
+        title: '禅道提交结果',
+        width: 720,
+        content: (
+          <div style={{ marginTop: 12 }}>
+            <div style={{ marginBottom: 12 }}>
+              共提交 {data.submitted || 0} 条失败用例，成功 {data.created_count || 0} 条，失败 {data.failed_count || 0} 条。
+            </div>
+            {Array.isArray(data.created) && data.created.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <strong>创建成功</strong>
+                <div style={{ marginTop: 8, display: 'grid', gap: 8 }}>
+                  {data.created.map(item => (
+                    <div key={`${item.testcase_id}-${item.bug_id}`} style={{ padding: 10, border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                      <div>{item.testcase_name || item.testcase_id}</div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
+                        Bug ID: {item.bug_id || '-'} | 产品 ID: {item.product_id || '-'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {Array.isArray(data.failed) && data.failed.length > 0 && (
+              <div>
+                <strong>提交失败</strong>
+                <div style={{ marginTop: 8, display: 'grid', gap: 8 }}>
+                  {data.failed.map(item => (
+                    <div key={`${item.testcase_id}-${item.bug_title}`} style={{ padding: 10, border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
+                      <div>{item.testcase_name || item.testcase_id}</div>
+                      <div style={{ color: 'var(--danger)', fontSize: 13 }}>
+                        {item.message || '创建失败'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ),
+      })
+    } catch (error) {
+      message.error(error.message || '提交禅道失败')
+    } finally {
+      setIsSubmittingZentao(false)
     }
   }
 
@@ -1935,7 +2018,7 @@ export default function Home() {
                 </thead>
                 <tbody>
                   {reportItems.map((item, index) => {
-                    const visionReason = item.vision_details?.map(detail => detail.reason).join('；') || '-'
+                    const visionReason = item.vision_details?.map(detail => detail.reason).join('；') || '本次结果主要根据执行步骤与页面状态判定，未返回额外 AI 断言说明'
                     return (
                       <tr key={`${item.testcase_id || index}-${index}`}>
                         <td className="mono">{item.testcase_id || '-'}</td>
@@ -1990,7 +2073,17 @@ export default function Home() {
               <button className="btn btn-secondary" onClick={() => window.location.reload()}>
                 重新开始
               </button>
-              <button className="btn btn-primary">提交禅道 (预留)</button>
+              <button
+                className="btn btn-primary"
+                onClick={submitFailedResultsToZentao}
+                disabled={isSubmittingZentao}
+              >
+                {isSubmittingZentao
+                  ? '提交中...'
+                  : failedReportItems.length > 0
+                    ? `提交失败到禅道 (${failedReportItems.length})`
+                    : '提交禅道'}
+              </button>
             </div>
           </div>
         </div>

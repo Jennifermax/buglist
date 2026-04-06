@@ -58,8 +58,16 @@ def build_step_complete_payload(result: Dict[str, Any]) -> Dict[str, Any]:
 
 def _collect_ai_details(steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     details: List[Dict[str, Any]] = []
+    has_semantic_ai = False
+    has_element_ai = False
+
     for step in steps:
         evidence = step.get("evidence") or {}
+        if evidence.get("semantic_engine") == "ai":
+            has_semantic_ai = True
+        if evidence.get("engine") == "ai_element_resolver":
+            has_element_ai = True
+
         if evidence.get("engine") == "ai":
             details.append(
                 {
@@ -75,7 +83,30 @@ def _collect_ai_details(steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
                     "reason": ai_info.get("reason") or step.get("reason", ""),
                 }
             )
-    return details
+
+    if details:
+        return details
+
+    if has_semantic_ai or has_element_ai:
+        parts: List[str] = []
+        if has_semantic_ai:
+            parts.append("AI 语义解析")
+        if has_element_ai:
+            parts.append("AI 元素定位")
+
+        return [
+            {
+                "passed": not any(step.get("status") == "fail" for step in steps),
+                "reason": f"本用例已使用{'、'.join(parts)}执行；本次结果主要根据执行步骤与页面状态判定，未单独生成视觉 AI 断言。",
+            }
+        ]
+
+    return [
+        {
+            "passed": not any(step.get("status") == "fail" for step in steps),
+            "reason": "本次结果主要根据执行步骤与页面状态判定，未返回单独的 AI 断言明细。",
+        }
+    ]
 
 
 def _collect_screenshots(steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

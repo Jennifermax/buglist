@@ -7391,5 +7391,49 @@
       }
     ],
     "status": "pending"
+  },
+  {
+    "id": "TC170",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "打开复合活动页面并点击顶部报名按钮",
+    "precondition": "用户可正常访问活动页面，且当前活动未报名",
+    "test_data": "",
+    "expected_result": "点击最顶部的报名按钮后，按钮状态变为已报名",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开复合活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认页面展示最顶部的报名按钮",
+        "value": "报名按钮可见",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击最顶部的报名按钮",
+        "value": "报名按钮",
+        "expected_image": null
+      },
+      {
+        "action": "等待",
+        "description": "等待按钮状态更新",
+        "value": "2秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认按钮状态变更",
+        "value": "已报名",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
   }
 ]
