@@ -10,8 +10,8 @@ class ActionType(str, Enum):
     验证 = "验证"
 
 class TestStep(BaseModel):
-    action: ActionType
-    description: str
+    action: str
+    description: str = ""
     value: Optional[str] = ""
     expected_image: Optional[str] = None
 

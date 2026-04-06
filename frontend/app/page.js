@@ -4,7 +4,7 @@ import { App, Drawer, Table } from 'antd'
 import * as XLSX from 'xlsx'
 import { getApiBaseUrl, getWebSocketBaseUrl } from '../lib/api'
 
-const STEPS = ['产品文档上传', '生成文案用例', '生成执行用例', '测试报告']
+const STEPS = ['生成文案用例', '生成执行用例', '测试报告']
 const STEP_THREE_TABS = ['执行用例列表', '手动输入测试用例']
 const WORKFLOW_CACHE_KEY = 'buglist-workflow-cache'
 
@@ -89,26 +89,30 @@ function buildExecutionHistoryBatchFromSource(batch = {}) {
   }
 }
 
-function buildDocumentFromWorkbook(fileName, workbook) {
-  const sheetSummaries = workbook.SheetNames.map(sheetName => {
-    const sheet = workbook.Sheets[sheetName]
-    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
-    const previewRows = rows
-      .slice(0, 20)
-      .map(row => row.join(' | '))
-      .join('\n')
-
-    return `工作表：${sheetName}\n${previewRows}`.trim()
-  }).filter(Boolean)
-
-  return `文件名：${fileName}\n文档类型：Excel\n\n${sheetSummaries.join('\n\n')}`.trim()
-}
-
 function buildStepText(steps = []) {
   if (!Array.isArray(steps) || steps.length === 0) return ''
   return steps
     .map((step, index) => `${index + 1}. ${step.description || step.action || ''}${step.value ? `：${step.value}` : ''}`)
     .join('\n')
+}
+
+function parseStepText(text = '') {
+  if (!text || typeof text !== 'string') return []
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line)
+    .map(line => {
+      const match = line.match(/^\d+\.\s*(.+?)(?:：(.+))?$/)
+      if (match) {
+        return {
+          action: match[1].trim(),
+          value: match[2] ? match[2].trim() : '',
+          description: match[1].trim()
+        }
+      }
+      return { action: line, value: '', description: line }
+    })
 }
 
 function buildExcelRowsFromCases(cases = []) {
@@ -145,52 +149,11 @@ function isBrowserAuthRuntimeIssue(message = '') {
   )
 }
 
-function buildManualImageId(file, fallbackIndex = 0) {
-  return [
-    file?.name || 'pasted-image',
-    file?.type || 'image/png',
-    typeof file?.size === 'number' ? file.size : 'unknown-size',
-    typeof file?.lastModified === 'number' ? file.lastModified : Date.now(),
-    fallbackIndex,
-    Math.random().toString(36).slice(2, 8),
-  ].join('-')
-}
-
 export default function Home() {
   const { message, modal } = App.useApp()
   const [currentStep, setCurrentStep] = useState(1)
-  const [uploadType, setUploadType] = useState('file')
   const [stepThreeTab, setStepThreeTab] = useState('执行用例列表')
-  const [document, setDocument] = useState(`登录功能需求文档
-
-功能描述：
-用户通过用户名和密码登录系统。登录页面地址：https://example.com/login
-
-正常流程：
-1. 用户打开登录页面
-2. 输入正确的用户名和密码
-3. 点击登录按钮
-4. 系统验证成功后跳转到首页
-
-异常场景：
-- 用户名或密码为空时，提示"请输入用户名/密码"
-- 密码错误时，提示"用户名或密码错误"
-- 连续失败5次后，账号锁定30分钟
-- 用户名不存在时，提示"用户名或密码错误"
-
-其他说明：
-- 支持记住登录状态（勾选"记住我"）
-- 提供"忘记密码"入口
-- 页面需展示产品 Logo 和版权信息`)
-  const [documentFileName, setDocumentFileName] = useState('')
-  const [documentPreview, setDocumentPreview] = useState('')
-  const [documentPreviewUrl, setDocumentPreviewUrl] = useState('')
-  const [documentPreviewMode, setDocumentPreviewMode] = useState('text')
-  const [manualDocImages, setManualDocImages] = useState([])
-  const [isGeneratingCases, setIsGeneratingCases] = useState(false)
   const [isLoadingSavedCases, setIsLoadingSavedCases] = useState(false)
-  const [generationError, setGenerationError] = useState('')
-  const [generationJob, setGenerationJob] = useState(null)
   const [manualCaseInput, setManualCaseInput] = useState(MANUAL_CASE_TEMPLATE)
   const [testcases, setTestcases] = useState([])
   const [testcaseBatches, setTestcaseBatches] = useState([])
@@ -214,8 +177,6 @@ export default function Home() {
   const [wsBaseUrl, setWsBaseUrl] = useState('ws://127.0.0.1:8000')
 
   const testcaseFileInputRef = useRef(null)
-  const documentFileInputRef = useRef(null)
-  const manualImageInputRef = useRef(null)
 
   const loadSavedTestcases = async (baseUrlOverride, preferredBatchId = '') => {
     const baseUrl = baseUrlOverride || apiBaseUrl
@@ -378,7 +339,7 @@ export default function Home() {
   }
 
   const canNavigateToStep = (stepNum) => {
-    return stepNum >= 1 && stepNum <= 4
+    return stepNum >= 1 && stepNum <= 3
   }
 
   const handleStepClick = (stepNum) => {
@@ -420,20 +381,24 @@ export default function Home() {
     if (!sourceBatch) return
 
     setSelectedBatchId(sourceBatch.id)
-    const createdBatch = createExecutionBatchRecord({
-      sourceBatchId: sourceBatch.id,
-      sourceName: sourceBatch.source_name || '执行用例批次',
-      cases: sourceBatch.cases || [],
-    })
 
-    if (!createdBatch) {
+    // Check if cases are empty
+    const normalizedCases = normalizeGeneratedCases(sourceBatch.cases || [])
+    if (normalizedCases.length === 0) {
       message.warning('当前批次没有可生成的执行用例')
       return
     }
 
     setStepThreeTab('执行用例列表')
     setIsBatchDrawerOpen(false)
-    setCurrentStep(3)
+    setCurrentStep(2)
+
+    setTimeout(() => {
+      // Find the automatically generated EXEC-HIST batch for this source batch
+      const execHistId = `EXEC-HIST-${sourceBatch.id}`
+      setSelectedExecutionBatchId(execHistId)
+      setSelectedExecutionCaseIndex(0)
+    }, 0)
   }
 
   const openExecutionBatchDrawer = (batchId) => {
@@ -518,235 +483,87 @@ export default function Home() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    let parsedCases = []
+    let fileName = file.name
+
     if (file.name.endsWith('.json')) {
       const text = await file.text()
       try {
         const cases = JSON.parse(text)
         if (Array.isArray(cases)) {
-          setTestcases(normalizeGeneratedCases(cases))
-          e.target.value = ''
-          return
+          parsedCases = cases
         }
       } catch {}
     }
 
-    e.target.value = ''
-    message.warning('仅支持 JSON 格式的测试用例文件')
-  }
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      try {
+        const buffer = await file.arrayBuffer()
+        const workbook = XLSX.read(buffer, { type: 'array' })
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
+        const rows = XLSX.utils.sheet_to_json(firstSheet)
 
-  const handleDocumentUpload = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+        parsedCases = rows.map((row, index) => ({
+          case_no: row['用例编号'] || String(index + 1).padStart(4, '0'),
+          priority: row['优先级'] || 'P1',
+          name: row['用例名称'] || '',
+          precondition: row['前置条件'] || '',
+          test_data: row['测试数据'] || '',
+          steps: parseStepText(row['测试步骤'] || ''),
+          expected_result: row['预期结果'] || '',
+          status: row['是否通过'] === '通过' ? 'passed' : row['是否通过'] === '不通过' ? 'failed' : '',
+          owner: row['负责人'] || '',
+          remarks: row['备注'] || '',
+        }))
+      } catch (err) {
+        console.error('Excel parse error:', err)
+        e.target.value = ''
+        message.warning('Excel 文件解析失败，请检查文件格式')
+        return
+      }
+    }
 
-    const lowerName = file.name.toLowerCase()
-    const isExcel = lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')
-    const isPdf = lowerName.endsWith('.pdf')
-    const isWord = lowerName.endsWith('.docx') || lowerName.endsWith('.doc')
-
-    if (!isExcel && !isPdf && !isWord) {
+    if (parsedCases.length === 0) {
       e.target.value = ''
-      message.warning('请上传 Excel、PDF 或 Word 文档')
+      message.warning('仅支持 JSON 或 Excel 格式的测试用例文件')
       return
     }
 
+    const normalizedCases = normalizeGeneratedCases(parsedCases)
+    const casesWithIds = normalizedCases.map((c, index) => ({
+      ...c,
+      id: c.id || `TC${Date.now()}_${index}`
+    }))
+
+    const newBatch = {
+      id: `BATCH${Date.now()}`,
+      created_at: new Date().toISOString(),
+      source_name: `上传文件: ${fileName}`,
+      source_document: '',
+      generated_count: casesWithIds.length,
+      status: 'completed',
+      cases: casesWithIds,
+    }
+
     try {
-      if (documentPreviewUrl) {
-        URL.revokeObjectURL(documentPreviewUrl)
-        setDocumentPreviewUrl('')
+      const res = await fetch(`${apiBaseUrl}/api/testcases/batches`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBatch),
+      })
+
+      if (!res.ok) {
+        throw new Error('保存批次失败')
       }
 
-      if (isExcel) {
-        const arrayBuffer = await file.arrayBuffer()
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' })
-        const parsedDocument = buildDocumentFromWorkbook(file.name, workbook)
-
-        setDocument(parsedDocument)
-        setDocumentFileName(file.name)
-        setDocumentPreview(parsedDocument)
-        setDocumentPreviewMode('text')
-        setDocumentPreviewUrl('')
-      } else {
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const res = await fetch(`${apiBaseUrl}/api/documents/parse`, {
-          method: 'POST',
-          body: formData,
-        })
-        const data = await res.json()
-        if (!res.ok) {
-          throw new Error(data.detail || '文档解析失败')
-        }
-
-        setDocument(data.document || '')
-        setDocumentFileName(data.file_name || file.name)
-        setDocumentPreview(data.document || '')
-        if (isPdf) {
-          setDocumentPreviewMode('pdf')
-          setDocumentPreviewUrl(URL.createObjectURL(file))
-        } else {
-          setDocumentPreviewMode('text')
-          setDocumentPreviewUrl('')
-        }
-      }
-    } catch (error) {
-      console.error(error)
-      message.error(error.message || '文档解析失败，请检查文件内容')
+      message.success(`成功导入 ${casesWithIds.length} 条测试用例`)
+      await loadSavedTestcases(apiBaseUrl, newBatch.id)
+    } catch (err) {
+      console.error('Save batch error:', err)
+      message.error('保存测试用例批次失败')
     } finally {
       e.target.value = ''
     }
-  }
-
-  const generateTestcasesFromDocument = async (source) => {
-    const payload = typeof source === 'string' ? { document: source } : (source || {})
-    const sourceDocument = String(payload.document || '')
-    const images = Array.isArray(payload.images) ? payload.images : []
-    const sourceName = String(payload.source_name || payload.sourceName || documentFileName || '手动输入文档')
-
-    if (!sourceDocument.trim() && images.length === 0) {
-      message.warning('请先提供文档内容或图片')
-      return false
-    }
-
-    if (!config?.api_key) {
-      message.warning('请先在设置页面配置 AI API')
-      return false
-    }
-
-    setIsGeneratingCases(true)
-    setGenerationError('')
-    setTestcases([])
-    setGenerationJob(null)
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/testcase-jobs`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          document: sourceDocument,
-          images,
-          source_name: sourceName,
-        }),
-      })
-
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        throw new Error(data.detail || '生成失败，请稍后重试')
-      }
-      setGenerationJob(data)
-      return true
-    } catch (err) {
-      console.error(err)
-      const nextMessage = err.message || '生成失败，请检查后端服务'
-      setGenerationError(nextMessage)
-      message.error(nextMessage)
-      return false
-    }
-  }
-
-  useEffect(() => {
-    if (!generationJob?.job_id || !isGeneratingCases) return
-
-    let stopped = false
-    const poll = async () => {
-      while (!stopped) {
-        try {
-          const res = await fetch(`${apiBaseUrl}/api/testcase-jobs/${generationJob.job_id}`)
-          const data = await res.json()
-          if (!res.ok) {
-            throw new Error(data.detail || '获取生成进度失败')
-          }
-
-          setGenerationJob(data)
-          if (Array.isArray(data.cases)) {
-            setTestcases(normalizeGeneratedCases(data.cases))
-          }
-
-          if (data.status === 'completed') {
-            await loadSavedTestcases()
-            setIsGeneratingCases(false)
-            return
-          }
-
-          if (data.status === 'failed') {
-            setGenerationError(data.error || '生成失败')
-            setIsGeneratingCases(false)
-            return
-          }
-        } catch (error) {
-          setGenerationError(error.message || '获取生成进度失败')
-          setIsGeneratingCases(false)
-          return
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 1500))
-      }
-    }
-
-    poll()
-    return () => {
-      stopped = true
-    }
-  }, [apiBaseUrl, generationJob?.job_id, isGeneratingCases])
-
-  const handleManualImageUpload = async (e) => {
-    const files = Array.from(e.target.files || [])
-    if (files.length === 0) return
-
-    await appendManualImages(files)
-
-    e.target.value = ''
-  }
-
-  const appendManualImages = async (files) => {
-    const imageFiles = Array.from(files || [])
-      .filter(file => file?.type?.startsWith('image/'))
-      .slice(0, 4)
-
-    if (imageFiles.length === 0) return
-
-    const nextImages = await Promise.all(
-      imageFiles.map((file, index) => new Promise(resolve => {
-        const reader = new FileReader()
-        reader.onload = () => {
-          resolve({
-            id: buildManualImageId(file, index),
-            name: file.name || `image-${Date.now()}-${index + 1}.png`,
-            mime_type: file.type || 'image/png',
-            data_url: String(reader.result || ''),
-          })
-        }
-        reader.readAsDataURL(file)
-      }))
-    )
-
-    setManualDocImages(prev => {
-      const merged = [...prev, ...nextImages]
-      const deduped = []
-      const seen = new Set()
-      for (const item of merged) {
-        if (!item?.data_url || seen.has(item.data_url)) continue
-        seen.add(item.data_url)
-        deduped.push(item)
-      }
-      return deduped.slice(0, 4)
-    })
-  }
-
-  const handleManualDocumentPaste = async (e) => {
-    const clipboardItems = Array.from(e.clipboardData?.items || [])
-    const imageFiles = clipboardItems
-      .filter(item => item.type?.startsWith('image/'))
-      .map(item => item.getAsFile())
-      .filter(Boolean)
-
-    if (imageFiles.length === 0) return
-
-    e.preventDefault()
-    await appendManualImages(imageFiles)
-  }
-
-  const removeManualImage = (imageId) => {
-    setManualDocImages(prev => prev.filter(image => image.id !== imageId))
   }
 
   const applyManualCases = () => {
@@ -771,29 +588,6 @@ export default function Home() {
       message.warning('手动输入的测试用例必须是合法的 JSON 数组')
       return false
     }
-  }
-
-  const goToStepTwoWithGeneratedCases = async (sourceDocument, sourceName, options = {}) => {
-    const nextDocument = String(sourceDocument || '')
-    const nextImages = Array.isArray(options.images) ? options.images : []
-
-    if (!nextDocument.trim() && nextImages.length === 0) {
-      message.warning('请先提供产品文档内容或图片')
-      return
-    }
-
-    setDocument(nextDocument)
-    setDocumentPreview(nextDocument)
-    setDocumentFileName(sourceName)
-    setCurrentStep(2)
-    await generateTestcasesFromDocument({
-      document: nextDocument,
-      images: nextImages.map(image => ({
-        name: image.name,
-        mime_type: image.mime_type,
-        data_url: image.data_url,
-      })),
-    })
   }
 
   const downloadCasesAsExcel = () => {
@@ -888,7 +682,7 @@ export default function Home() {
       failed: 0,
       status: 'running',
     })
-    setCurrentStep(4)
+    setCurrentStep(3)
 
     try {
       const ws = new WebSocket(`${wsBaseUrl}/ws/execute/test1`)
@@ -935,7 +729,7 @@ export default function Home() {
             failed: msg.data.failed,
             status: 'complete',
           }))
-          setCurrentStep(4)
+          setCurrentStep(3)
           setIsExecuting(false)
           ws.close()
         }
@@ -1071,36 +865,13 @@ export default function Home() {
     return stepNum
   }
 
-  useEffect(() => {
-    return () => {
-      if (documentPreviewUrl) {
-        URL.revokeObjectURL(documentPreviewUrl)
-      }
-    }
-  }, [documentPreviewUrl])
-
   return (
     <>
       <input
         ref={testcaseFileInputRef}
         type="file"
-        accept=".json"
+        accept=".json,.xlsx,.xls"
         onChange={handleTestcaseUpload}
-        style={{ display: 'none' }}
-      />
-      <input
-        ref={documentFileInputRef}
-        type="file"
-        accept=".xlsx,.xls,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-        onChange={handleDocumentUpload}
-        style={{ display: 'none' }}
-      />
-      <input
-        ref={manualImageInputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleManualImageUpload}
         style={{ display: 'none' }}
       />
 
@@ -1141,156 +912,8 @@ export default function Home() {
         })}
       </div>
 
+
       {currentStep === 1 && (
-        <div className="card animate-fadeIn">
-          <div className="tabs">
-            <button
-              className={`tab ${uploadType === 'file' ? 'active' : ''}`}
-              onClick={() => setUploadType('file')}
-            >
-              上传产品文档
-            </button>
-            <button
-              className={`tab ${uploadType === 'text' ? 'active' : ''}`}
-              onClick={() => setUploadType('text')}
-            >
-              手动输入产品文档
-            </button>
-          </div>
-
-          {uploadType === 'file' ? (
-            <div className="stack-lg">
-              {!documentPreview && (
-                <div
-                  className="upload-area"
-                  onClick={() => documentFileInputRef.current?.click()}
-                >
-                  <div className="upload-icon">⇪</div>
-                  <h3>上传产品文档</h3>
-                  <p>支持 Excel、PDF、Word 文档，上传后进入第 2 步生成文案用例；也可以直接跳到第 2 步手动上传测试用例</p>
-                </div>
-              )}
-
-              {documentPreview && (
-                <div className="upload-summary">
-                  <div>
-                    <strong>已上传产品文档</strong>
-                    <p>{documentFileName || '未命名文档'} · 已完成解析，可进入下一步生成文案用例</p>
-                  </div>
-                  <span className="badge badge-success">已准备继续</span>
-                </div>
-              )}
-
-              {documentPreview && (
-                <div className="preview-panel">
-                  <div className="preview-header">
-                    <strong>文档预览</strong>
-                    <span>{documentFileName}</span>
-                  </div>
-                  {documentPreviewMode === 'pdf' && documentPreviewUrl ? (
-                    <iframe
-                      className="preview-embed"
-                      src={documentPreviewUrl}
-                      title={documentFileName || 'PDF 预览'}
-                    />
-                  ) : (
-                    <pre className="preview-content">{documentPreview}</pre>
-                  )}
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => documentFileInputRef.current?.click()}
-                >
-                  重新上传文档
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => goToStepTwoWithGeneratedCases(document, documentFileName || '上传文档')}
-                  disabled={!document.trim()}
-                >
-                  下一步 →
-                </button>
-              </div>
-            </div>
-          ) : uploadType === 'text' ? (
-            <div className="stack-lg">
-              <div className="form-group">
-                <label className="form-label">产品文档内容</label>
-                <div className="manual-doc-input-wrap">
-                  <textarea
-                    className="form-input manual-doc-textarea"
-                    value={document}
-                    onChange={e => setDocument(e.target.value)}
-                    onPaste={handleManualDocumentPaste}
-                    placeholder="粘贴产品需求文档内容，也可以直接在这里粘贴截图或点击右下角上传图片"
-                  />
-                  <div className="manual-doc-toolbar">
-                    <span className="manual-doc-toolbar-tip">
-                      支持粘贴图片 / 上传图片，最多 4 张；只贴截图也可以直接生成文案用例
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => manualImageInputRef.current?.click()}
-                    >
-                      上传图片
-                    </button>
-                  </div>
-                </div>
-                {manualDocImages.length > 0 && (
-                  <div className="manual-image-grid">
-                    {manualDocImages.map(image => (
-                      <div key={image.id} className="manual-image-card">
-                        <img src={image.data_url} alt={image.name} className="manual-image-preview" />
-                        <div className="manual-image-meta">
-                          <span title={image.name}>{image.name}</span>
-                          <button
-                            type="button"
-                            className="manual-image-remove"
-                            onClick={() => removeManualImage(image.id)}
-                          >
-                            删除
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {documentPreview && (
-                <div className="preview-panel">
-                  <div className="preview-header">
-                    <strong>文档预览</strong>
-                    <span>{documentFileName || '手动输入文档'}</span>
-                  </div>
-                  <pre className="preview-content">{documentPreview}</pre>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => goToStepTwoWithGeneratedCases(document, '手动输入文档', {
-                    images: manualDocImages,
-                  })}
-                  disabled={!document.trim() && manualDocImages.length === 0}
-                >
-                  下一步 →
-                </button>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      )}
-
-      {currentStep === 2 && (
         <div className="animate-fadeIn">
           <div className="card" style={{ marginBottom: 24 }}>
             <div className="card-header">
@@ -1300,7 +923,7 @@ export default function Home() {
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={() => loadSavedTestcases()}
-                  disabled={isGeneratingCases || isLoadingSavedCases}
+                  disabled={isLoadingSavedCases}
                 >
                   {isLoadingSavedCases ? '刷新中...' : '刷新已保存用例'}
                 </button>
@@ -1334,36 +957,7 @@ export default function Home() {
                 每次生成都会形成一条独立批次记录，使用生成时间作为唯一标识。默认不展开 Excel 明细，你可以点击下方任意批次，从右侧抽屉查看该批的详细文案用例，并基于该批次继续执行测试。
               </div>
 
-              {!document.trim() && !documentPreview && (
-                <div className="empty-state">
-                  <h3>{testcases.length > 0 ? '已恢复已保存文案用例' : '还没有产品文档'}</h3>
-                  <p>
-                    {testcases.length > 0
-                      ? '你可以直接在下方表格继续维护已保存的文案用例，也可以回到第 1 步继续补充新的产品文档重新生成。'
-                      : '你可以回到第 1 步上传产品文档，或者直接使用右上角按钮上传测试用例，跳过产品文档生成流程。'}
-                  </p>
-                </div>
-              )}
-
-              {isGeneratingCases && (
-                <div className="cases-generating">
-                  <div className="cases-generating-badge">
-                    <span className="cases-generating-dot" />
-                    AI 正在生成测试用例
-                  </div>
-                  <h3>正在根据产品文档生成测试用例</h3>
-                  <p>
-                    {generationJob?.total_chunks
-                      ? `当前进度：第 ${generationJob.current_chunk || 0}/${generationJob.total_chunks} 段，已生成 ${testcases.length} 条用例`
-                      : '系统正在拆分文档并逐段生成测试用例，请稍等。'}
-                  </p>
-                  <div className="cases-generating-bar">
-                    <div className="cases-generating-bar-fill" />
-                  </div>
-                </div>
-              )}
-
-              {!isGeneratingCases && testcaseBatches.length > 0 && (
+              {testcaseBatches.length > 0 && (
                 <>
                   <Table
                     rowKey="id"
@@ -1425,24 +1019,14 @@ export default function Home() {
                   />
                 </>
               )}
-
-              {!isGeneratingCases && testcaseBatches.length === 0 && (document.trim() || documentPreview) && (
-                <div className="empty-state">
-                  <h3>{generationError ? '生成失败' : '还没有生成批次'}</h3>
-                  <p>{generationError || '如果你不想基于产品文档生成，也可以直接使用右上角按钮上传测试用例。'}</p>
-                </div>
-              )}
             </div>
 
           </div>
 
           <div style={{ display: 'flex', gap: 12 }}>
-            <button className="btn btn-secondary" onClick={() => setCurrentStep(1)}>
-              ← 上一步
-            </button>
             <button
               className="btn btn-primary"
-              onClick={() => setCurrentStep(3)}
+              onClick={() => setCurrentStep(2)}
               disabled={testcases.length === 0}
             >
               下一步：生成执行用例 →
@@ -1518,7 +1102,7 @@ export default function Home() {
         </div>
       )}
 
-      {currentStep === 3 && (
+      {currentStep === 2 && (
         <div className="animate-fadeIn">
           <div className="card" style={{ marginBottom: 24 }}>
             <div className="card-header">
@@ -1849,7 +1433,7 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'flex', gap: 12 }}>
-            <button className="btn btn-secondary" onClick={() => setCurrentStep(2)}>
+            <button className="btn btn-secondary" onClick={() => setCurrentStep(1)}>
               ← 上一步
             </button>
             <button
@@ -1869,7 +1453,7 @@ export default function Home() {
         </div>
       )}
 
-      {currentStep === 4 && (
+      {currentStep === 3 && (
         <div className="animate-fadeIn">
           <div className="progress-stats">
             <div className="stat-card">

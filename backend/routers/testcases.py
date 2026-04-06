@@ -110,3 +110,16 @@ async def delete_testcase(case_id: str):
     cases = [c for c in cases if c.id != case_id]
     save_testcases(cases)
     return {"message": "deleted"}
+
+@router.post("/batches", response_model=TestCaseBatch)
+async def create_testcase_batch(batch: TestCaseBatch):
+    batches = load_batches()
+    batches.append(batch)
+    save_batches(batches)
+
+    cases = load_testcases()
+    if batch.cases:
+        cases.extend(batch.cases)
+        save_testcases(cases)
+
+    return batch
