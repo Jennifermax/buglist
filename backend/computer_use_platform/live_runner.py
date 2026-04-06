@@ -139,7 +139,7 @@ class LiveCaseRunner:
 
         try:
             if action == "打开页面":
-                page.goto(semantic["url"], wait_until="domcontentloaded", timeout=60000)
+                page.goto(semantic["url"], wait_until="domcontentloaded", timeout=120000)
                 evidence = {"url": page.url}
                 evidence.update(semantic_evidence)
                 self._record(step_id, description, "pass", "页面已打开", evidence)
