@@ -1,0 +1,80 @@
+{
+  "id": "TC154",
+  "case_no": "0001",
+  "priority": "P1",
+  "name": "复合活动分享弹窗内容展示",
+  "precondition": "可正常访问复合活动页面。",
+  "test_data": "",
+  "expected_result": "点击分享图标后成功展示分享弹窗，弹窗内可看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码。",
+  "owner": "",
+  "remarks": "",
+  "status": "pending",
+  "steps": [
+    {
+      "action": "打开页面",
+      "description": "打开复合活动页面",
+      "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+      "expected_image": null
+    },
+    {
+      "action": "等待",
+      "description": "等待页面加载完成",
+      "value": "3秒",
+      "expected_image": null
+    },
+    {
+      "action": "点击",
+      "description": "点击分享图标",
+      "value": "分享图标",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证分享弹窗已显示",
+      "value": "分享弹窗",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证弹窗中显示logo",
+      "value": "logo",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证弹窗中显示分享活动文案",
+      "value": "分享活动文案",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证弹窗中显示分享图片",
+      "value": "分享图片",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证弹窗中显示活动内容介绍",
+      "value": "活动内容介绍",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证弹窗中显示二维码",
+      "value": "二维码",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证弹窗中显示背景图",
+      "value": "背景图",
+      "expected_image": null
+    },
+    {
+      "action": "验证",
+      "description": "验证弹窗中显示邀请码",
+      "value": "邀请码",
+      "expected_image": null
+    }
+  ]
+}

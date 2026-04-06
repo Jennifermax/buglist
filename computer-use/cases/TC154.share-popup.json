@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "id": "TC154",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "复合活动分享弹窗内容展示",
+    "precondition": "可正常访问复合活动页面。",
+    "expected_result": "点击分享图标后成功展示分享弹窗，弹窗内可看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码。"
+  },
+  "runtime": {
+    "stop_on_failure": true,
+    "default_scope": "share_modal"
+  },
+  "steps": [
+    {
+      "id": "open-page",
+      "kind": "action",
+      "engine": "computer_use",
+      "name": "打开复合活动页面",
+      "action": "open_page",
+      "required": true,
+      "input": {
+        "url": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D"
+      }
+    },
+    {
+      "id": "wait-page-stable",
+      "kind": "action",
+      "engine": "computer_use",
+      "name": "等待页面加载完成",
+      "action": "wait",
+      "required": true,
+      "input": {
+        "seconds": 3
+      }
+    },
+    {
+      "id": "click-share-icon",
+      "kind": "action",
+      "engine": "computer_use",
+      "name": "点击分享图标",
+      "action": "click",
+      "required": true,
+      "input": {
+        "target": "分享图标",
+        "strategies": [
+          {
+            "type": "vision_label",
+            "value": "分享图标"
+          },
+          {
+            "type": "fallback_description",
+            "value": "页面中的分享入口"
+          }
+        ]
+      }
+    },
+    {
+      "id": "assert-share-modal",
+      "kind": "assertion",
+      "engine": "vision",
+      "name": "验证分享弹窗已显示",
+      "assertion": "object_visible",
+      "required": true,
+      "input": {
+        "target": "分享弹窗",
+        "scope": "viewport"
+      }
+    },
+    {
+      "id": "assert-logo",
+      "kind": "assertion",
+      "engine": "vision",
+      "name": "验证弹窗中显示logo",
+      "assertion": "object_visible",
+      "required": true,
+      "input": {
+        "target": "logo",
+        "scope": "share_modal"
+      }
+    },
+    {
+      "id": "assert-share-copy",
+      "kind": "assertion",
+      "engine": "ocr",
+      "name": "验证弹窗中显示分享活动文案",
+      "assertion": "text_contains",
+      "required": true,
+      "input": {
+        "target": "分享活动文案",
+        "scope": "share_modal",
+        "keywords": [
+          "分享",
+          "活动"
+        ]
+      }
+    },
+    {
+      "id": "assert-share-image",
+      "kind": "assertion",
+      "engine": "vision",
+      "name": "验证弹窗中显示分享图片",
+      "assertion": "object_visible",
+      "required": true,
+      "input": {
+        "target": "分享图片",
+        "scope": "share_modal"
+      }
+    },
+    {
+      "id": "assert-activity-description",
+      "kind": "assertion",
+      "engine": "ocr",
+      "name": "验证弹窗中显示活动内容介绍",
+      "assertion": "text_contains",
+      "required": true,
+      "input": {
+        "target": "活动内容介绍",
+        "scope": "share_modal",
+        "keywords": [
+          "活动",
+          "介绍"
+        ]
+      }
+    },
+    {
+      "id": "assert-qr-code",
+      "kind": "assertion",
+      "engine": "vision",
+      "name": "验证弹窗中显示二维码",
+      "assertion": "object_visible",
+      "required": true,
+      "input": {
+        "target": "二维码",
+        "scope": "share_modal"
+      }
+    },
+    {
+      "id": "assert-background",
+      "kind": "assertion",
+      "engine": "vision",
+      "name": "验证弹窗中显示背景图",
+      "assertion": "object_visible",
+      "required": true,
+      "input": {
+        "target": "背景图",
+        "scope": "share_modal"
+      }
+    },
+    {
+      "id": "assert-invite-code",
+      "kind": "assertion",
+      "engine": "ocr",
+      "name": "验证弹窗中显示邀请码",
+      "assertion": "pattern_match",
+      "required": true,
+      "input": {
+        "target": "邀请码",
+        "scope": "share_modal",
+        "pattern": "邀请码[:：]?\\s*[A-Za-z0-9]{4,}"
+      }
+    }
+  ],
+  "mock_context": {
+    "clickable_targets": [
+      "分享图标"
+    ],
+    "vision_targets": [
+      "分享弹窗",
+      "logo",
+      "分享图片",
+      "二维码",
+      "背景图"
+    ],
+    "ocr_text_by_scope": {
+      "share_modal": "分享活动 海报图片 活动内容介绍 立即参与 邀请码 ABCD1234"
+    }
+  }
+}

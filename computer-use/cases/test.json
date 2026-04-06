@@ -1,0 +1,44 @@
+{
+    "id": "TC156",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "复合活动分享弹窗关闭",
+    "precondition": "可正常访问复合活动页面。",
+    "test_data": "",
+    "expected_result": "点击分享弹窗右上角x按钮后，分享弹窗关闭，不再显示在当前页面。",
+    "owner": "",
+    "remarks": "",
+    "status": "pending",
+    "steps": [
+      {
+        "action": "打开页面",
+        "description": "打开复合活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击分享图标",
+        "value": "分享图标",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认分享弹窗已打开",
+        "value": "分享弹窗可见",
+        "expected_image": null
+      },
+      {
+        "action": "点击",
+        "description": "点击分享弹窗右上角关闭按钮",
+        "value": "x按钮",
+        "expected_image": null
+      },
+      {
+        "action": "验证",
+        "description": "确认分享弹窗已关闭",
+        "value": "分享弹窗不可见",
+        "expected_image": null
+      }
+    ]
+  }
