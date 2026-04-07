@@ -7435,5 +7435,485 @@
       }
     ],
     "status": "pending"
+  },
+  {
+    "id": "TC1",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "ETH-USDT页面开多仓位测试",
+    "precondition": "用户已登录；现货账户有可转入资金；可访问ETH-USDT合约交易页面。",
+    "test_data": "在转换弹框中输入划转金额：2000 USDT；在数量中输入开多金额：1000 USDT",
+    "expected_result": "若可用USDT不足可成功从现货账户转入2000 USDT到U本位合约账户；杠杆可调整为1倍；使用1000 USDT成功开多后，页面底部显示当前仓位，且为本次开的1000 USDT多仓。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开ETH-USDT合约页面",
+        "description": "打开ETH-USDT合约页面",
+        "value": "https://beta-5.bydtms.com/zh/futures/ETH-USDT",
+        "expected_image": null
+      },
+      {
+        "action": "等待页面加载完成",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "查看右侧可用USDT是否大于0",
+        "description": "查看右侧可用USDT是否大于0",
+        "value": "可用USDT>0",
+        "expected_image": null
+      },
+      {
+        "action": "若可用USDT不大于0，点击右侧加号",
+        "description": "若可用USDT不大于0，点击右侧加号",
+        "value": "加号按钮",
+        "expected_image": null
+      },
+      {
+        "action": "在转换弹框中输入划转金额",
+        "description": "在转换弹框中输入划转金额",
+        "value": "2000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "确认将现货账户资金转到U本位合约账户",
+        "description": "确认将现货账户资金转到U本位合约账户",
+        "value": "确认转换",
+        "expected_image": null
+      },
+      {
+        "action": "调整仓位杠杆",
+        "description": "调整仓位杠杆",
+        "value": "1倍",
+        "expected_image": null
+      },
+      {
+        "action": "在数量中输入开多金额",
+        "description": "在数量中输入开多金额",
+        "value": "1000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "提交开多订单",
+        "description": "提交开多订单",
+        "value": "开多",
+        "expected_image": null
+      },
+      {
+        "action": "检查页面底部当前仓位显示",
+        "description": "检查页面底部当前仓位显示",
+        "value": "显示当前1000 USDT多仓",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC1",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "ETH-USDT页面开多仓位测试",
+    "precondition": "用户已登录；现货账户有可转入资金；可访问ETH-USDT合约交易页面。",
+    "test_data": "在转换弹框中输入划转金额：2000 USDT；在数量中输入开多金额：1000 USDT",
+    "expected_result": "若可用USDT不足可成功从现货账户转入2000 USDT到U本位合约账户；杠杆可调整为1倍；使用1000 USDT成功开多后，页面底部显示当前仓位，且为本次开的1000 USDT多仓。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开ETH-USDT合约页面",
+        "description": "打开ETH-USDT合约页面",
+        "value": "https://beta-5.bydtms.com/zh/futures/ETH-USDT",
+        "expected_image": null
+      },
+      {
+        "action": "等待页面加载完成",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "查看右侧可用USDT是否大于0",
+        "description": "查看右侧可用USDT是否大于0",
+        "value": "可用USDT>0，",
+        "expected_image": null
+      },
+      {
+        "action": "若可用USDT不大于0，点击右侧加号",
+        "description": "若可用USDT不大于0，点击右侧加号",
+        "value": "加号按钮，在转换弹框中输入划转金额：2000 USDT，确认将现货账户资金转到U本位合约账户：确认转换，调整仓位杠杆：1倍",
+        "expected_image": null
+      },
+      {
+        "action": "若可用USDT大于0，在数量中输入开多金额",
+        "description": "若可用USDT大于0，在数量中输入开多金额",
+        "value": "1000 USDT，提交开多订单：开多，3s后检查页面底部当前仓位显示：显示当前1000 USDT多仓",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC1",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "ETH-USDT页面开多仓位测试",
+    "precondition": "用户已登录；现货账户有可转入资金；可访问ETH-USDT合约交易页面。",
+    "test_data": "在转换弹框中输入划转金额：2000 USDT；在数量中输入开多金额：1000 USDT",
+    "expected_result": "若可用USDT不足可成功从现货账户转入2000 USDT到U本位合约账户；杠杆可调整为1倍；使用1000 USDT成功开多后，页面底部显示当前仓位，且为本次开的1000 USDT多仓。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开ETH-USDT合约页面",
+        "description": "打开ETH-USDT合约页面",
+        "value": "https://beta-5.bydtms.com/zh/futures/ETH-USDT",
+        "expected_image": null
+      },
+      {
+        "action": "等待页面加载完成",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "右侧可用USDT，点击右侧加号",
+        "description": "右侧可用USDT，点击右侧加号",
+        "value": "加号按钮",
+        "expected_image": null
+      },
+      {
+        "action": "在转换弹框中输入划转金额",
+        "description": "在转换弹框中输入划转金额",
+        "value": "2000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "确认将现货账户资金转到U本位合约账户",
+        "description": "确认将现货账户资金转到U本位合约账户",
+        "value": "确认转换",
+        "expected_image": null
+      },
+      {
+        "action": "调整仓位杠杆",
+        "description": "调整仓位杠杆",
+        "value": "1倍",
+        "expected_image": null
+      },
+      {
+        "action": "在数量中输入开多金额",
+        "description": "在数量中输入开多金额",
+        "value": "1000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "提交开多订单",
+        "description": "提交开多订单",
+        "value": "开多",
+        "expected_image": null
+      },
+      {
+        "action": "检查页面底部当前仓位显示",
+        "description": "检查页面底部当前仓位显示",
+        "value": "显示当前1000 USDT多仓",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC1",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "ETH-USDT页面开多仓位测试",
+    "precondition": "用户已登录；现货账户有可转入资金；可访问ETH-USDT合约交易页面。",
+    "test_data": "在转换弹框中输入划转金额：2000 USDT；在数量中输入开多金额：1000 USDT",
+    "expected_result": "若可用USDT不足可成功从现货账户转入2000 USDT到U本位合约账户；杠杆可调整为1倍；使用1000 USDT成功开多后，页面底部显示当前仓位，且为本次开的1000 USDT多仓。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开ETH-USDT合约页面",
+        "description": "打开ETH-USDT合约页面",
+        "value": "https://beta-5.bydtms.com/zh/futures/ETH-USDT",
+        "expected_image": null
+      },
+      {
+        "action": "等待页面加载完成",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "在右侧可用USDT的地方，点击可用USDT右侧的加号按钮",
+        "description": "在右侧可用USDT的地方，点击可用USDT右侧的加号按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "在转换弹框中输入划转金额",
+        "description": "在转换弹框中输入划转金额",
+        "value": "2000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "确认将现货账户资金转到U本位合约账户",
+        "description": "确认将现货账户资金转到U本位合约账户",
+        "value": "确认转换",
+        "expected_image": null
+      },
+      {
+        "action": "调整仓位杠杆",
+        "description": "调整仓位杠杆",
+        "value": "1倍",
+        "expected_image": null
+      },
+      {
+        "action": "在数量中输入开多金额",
+        "description": "在数量中输入开多金额",
+        "value": "1000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "提交开多订单",
+        "description": "提交开多订单",
+        "value": "开多",
+        "expected_image": null
+      },
+      {
+        "action": "检查页面底部当前仓位显示",
+        "description": "检查页面底部当前仓位显示",
+        "value": "显示当前1000 USDT多仓",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC1",
+    "case_no": "0001",
+    "priority": "P1",
+    "name": "定制活动报名",
+    "precondition": "可正常访问定制活动页面。",
+    "test_data": "",
+    "expected_result": "点击页面的报名参与按钮可正常点击报名，点击后变成按钮文案变成已报名",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开定制活动页面",
+        "description": "打开定制活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+        "expected_image": null
+      },
+      {
+        "action": "等待页面加载完成",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "验证报名参与按钮是否可见",
+        "description": "验证报名参与按钮是否可见",
+        "value": "报名参与按钮可见",
+        "expected_image": null
+      },
+      {
+        "action": "点击页面左侧的报名参与按钮",
+        "description": "点击页面左侧的报名参与按钮",
+        "value": "报名参与按钮可点击",
+        "expected_image": null
+      },
+      {
+        "action": "验证是否变成已报名文案",
+        "description": "验证是否变成已报名文案",
+        "value": "报名参与文案变成已报名文案",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC2",
+    "case_no": "0002",
+    "priority": "P1",
+    "name": "定制活动规则按钮跳转校验",
+    "precondition": "可正常访问定制活动页面，页面已加载完成。",
+    "test_data": "",
+    "expected_result": "点击最右侧第一个规则按钮后成功页面成功滚动到活动规则区域",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开定制活动页面",
+        "description": "打开定制活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+        "expected_image": null
+      },
+      {
+        "action": "等待活动页面加载完成",
+        "description": "等待活动页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击页面最右侧第一个规则按钮",
+        "description": "点击页面最右侧第一个规则按钮",
+        "value": "最右侧第一个规则按钮",
+        "expected_image": null
+      },
+      {
+        "action": "确认页面滚动到活动规则区域",
+        "description": "确认页面滚动到活动规则区域",
+        "value": "",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC3",
+    "case_no": "0003",
+    "priority": "P1",
+    "name": "定制活动奖励弹窗跳转校验",
+    "precondition": "可正常访问定制活动页面；页面已加载完成。",
+    "test_data": "",
+    "expected_result": "点击最右侧第二个奖励按钮后成功页面成功打开奖励记录弹窗",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开定制活动页面",
+        "description": "打开定制活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+        "expected_image": null
+      },
+      {
+        "action": "等待活动页面加载完成",
+        "description": "等待活动页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击页面最右侧第二个奖励按钮",
+        "description": "点击页面最右侧第二个奖励按钮",
+        "value": "奖励按钮",
+        "expected_image": null
+      },
+      {
+        "action": "确认奖励弹窗已展示",
+        "description": "确认奖励弹窗已展示",
+        "value": "奖励弹窗可见",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC4",
+    "case_no": "0004",
+    "priority": "P1",
+    "name": "定制活动奖励弹窗跳转卡券中心功能校验",
+    "precondition": "可正常访问活动页面，浏览器为谷歌浏览器。",
+    "test_data": "",
+    "expected_result": "点击奖励弹窗的卡券中心后，成功跳转到卡券中心相关页面。",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开定制活动页面",
+        "description": "打开定制活动页面",
+        "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+        "expected_image": null
+      },
+      {
+        "action": "等待页面加载完成",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "点击页面最右侧第二个奖励按钮",
+        "description": "点击页面最右侧第二个奖励按钮",
+        "value": "最右侧第二个奖励按钮",
+        "expected_image": null
+      },
+      {
+        "action": "确认奖励弹窗已打开",
+        "description": "确认奖励弹窗已打开",
+        "value": "奖励弹窗可见",
+        "expected_image": null
+      },
+      {
+        "action": "点击卡券中心超链接",
+        "description": "点击卡券中心超链接",
+        "value": "跳转到卡券中心",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "TC5",
+    "case_no": "0005",
+    "priority": "P1",
+    "name": "ETH-USDT页面开多仓位测试",
+    "precondition": "用户已登录；现货账户有可转入资金；可访问ETH-USDT合约交易页面。",
+    "test_data": "在转换弹框中输入划转金额：2000 USDT；在数量中输入开多金额：1000 USDT",
+    "expected_result": "检查页面底部当前仓位显示：显示当前1000 USDT多仓",
+    "owner": "",
+    "remarks": "",
+    "steps": [
+      {
+        "action": "打开ETH-USDT合约页面",
+        "description": "打开ETH-USDT合约页面",
+        "value": "https://beta-5.bydtms.com/zh/futures/ETH-USDT",
+        "expected_image": null
+      },
+      {
+        "action": "等待页面加载完成",
+        "description": "等待页面加载完成",
+        "value": "3秒",
+        "expected_image": null
+      },
+      {
+        "action": "在右侧交易面板有一个，可用USDT的地方，点击可用USDT右侧的加号按钮",
+        "description": "在右侧交易面板有一个，可用USDT的地方，点击可用USDT右侧的加号按钮",
+        "value": "",
+        "expected_image": null
+      },
+      {
+        "action": "在转换弹框中输入划转金额",
+        "description": "在转换弹框中输入划转金额",
+        "value": "2000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "确认将现货账户资金转到U本位合约账户",
+        "description": "确认将现货账户资金转到U本位合约账户",
+        "value": "确认转换",
+        "expected_image": null
+      },
+      {
+        "action": "调整仓位杠杆",
+        "description": "调整仓位杠杆",
+        "value": "1倍",
+        "expected_image": null
+      },
+      {
+        "action": "在数量中输入开多金额",
+        "description": "在数量中输入开多金额",
+        "value": "1000 USDT",
+        "expected_image": null
+      },
+      {
+        "action": "提交开多订单",
+        "description": "提交开多订单",
+        "value": "开多",
+        "expected_image": null
+      }
+    ],
+    "status": "pending"
   }
 ]
