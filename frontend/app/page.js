@@ -627,6 +627,10 @@ export default function Home() {
   const selectedExecutionCase = selectedExecutionBatch?.cases?.[selectedExecutionCaseIndex] || null
   const selectedBatch = testcaseBatches.find(batch => batch.id === selectedBatchId) || null
   const failedReportItems = reportItems.filter(item => item?.result === 'failed')
+  const progressRatio = progress?.total_steps
+    ? Math.min(100, Math.max(0, ((progress.current_step || 0) / progress.total_steps) * 100))
+    : 0
+  const isProgressRunning = isExecuting && progress?.status === 'running'
   const browserAuthIssueMessage = [
     executionError,
     latestStepResult?.reason,
@@ -1489,19 +1493,11 @@ export default function Home() {
                 <span>正在执行: {progress?.current_testcase || '等待开始...'}</span>
                 <span>{progress?.current_step || 0} / {progress?.total_steps || testcases.length}</span>
               </div>
-              <div style={{
-                height: 8,
-                background: 'var(--border)',
-                borderRadius: 4,
-                overflow: 'hidden',
-              }}>
-                <div style={{
-                  height: '100%',
-                  width: `${progress?.total_steps ? ((progress.current_step || 0) / progress.total_steps) * 100 : 0}%`,
-                  background: 'linear-gradient(90deg, var(--accent), var(--accent-light))',
-                  borderRadius: 4,
-                  transition: 'width 0.3s ease',
-                }} />
+              <div className={`execution-progress-track ${isProgressRunning ? 'is-running' : ''}`}>
+                <div
+                  className={`execution-progress-bar ${isProgressRunning ? 'is-running' : ''}`}
+                  style={{ width: `${progressRatio}%` }}
+                />
               </div>
             </div>
 

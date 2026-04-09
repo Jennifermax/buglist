@@ -10,7 +10,8 @@ from ..services.zentao_bug_submit_service import build_bug_payload, resolve_prod
 
 router = APIRouter(prefix="/api/zentao", tags=["zentao"])
 
-CONFIG_FILE = Path(__file__).parent.parent.parent / "data" / "config.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+CONFIG_FILE = PROJECT_ROOT / "data" / "config.json"
 
 def load_config() -> dict:
     if CONFIG_FILE.exists():
@@ -209,13 +210,41 @@ async def submit_failed_results_to_zentao(payload: ZentaoBatchSubmitRequest):
             result = await service.create_bug(bug_payload)
             if result.get("success"):
                 bug = result.get("data") or {}
+                bug_id = bug.get("id")
+                attachment_results: List[Dict[str, Any]] = []
+                if bug_id and item.get("screenshots"):
+                    for shot in item.get("screenshots") or []:
+                        raw_url = (shot.get("url") or "").strip()
+                        if not raw_url:
+                            continue
+                        preferred_name = (shot.get("name") or "").strip()
+                        content, default_name, ctype = await service.fetch_screenshot_bytes(
+                            raw_url,
+                            payload.artifact_base_url or "",
+                            PROJECT_ROOT,
+                        )
+                        fname = preferred_name if preferred_name else default_name
+                        if not content:
+                            attachment_results.append(
+                                {"filename": fname, "success": False, "message": "无法读取截图文件或超过大小限制"}
+                            )
+                            continue
+                        upload = await service.upload_bug_file(bug_id, content, fname, ctype)
+                        attachment_results.append(
+                            {
+                                "filename": fname,
+                                "success": bool(upload.get("success")),
+                                "message": upload.get("message", "") if not upload.get("success") else "ok",
+                            }
+                        )
                 created.append(
                     {
                         "testcase_id": testcase_id,
                         "testcase_name": testcase.get("name") or item.get("testcase_name") or testcase_id,
-                        "bug_id": bug.get("id"),
+                        "bug_id": bug_id,
                         "bug_title": bug.get("title") or bug_payload["title"],
                         "product_id": product_id,
+                        "attachments": attachment_results,
                     }
                 )
             else:

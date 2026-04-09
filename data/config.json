@@ -1,13 +1,13 @@
 {
   "ai": {
-    "api_url": "https://hi5.de5.net/v1",
-    "api_key": "sk-0a21825fcf36eaa2abb67407265b2a6bde68a251b1333b60222d8429d751a464",
-    "model": "gpt-5.4"
+    "api_url": "https://xiamiapi.xyz/v1",
+    "api_key": "sk-SHbXAqzFGNj6m56ij7oTZWiwdVuMhLAisATZll4rrWFB1OQt",
+    "model": "gpt-5.3-codex"
   },
   "zentao": {
     "url": "https://cfazendao.chandao.net",
     "account": "felix",
     "password": "qwer123",
-    "token": "k2gaujosqnt7iiqqh2e95mvckm"
+    "token": "fggoku3c545305uumtt995vd84"
   }
 }

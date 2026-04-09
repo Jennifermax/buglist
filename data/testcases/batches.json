@@ -90,116 +90,6 @@
     ]
   },
   {
-    "id": "20260402112415784037",
-    "created_at": "2026-04-02T11:24:15.784909",
-    "source_name": "调试文档",
-    "source_document": "登录页面地址：https://example.com/login\n功能：输入用户名密码登录，错误时提示。",
-    "generated_count": 2,
-    "status": "completed",
-    "cases": [
-      {
-        "id": "TC160",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "登录页使用正确用户名和密码登录成功",
-        "precondition": "已存在可用的用户名和密码。",
-        "test_data": "输入正确的用户名：valid_username；输入正确的密码：valid_password",
-        "expected_result": "登录成功，进入登录后页面，无错误提示。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "访问登录页面",
-            "value": "https://example.com/login",
-            "expected_image": null
-          },
-          {
-            "action": "输入",
-            "description": "输入正确的用户名",
-            "value": "valid_username",
-            "expected_image": null
-          },
-          {
-            "action": "输入",
-            "description": "输入正确的密码",
-            "value": "valid_password",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击登录按钮",
-            "value": "登录",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待登录结果返回",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证登录成功并进入登录后页面",
-            "value": "显示登录后页面且无错误提示",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC162",
-        "case_no": "0002",
-        "priority": "P1",
-        "name": "登录页使用错误用户名或密码登录提示错误",
-        "precondition": "已打开可访问的登录页面。",
-        "test_data": "输入错误的用户名：wrong_username；输入错误的密码：wrong_password",
-        "expected_result": "登录失败，页面提示用户名或密码错误，不进入登录后页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "访问登录页面",
-            "value": "https://example.com/login",
-            "expected_image": null
-          },
-          {
-            "action": "输入",
-            "description": "输入错误的用户名",
-            "value": "wrong_username",
-            "expected_image": null
-          },
-          {
-            "action": "输入",
-            "description": "输入错误的密码",
-            "value": "wrong_password",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击登录按钮",
-            "value": "登录",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待登录结果返回",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证页面显示错误提示",
-            "value": "提示用户名或密码错误，且仍停留在登录页",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      }
-    ]
-  },
-  {
     "id": "20260402112509944574",
     "created_at": "2026-04-02T11:25:09.945241",
     "source_name": "手动输入文档",
@@ -694,1344 +584,6 @@
     ]
   },
   {
-    "id": "20260402171608452641",
-    "created_at": "2026-04-02T17:16:08.453344",
-    "source_name": "手动输入文档",
-    "source_document": "1，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，预期可以看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码\n\n2，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，点击 x 按钮可以关闭弹窗\n\n3，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，点击链接 icon，成功打开活动链接\n\n4，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，点击保存图片，成功出现谷歌保存文件的弹框\n\n5，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，点击twitter 按钮，成功跳转到 twitter\n\n6，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，点击telegram 按钮，成功跳转到telegram\n\n7，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，点击facebook按钮，成功跳转到 facebook\n\n8，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享按钮，查看分享弹窗，点击linkedin 按钮，成功跳转到 linkedin",
-    "generated_count": 8,
-    "status": "completed",
-    "cases": [
-      {
-        "id": "TC146",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗内容展示",
-        "precondition": "可正常访问复合活动页面。",
-        "test_data": "",
-        "expected_result": "点击分享按钮后成功显示分享弹窗，弹窗内可看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证分享弹窗已显示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示logo",
-            "value": "logo",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示分享活动文案",
-            "value": "分享活动文案",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示分享图片",
-            "value": "分享图片",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示活动内容介绍",
-            "value": "活动内容介绍",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示二维码",
-            "value": "二维码",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示背景图",
-            "value": "背景图",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示邀请码",
-            "value": "邀请码",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC148",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗关闭",
-        "precondition": "可正常访问复合活动页面。",
-        "test_data": "",
-        "expected_result": "点击分享按钮后分享弹窗成功显示；点击弹窗右上角x按钮后，分享弹窗关闭并从页面消失。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已显示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗右上角关闭按钮",
-            "value": "x按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已关闭",
-            "value": "分享弹窗不显示",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC150",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗链接图标跳转",
-        "precondition": "网络正常，可访问活动页面。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的链接icon后，成功打开对应活动链接页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已展示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的链接icon",
-            "value": "链接icon",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面跳转完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认已成功打开活动链接",
-            "value": "活动链接页面成功打开",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC152",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗保存图片",
-        "precondition": "可正常访问复合活动页面，浏览器为Chrome或谷歌内核浏览器。",
-        "test_data": "",
-        "expected_result": "点击分享按钮后可打开分享弹窗；在分享弹窗中点击保存图片后，成功出现谷歌保存文件的弹框。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已展示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击保存图片按钮",
-            "value": "保存图片",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认出现谷歌保存文件弹框",
-            "value": "谷歌保存文件弹框",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC154",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Twitter跳转",
-        "precondition": "可正常访问复合活动页面；浏览器允许打开新页面或新标签。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的twitter按钮后，成功跳转到Twitter相关页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已显示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击twitter按钮",
-            "value": "twitter按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面跳转完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认已成功跳转到Twitter相关页面",
-            "value": "Twitter页面",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC156",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Telegram跳转",
-        "precondition": "可正常访问复合活动页面，浏览器允许打开新页面或唤起外部链接。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的telegram按钮后，成功跳转到Telegram相关页面或唤起Telegram。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已展示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击telegram按钮",
-            "value": "telegram按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待跳转或唤起完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认成功跳转到Telegram相关页面或唤起Telegram",
-            "value": "telegram",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC158",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Facebook跳转",
-        "precondition": "可正常访问复合活动页面；浏览器允许打开新页面或新标签。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的facebook按钮后，成功跳转到Facebook相关页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已打开",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击facebook按钮",
-            "value": "facebook按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面跳转",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认成功跳转到Facebook页面",
-            "value": "已打开facebook相关页面或域名包含facebook",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC160",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗LinkedIn跳转",
-        "precondition": "可正常访问复合活动页面，浏览器允许打开新页面。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的linkedin按钮后，成功跳转到LinkedIn页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待分享弹窗显示",
-            "value": "2秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击linkedin按钮",
-            "value": "linkedin按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证是否成功跳转到LinkedIn页面",
-            "value": "打开LinkedIn相关页面或链接包含linkedin",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      }
-    ]
-  },
-  {
-    "id": "20260402172241613753",
-    "created_at": "2026-04-02T17:22:41.614762",
-    "source_name": "手动输入文档",
-    "source_document": "1，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，预期可以看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码\n\n2，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，点击 x 按钮可以关闭弹窗\n\n3，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，点击链接 icon，成功打开活动链接\n\n4，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，点击保存图片，成功出现谷歌保存文件的弹框\n\n5，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，点击twitter 按钮，成功跳转到 twitter\n\n6，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，点击telegram 按钮，成功跳转到telegram\n\n7，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，点击facebook按钮，成功跳转到 facebook\n\n8，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击分享图标，查看分享弹窗，点击linkedin 按钮，成功跳转到 linkedin",
-    "generated_count": 8,
-    "status": "completed",
-    "cases": [
-      {
-        "id": "TC154",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗内容展示",
-        "precondition": "可正常访问复合活动页面。",
-        "test_data": "",
-        "expected_result": "点击分享图标后成功展示分享弹窗，弹窗内可看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证分享弹窗已显示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示logo",
-            "value": "logo",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示分享活动文案",
-            "value": "分享活动文案",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示分享图片",
-            "value": "分享图片",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示活动内容介绍",
-            "value": "活动内容介绍",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示二维码",
-            "value": "二维码",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示背景图",
-            "value": "背景图",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示邀请码",
-            "value": "邀请码",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC156",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗关闭",
-        "precondition": "可正常访问复合活动页面。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗右上角x按钮后，分享弹窗关闭，不再显示在当前页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已打开",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗右上角关闭按钮",
-            "value": "x按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已关闭",
-            "value": "分享弹窗不可见",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC158",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗链接icon跳转活动链接",
-        "precondition": "可正常访问复合活动页面，页面存在分享图标。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的链接icon后，成功打开活动链接页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已显示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击链接icon",
-            "value": "链接icon",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待链接跳转完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认已成功打开活动链接",
-            "value": "活动链接页面",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC160",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗保存图片",
-        "precondition": "浏览器可正常访问复合活动页面，允许触发浏览器下载/保存文件弹框。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的保存图片后，成功出现谷歌浏览器保存文件弹框。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待活动页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待分享弹窗显示",
-            "value": "2秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击保存图片按钮",
-            "value": "保存图片",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证是否出现谷歌保存文件弹框",
-            "value": "谷歌浏览器保存文件弹框",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC162",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Twitter跳转",
-        "precondition": "可正常访问复合活动页面；浏览器允许打开新页面或新标签。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的Twitter按钮后，成功跳转到Twitter相关页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已显示",
-            "value": "分享弹窗",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的Twitter按钮",
-            "value": "Twitter按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面跳转完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认已成功跳转到Twitter页面",
-            "value": "Twitter页面或Twitter分享页",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC164",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Telegram跳转",
-        "precondition": "网络正常，可访问活动页面和Telegram相关链接。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的telegram按钮后，成功跳转到Telegram页面或唤起Telegram链接。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待分享弹窗出现",
-            "value": "2秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击telegram按钮",
-            "value": "telegram",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证成功跳转到Telegram页面或唤起Telegram链接",
-            "value": "页面地址包含telegram相关域名或成功打开Telegram",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC166",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Facebook跳转",
-        "precondition": "可正常访问复合活动页面，浏览器允许打开新页面或外部链接。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的facebook按钮后，成功跳转到Facebook页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待分享弹窗加载完成",
-            "value": "2秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击facebook按钮",
-            "value": "facebook按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证已成功跳转到Facebook页面",
-            "value": "页面URL或页面内容显示为Facebook相关页面",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC168",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗LinkedIn跳转",
-        "precondition": "用户可正常访问复合活动页面，浏览器允许打开新页面或新标签页。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的LinkedIn按钮后，成功跳转到LinkedIn相关页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面上的分享图标",
-            "value": "分享图标",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待分享弹窗展示",
-            "value": "分享弹窗加载完成",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的LinkedIn按钮",
-            "value": "linkedin按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证页面成功跳转到LinkedIn",
-            "value": "打开LinkedIn相关页面",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      }
-    ]
-  },
-  {
-    "id": "20260406115434464334",
-    "created_at": "2026-04-06T11:54:34.466580",
-    "source_name": "手动输入文档",
-    "source_document": "1，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，预期可以看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码\n\n2，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，点击 x 按钮可以关闭弹窗\n\n3，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，点击链接 icon，成功打开活动链接\n\n4，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，点击保存图片，成功出现谷歌保存文件的弹框\n\n5，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，点击twitter 按钮，成功跳转到 twitter\n\n6，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，点击telegram 按钮，成功跳转到telegram\n\n7，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，点击facebook按钮，成功跳转到 facebook\n\n8，打开复合活动 https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D\n点击最右侧第三个分享按钮，查看分享弹窗，点击linkedin 按钮，成功跳转到 linkedin",
-    "generated_count": 8,
-    "status": "completed",
-    "cases": [
-      {
-        "id": "TC162",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗内容展示校验",
-        "precondition": "可正常访问复合活动页面。",
-        "test_data": "",
-        "expected_result": "点击最右侧第三个分享按钮后，分享弹窗正常展示，且可看到logo、分享活动文案、分享图片、活动内容介绍、二维码、背景图、邀请码。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "最右侧第三个分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证分享弹窗已展示",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示logo",
-            "value": "logo",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示分享活动文案",
-            "value": "分享活动文案",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示分享图片",
-            "value": "分享图片",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示活动内容介绍",
-            "value": "活动内容介绍",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示二维码",
-            "value": "二维码",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示背景图",
-            "value": "背景图",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证弹窗中显示邀请码",
-            "value": "邀请码",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC164",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗关闭功能校验",
-        "precondition": "可正常访问复合活动页面，页面已加载完成。",
-        "test_data": "",
-        "expected_result": "点击最右侧第三个分享按钮后成功显示分享弹窗；点击弹窗右上角x按钮后，分享弹窗关闭并从页面消失。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待活动页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "最右侧第三个分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已显示",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗右上角x关闭按钮",
-            "value": "x按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已关闭",
-            "value": "分享弹窗不可见",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC166",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗链接图标跳转校验",
-        "precondition": "可正常访问复合活动页面；页面已加载完成。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的链接icon后，成功打开当前活动链接页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待活动页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已展示",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的链接icon",
-            "value": "链接icon",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待链接打开完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认成功打开活动链接页面",
-            "value": "打开的页面URL为活动链接且页面可正常访问",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC168",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗保存图片功能校验",
-        "precondition": "可正常访问活动页面，浏览器为谷歌浏览器。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的保存图片后，成功出现谷歌浏览器保存文件的弹框。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "最右侧第三个分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已打开",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击保存图片按钮",
-            "value": "保存图片",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认出现谷歌保存文件弹框",
-            "value": "谷歌浏览器保存文件弹框",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC170",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Twitter跳转校验",
-        "precondition": "可正常访问复合活动页面，浏览器允许打开新页面。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的twitter按钮后，成功跳转到Twitter相关页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "最右侧第三个分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待分享弹窗展示",
-            "value": "2秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的twitter按钮",
-            "value": "twitter按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证已成功跳转到Twitter相关页面",
-            "value": "打开Twitter页面",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC172",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Telegram跳转校验",
-        "precondition": "网络正常，可访问复合活动页面；浏览器允许打开新页面或新标签。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的telegram按钮后，成功跳转到Telegram相关页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "最右侧第三个分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待分享弹窗展示",
-            "value": "2秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的telegram按钮",
-            "value": "telegram按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面跳转或新标签打开",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "验证已成功跳转到Telegram页面",
-            "value": "打开Telegram相关页面或链接",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC174",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗Facebook跳转校验",
-        "precondition": "可正常访问复合活动页面；浏览器允许打开新页面或跳转外链。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的facebook按钮后，成功跳转到Facebook页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待活动页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "最右侧第三个分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已显示",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的facebook按钮",
-            "value": "facebook按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面跳转或新页面打开",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认成功跳转到Facebook页面",
-            "value": "页面URL或页面内容为Facebook",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      },
-      {
-        "id": "TC176",
-        "case_no": "0001",
-        "priority": "P1",
-        "name": "复合活动分享弹窗LinkedIn跳转校验",
-        "precondition": "可正常访问复合活动页面，浏览器允许打开新页面或新标签页。",
-        "test_data": "",
-        "expected_result": "点击分享弹窗中的linkedin按钮后，成功跳转到LinkedIn页面。",
-        "owner": "",
-        "remarks": "",
-        "steps": [
-          {
-            "action": "打开页面",
-            "description": "打开复合活动页面",
-            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1246115749767888896&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待页面加载完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击页面最右侧第三个分享按钮",
-            "value": "最右侧第三个分享按钮",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认分享弹窗已展示",
-            "value": "分享弹窗可见",
-            "expected_image": null
-          },
-          {
-            "action": "点击",
-            "description": "点击分享弹窗中的linkedin按钮",
-            "value": "linkedin按钮",
-            "expected_image": null
-          },
-          {
-            "action": "等待",
-            "description": "等待跳转完成",
-            "value": "3秒",
-            "expected_image": null
-          },
-          {
-            "action": "验证",
-            "description": "确认成功跳转到LinkedIn页面",
-            "value": "已打开linkedin相关页面",
-            "expected_image": null
-          }
-        ],
-        "status": "pending"
-      }
-    ]
-  },
-  {
     "id": "20260406135246143361",
     "created_at": "2026-04-06T13:52:46.145513",
     "source_name": "手动输入文档",
@@ -2383,6 +935,478 @@
     "id": "BATCH1775466510831",
     "created_at": "2026-04-06T09:08:30.831Z",
     "source_name": "上传文件: generated-testcases (1)(1).xlsx",
+    "source_document": "",
+    "generated_count": 5,
+    "status": "completed",
+    "cases": [
+      {
+        "id": "TC1",
+        "case_no": "0001",
+        "priority": "P1",
+        "name": "定制活动报名",
+        "precondition": "可正常访问定制活动页面。",
+        "test_data": "",
+        "expected_result": "点击页面的报名参与按钮可正常点击报名，点击后变成按钮文案变成已报名",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待页面加载完成",
+            "description": "等待页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "验证报名参与按钮是否可见",
+            "description": "验证报名参与按钮是否可见",
+            "value": "报名参与按钮可见",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面左侧的报名参与按钮",
+            "description": "点击页面左侧的报名参与按钮",
+            "value": "报名参与按钮可点击",
+            "expected_image": null
+          },
+          {
+            "action": "验证是否变成已报名文案",
+            "description": "验证是否变成已报名文案",
+            "value": "报名参与文案变成已报名文案",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC2",
+        "case_no": "0002",
+        "priority": "P1",
+        "name": "定制活动规则按钮跳转校验",
+        "precondition": "可正常访问定制活动页面，页面已加载完成。",
+        "test_data": "",
+        "expected_result": "点击最右侧第一个规则按钮后成功页面成功滚动到活动规则区域",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待活动页面加载完成",
+            "description": "等待活动页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面最右侧第一个规则按钮",
+            "description": "点击页面最右侧第一个规则按钮",
+            "value": "最右侧第一个规则按钮",
+            "expected_image": null
+          },
+          {
+            "action": "确认页面滚动到活动规则区域",
+            "description": "确认页面滚动到活动规则区域",
+            "value": "",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC3",
+        "case_no": "0003",
+        "priority": "P1",
+        "name": "定制活动奖励弹窗跳转校验",
+        "precondition": "可正常访问定制活动页面；页面已加载完成。",
+        "test_data": "",
+        "expected_result": "点击最右侧第二个奖励按钮后成功页面成功打开奖励记录弹窗",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待活动页面加载完成",
+            "description": "等待活动页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面最右侧第二个奖励按钮",
+            "description": "点击页面最右侧第二个奖励按钮",
+            "value": "奖励按钮",
+            "expected_image": null
+          },
+          {
+            "action": "确认奖励弹窗已展示",
+            "description": "确认奖励弹窗已展示",
+            "value": "奖励弹窗可见",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC4",
+        "case_no": "0004",
+        "priority": "P1",
+        "name": "定制活动奖励弹窗跳转卡券中心功能校验",
+        "precondition": "可正常访问活动页面，浏览器为谷歌浏览器。",
+        "test_data": "",
+        "expected_result": "点击奖励弹窗的卡券中心后，成功跳转到卡券中心相关页面。",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待页面加载完成",
+            "description": "等待页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面最右侧第二个奖励按钮",
+            "description": "点击页面最右侧第二个奖励按钮",
+            "value": "最右侧第二个奖励按钮",
+            "expected_image": null
+          },
+          {
+            "action": "确认奖励弹窗已打开",
+            "description": "确认奖励弹窗已打开",
+            "value": "奖励弹窗可见",
+            "expected_image": null
+          },
+          {
+            "action": "点击卡券中心超链接",
+            "description": "点击卡券中心超链接",
+            "value": "跳转到卡券中心",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC5",
+        "case_no": "0005",
+        "priority": "P1",
+        "name": "ETH-USDT页面开多仓位测试",
+        "precondition": "用户已登录；现货账户有可转入资金；可访问ETH-USDT合约交易页面。",
+        "test_data": "在转换弹框中输入划转金额：2000 USDT；在数量中输入开多金额：1000 USDT",
+        "expected_result": "检查页面底部当前仓位显示：显示当前1000 USDT多仓",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开ETH-USDT合约页面",
+            "description": "打开ETH-USDT合约页面",
+            "value": "https://beta-5.bydtms.com/zh/futures/ETH-USDT",
+            "expected_image": null
+          },
+          {
+            "action": "等待页面加载完成",
+            "description": "等待页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "在右侧交易面板有一个，可用USDT的地方，点击可用USDT右侧的加号按钮",
+            "description": "在右侧交易面板有一个，可用USDT的地方，点击可用USDT右侧的加号按钮",
+            "value": "",
+            "expected_image": null
+          },
+          {
+            "action": "在转换弹框中输入划转金额",
+            "description": "在转换弹框中输入划转金额",
+            "value": "2000 USDT",
+            "expected_image": null
+          },
+          {
+            "action": "确认将现货账户资金转到U本位合约账户",
+            "description": "确认将现货账户资金转到U本位合约账户",
+            "value": "确认转换",
+            "expected_image": null
+          },
+          {
+            "action": "调整仓位杠杆",
+            "description": "调整仓位杠杆",
+            "value": "1倍",
+            "expected_image": null
+          },
+          {
+            "action": "在数量中输入开多金额",
+            "description": "在数量中输入开多金额",
+            "value": "1000 USDT",
+            "expected_image": null
+          },
+          {
+            "action": "提交开多订单",
+            "description": "提交开多订单",
+            "value": "开多",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      }
+    ]
+  },
+  {
+    "id": "BATCH1775730171211",
+    "created_at": "2026-04-09T10:22:51.211Z",
+    "source_name": "上传文件: testcases.xlsx",
+    "source_document": "",
+    "generated_count": 5,
+    "status": "completed",
+    "cases": [
+      {
+        "id": "TC1",
+        "case_no": "0001",
+        "priority": "P1",
+        "name": "定制活动报名",
+        "precondition": "可正常访问定制活动页面。",
+        "test_data": "",
+        "expected_result": "点击页面的报名参与按钮可正常点击报名，点击后变成按钮文案变成已报名",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待页面加载完成",
+            "description": "等待页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "验证报名参与按钮是否可见",
+            "description": "验证报名参与按钮是否可见",
+            "value": "报名参与按钮可见",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面左侧的报名参与按钮",
+            "description": "点击页面左侧的报名参与按钮",
+            "value": "报名参与按钮可点击",
+            "expected_image": null
+          },
+          {
+            "action": "验证是否变成已报名文案",
+            "description": "验证是否变成已报名文案",
+            "value": "报名参与文案变成已报名文案",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC2",
+        "case_no": "0002",
+        "priority": "P1",
+        "name": "定制活动规则按钮跳转校验",
+        "precondition": "可正常访问定制活动页面，页面已加载完成。",
+        "test_data": "",
+        "expected_result": "点击最右侧第一个规则按钮后成功页面成功滚动到活动规则区域",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待活动页面加载完成",
+            "description": "等待活动页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面最右侧第一个规则按钮",
+            "description": "点击页面最右侧第一个规则按钮",
+            "value": "最右侧第一个规则按钮",
+            "expected_image": null
+          },
+          {
+            "action": "确认页面滚动到活动规则区域",
+            "description": "确认页面滚动到活动规则区域",
+            "value": "",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC3",
+        "case_no": "0003",
+        "priority": "P1",
+        "name": "定制活动奖励弹窗跳转校验",
+        "precondition": "可正常访问定制活动页面；页面已加载完成。",
+        "test_data": "",
+        "expected_result": "点击最右侧第二个奖励按钮后成功页面成功打开奖励记录弹窗",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待活动页面加载完成",
+            "description": "等待活动页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面最右侧第二个奖励按钮",
+            "description": "点击页面最右侧第二个奖励按钮",
+            "value": "奖励按钮",
+            "expected_image": null
+          },
+          {
+            "action": "确认奖励弹窗已展示",
+            "description": "确认奖励弹窗已展示",
+            "value": "奖励弹窗可见",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC4",
+        "case_no": "0004",
+        "priority": "P1",
+        "name": "定制活动奖励弹窗跳转卡券中心功能校验",
+        "precondition": "可正常访问活动页面，浏览器为谷歌浏览器。",
+        "test_data": "",
+        "expected_result": "点击奖励弹窗的卡券中心后，成功跳转到卡券中心相关页面。",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开定制活动页面",
+            "description": "打开定制活动页面",
+            "value": "https://beta-5.bydtms.com/zh/activities/view?id=1247954092843630593&p=L3poL2FjdGl2aXRpZXMvdmlldw%3D%3D",
+            "expected_image": null
+          },
+          {
+            "action": "等待页面加载完成",
+            "description": "等待页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "点击页面最右侧第二个奖励按钮",
+            "description": "点击页面最右侧第二个奖励按钮",
+            "value": "最右侧第二个奖励按钮",
+            "expected_image": null
+          },
+          {
+            "action": "确认奖励弹窗已打开",
+            "description": "确认奖励弹窗已打开",
+            "value": "奖励弹窗可见",
+            "expected_image": null
+          },
+          {
+            "action": "点击卡券中心超链接",
+            "description": "点击卡券中心超链接",
+            "value": "跳转到卡券中心",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "TC5",
+        "case_no": "0005",
+        "priority": "P1",
+        "name": "ETH-USDT页面开多仓位测试",
+        "precondition": "用户已登录；现货账户有可转入资金；可访问ETH-USDT合约交易页面。",
+        "test_data": "在转换弹框中输入划转金额：2000 USDT；在数量中输入开多金额：1000 USDT",
+        "expected_result": "检查页面底部当前仓位显示：显示当前1000 USDT多仓",
+        "owner": "",
+        "remarks": "",
+        "steps": [
+          {
+            "action": "打开ETH-USDT合约页面",
+            "description": "打开ETH-USDT合约页面",
+            "value": "https://beta-5.bydtms.com/zh/futures/ETH-USDT",
+            "expected_image": null
+          },
+          {
+            "action": "等待页面加载完成",
+            "description": "等待页面加载完成",
+            "value": "3秒",
+            "expected_image": null
+          },
+          {
+            "action": "在右侧交易面板有一个，可用USDT的地方，点击可用USDT右侧的加号按钮",
+            "description": "在右侧交易面板有一个，可用USDT的地方，点击可用USDT右侧的加号按钮",
+            "value": "",
+            "expected_image": null
+          },
+          {
+            "action": "在转换弹框中输入划转金额",
+            "description": "在转换弹框中输入划转金额",
+            "value": "2000 USDT",
+            "expected_image": null
+          },
+          {
+            "action": "确认将现货账户资金转到U本位合约账户",
+            "description": "确认将现货账户资金转到U本位合约账户",
+            "value": "确认转换",
+            "expected_image": null
+          },
+          {
+            "action": "调整仓位杠杆",
+            "description": "调整仓位杠杆",
+            "value": "1倍",
+            "expected_image": null
+          },
+          {
+            "action": "在数量中输入开多金额",
+            "description": "在数量中输入开多金额",
+            "value": "1000 USDT",
+            "expected_image": null
+          },
+          {
+            "action": "提交开多订单",
+            "description": "提交开多订单",
+            "value": "开多",
+            "expected_image": null
+          }
+        ],
+        "status": "pending"
+      }
+    ]
+  },
+  {
+    "id": "BATCH1775735414404",
+    "created_at": "2026-04-09T11:50:14.404Z",
+    "source_name": "上传文件: testcases.xlsx",
     "source_document": "",
     "generated_count": 5,
     "status": "completed",

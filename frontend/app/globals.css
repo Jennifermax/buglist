@@ -1230,6 +1230,43 @@ code, .mono {
   margin-bottom: 32px;
 }
 
+.execution-progress-track {
+  position: relative;
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.execution-progress-track.is-running {
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.22);
+}
+
+.execution-progress-track.is-running::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -38%;
+  width: 38%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+  animation: executionProgressShine 1.4s linear infinite;
+  pointer-events: none;
+}
+
+.execution-progress-bar {
+  position: relative;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gradient-purple-blue);
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.execution-progress-bar.is-running {
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+}
+
 .stat-card {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -1649,6 +1686,11 @@ textarea.form-input {
 @keyframes loadingBar {
   0% { transform: translateX(-120%); }
   100% { transform: translateX(320%); }
+}
+
+@keyframes executionProgressShine {
+  0% { left: -38%; }
+  100% { left: 100%; }
 }
 
 @media (max-width: 900px) {

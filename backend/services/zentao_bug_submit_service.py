@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -50,6 +51,16 @@ def _build_ai_reason(vision_details: List[Dict[str, Any]]) -> str:
     return "\n".join(f"- {reason}" for reason in reasons)
 
 
+def _resolve_screenshot_absolute_url(raw_url: str, artifact_base_url: str) -> str:
+    raw = _stringify(raw_url)
+    normalized_base = _stringify(artifact_base_url).rstrip("/")
+    if raw.startswith(("http://", "https://")):
+        return raw
+    if raw.startswith("/") and normalized_base:
+        return f"{normalized_base}{raw}"
+    return raw
+
+
 def _build_screenshot_lines(screenshots: List[Dict[str, Any]], artifact_base_url: str) -> str:
     if not screenshots:
         return "无"
@@ -67,6 +78,32 @@ def _build_screenshot_lines(screenshots: List[Dict[str, Any]], artifact_base_url
             resolved_url = raw_url or "无可访问地址"
         lines.append(f"- {label}：{resolved_url}")
     return "\n".join(lines)
+
+
+def _build_screenshot_html_embeds(screenshots: List[Dict[str, Any]], artifact_base_url: str) -> str:
+    """禅道部分版本步骤支持 HTML；附件接口失败时仍可在正文中显示外链图片。"""
+    if not screenshots:
+        return ""
+    blocks: List[str] = []
+    for shot in screenshots:
+        raw_url = _stringify(shot.get("url"))
+        abs_url = _resolve_screenshot_absolute_url(raw_url, artifact_base_url)
+        if not abs_url.startswith(("http://", "https://")):
+            continue
+        label = _stringify(shot.get("description")) or _stringify(shot.get("name")) or "执行截图"
+        safe_label = html.escape(label, quote=True)
+        safe_src = html.escape(abs_url, quote=True)
+        blocks.append(
+            f'<p><strong>{safe_label}</strong><br/>'
+            f'<img src="{safe_src}" alt="{safe_label}" style="max-width:min(960px,100%);height:auto;border:1px solid #ddd"/></p>'
+        )
+    if not blocks:
+        return ""
+    return (
+        "\n---\n截图预览（HTML，若禅道将步骤按富文本渲染则可直接显示图片；"
+        "若仅显示为代码，请以附件或下方链接为准）：\n"
+        + "\n".join(blocks)
+    )
 
 
 def build_bug_payload(
@@ -89,6 +126,7 @@ def build_bug_payload(
     test_data = _stringify(testcase.get("test_data")) or "无"
     ai_reason = _build_ai_reason(report_item.get("vision_details") or [])
     screenshot_lines = _build_screenshot_lines(report_item.get("screenshots") or [], artifact_base_url)
+    screenshot_html = _build_screenshot_html_embeds(report_item.get("screenshots") or [], artifact_base_url)
     step_lines = _build_step_lines(testcase.get("steps") or [])
 
     title_parts = ["[Buglist自动提单]"]
@@ -98,30 +136,31 @@ def build_bug_payload(
         title_parts.append(f"[{testcase_id}]")
     title = "".join(title_parts) + testcase_name
 
-    steps = "\n".join(
-        [
-            f"来源：Buglist 自动化测试平台",
-            f"提交时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            f"用例ID：{testcase_id or '无'}",
-            f"用例编号：{case_no or '无'}",
-            f"用例名称：{testcase_name}",
-            f"前置条件：{precondition}",
-            f"测试数据：{test_data}",
-            "",
-            "测试步骤：",
-            step_lines,
-            "",
-            f"预期结果：{expected_result}",
-            "",
-            f"实际结果：{failed_reason}",
-            "",
-            "AI 判定说明：",
-            ai_reason,
-            "",
-            "关键截图：",
-            screenshot_lines,
-        ]
-    )
+    body_parts = [
+        f"来源：Buglist 自动化测试平台",
+        f"提交时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"用例ID：{testcase_id or '无'}",
+        f"用例编号：{case_no or '无'}",
+        f"用例名称：{testcase_name}",
+        f"前置条件：{precondition}",
+        f"测试数据：{test_data}",
+        "",
+        "测试步骤：",
+        step_lines,
+        "",
+        f"预期结果：{expected_result}",
+        "",
+        f"实际结果：{failed_reason}",
+        "",
+        "AI 判定说明：",
+        ai_reason,
+        "",
+        "关键截图：",
+        screenshot_lines,
+    ]
+    if screenshot_html:
+        body_parts.append(screenshot_html)
+    steps = "\n".join(body_parts)
 
     payload: Dict[str, Any] = {
         "product": product_id,

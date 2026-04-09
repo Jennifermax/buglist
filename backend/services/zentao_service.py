@@ -1,6 +1,9 @@
 import httpx
-from typing import Optional, Dict, Any, List
+from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple
 from ..models.config import ZentaoConfig
+
+MAX_BUG_ATTACHMENT_BYTES = 8 * 1024 * 1024
 
 class ZentaoService:
     def __init__(self, config: ZentaoConfig):
@@ -131,6 +134,193 @@ class ZentaoService:
                 return {"success": False, "message": error_data.get("error", f"获取Bug列表失败: {response.status_code}"), "data": []}
         except Exception as e:
             return {"success": False, "message": f"获取Bug列表错误: {str(e)}", "data": []}
+
+    def _parse_file_upload_response(self, response: httpx.Response) -> Optional[Dict[str, Any]]:
+        """若响应为 JSON 且表示成功则返回 payload，否则返回 None（表示本次策略失败）。"""
+        text = (response.text or "").strip()
+        if not text or text.startswith("<"):
+            return None
+        try:
+            payload = response.json()
+        except Exception:
+            return None
+        if not isinstance(payload, dict):
+            return payload if payload else None
+        if payload.get("error"):
+            return None
+        if payload.get("status") == "fail":
+            return None
+        # 成功：常见字段 status / id / url
+        if payload.get("status") == "success" or payload.get("id") is not None:
+            return payload
+        if "id" in payload and payload.get("id"):
+            return payload
+        return None
+
+    async def upload_bug_file(
+        self,
+        bug_id: int,
+        file_content: bytes,
+        filename: str = "screenshot.png",
+        content_type: str = "image/png",
+    ) -> Dict[str, Any]:
+        """
+        上传附件到已存在的 Bug。
+        禅道/禅道云不同版本路由差异较大，依次尝试多种端点与表单字段（官方文档为 v2/files + token + multipart）。
+        """
+        if not self.token:
+            return {"success": False, "message": "未配置 Token，无法上传附件"}
+        if not file_content:
+            return {"success": False, "message": "文件内容为空"}
+
+        safe_name = (filename or "screenshot.png").replace("/", "_").replace("\\", "_")[:120]
+        file_tuple = (safe_name, file_content, content_type)
+        bid_str = str(int(bug_id))
+        last_detail = ""
+
+        # (url, headers, files_dict, data_dict) — 注意 multipart 请求不要带 Content-Type: application/json
+        attempts: List[tuple] = []
+
+        def hdr_token_lower() -> Dict[str, str]:
+            h: Dict[str, str] = {"token": self.token}
+            if self.account:
+                h["zentao"] = self.account
+            return h
+
+        def hdr_token_upper() -> Dict[str, str]:
+            h: Dict[str, str] = {"Token": self.token}
+            if self.account:
+                h["zentao"] = self.account
+            return h
+
+        def hdr_token_lower_only() -> Dict[str, str]:
+            return {"token": self.token}
+
+        # 1) v2/files — file 字段（官方文档）
+        for hdr_fn in (hdr_token_lower, hdr_token_upper, hdr_token_lower_only):
+            attempts.append((
+                f"{self.base_url}/api.php/v2/files",
+                hdr_fn(),
+                {"file": file_tuple},
+                {"objectType": "bug", "objectID": bid_str},
+            ))
+            attempts.append((
+                f"{self.base_url}/api.php/v2/files",
+                hdr_fn(),
+                {"file": file_tuple},
+                {"objectType": "bug", "objectID": bug_id},
+            ))
+
+        # 2) 社区常见：files[] 字段名
+        attempts.append((
+            f"{self.base_url}/api.php/v2/files",
+            hdr_token_lower(),
+            {"files[]": file_tuple},
+            {"objectType": "bug", "objectID": bid_str},
+        ))
+
+        # 3) Token 放 Query（部分环境只认 URL token）
+        attempts.append((
+            f"{self.base_url}/api.php/v2/files?token={self.token}",
+            hdr_token_lower_only(),
+            {"file": file_tuple},
+            {"objectType": "bug", "objectID": bid_str},
+        ))
+
+        # 4) v1/files（少数部署与开源版路由）
+        attempts.append((
+            f"{self.base_url}/api.php/v1/files",
+            hdr_token_lower(),
+            {"file": file_tuple},
+            {"objectType": "bug", "objectID": bid_str},
+        ))
+        attempts.append((
+            f"{self.base_url}/api.php/v1/files?token={self.token}",
+            {},
+            {"file": file_tuple},
+            {"objectType": "bug", "objectID": bid_str},
+        ))
+
+        for url, headers, files, data in attempts:
+            try:
+                response = await self.client.post(
+                    url,
+                    headers=headers,
+                    files=files,
+                    data=data,
+                    timeout=60.0,
+                )
+            except Exception as exc:
+                last_detail = str(exc)[:200]
+                continue
+
+            if response.status_code not in (200, 201):
+                last_detail = f"HTTP {response.status_code}"
+                continue
+
+            parsed = self._parse_file_upload_response(response)
+            if parsed is not None:
+                return {"success": True, "data": parsed, "method": url.split("?")[0].rsplit("/", 1)[-1]}
+
+            last_detail = (response.text or "")[:220]
+
+        return {
+            "success": False,
+            "message": f"附件上传失败（已尝试多种禅道接口方式）。最后响应片段：{last_detail or '无响应'}",
+        }
+
+    async def fetch_screenshot_bytes(
+        self,
+        raw_url: str,
+        artifact_base_url: str = "",
+        project_root: Optional[Path] = None,
+    ) -> Tuple[Optional[bytes], str, str]:
+        """
+        解析截图地址并读取字节。返回 (bytes|None, filename, content_type)
+        """
+        raw = (raw_url or "").strip()
+        if not raw:
+            return None, "screenshot.png", "image/png"
+
+        name = Path(raw.split("?")[0]).name or "screenshot.png"
+        if not name.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp")):
+            name = f"{name}.png"
+
+        # 绝对 URL
+        if raw.startswith(("http://", "https://")):
+            try:
+                r = await self.client.get(raw, timeout=30.0, follow_redirects=True)
+                if r.status_code == 200 and r.content:
+                    if len(r.content) > MAX_BUG_ATTACHMENT_BYTES:
+                        return None, name, "image/png"
+                    ct = r.headers.get("content-type", "").split(";")[0].strip() or "image/png"
+                    return r.content, name, ct if ct.startswith("image/") else "image/png"
+            except Exception:
+                pass
+
+        # 相对路径：先拼 artifact_base_url，再尝试本地 artifacts
+        if raw.startswith("/"):
+            base = (artifact_base_url or "").strip().rstrip("/")
+            if base:
+                try:
+                    r = await self.client.get(f"{base}{raw}", timeout=30.0, follow_redirects=True)
+                    if r.status_code == 200 and r.content:
+                        if len(r.content) > MAX_BUG_ATTACHMENT_BYTES:
+                            return None, name, "image/png"
+                        return r.content, name, "image/png"
+                except Exception:
+                    pass
+            if project_root is not None:
+                local = project_root / raw.lstrip("/")
+                try:
+                    if local.is_file():
+                        data = local.read_bytes()
+                        if len(data) <= MAX_BUG_ATTACHMENT_BYTES:
+                            return data, name, "image/png"
+                except Exception:
+                    pass
+
+        return None, name, "image/png"
 
     async def create_bug(self, bug_data: Dict[str, Any]) -> Dict[str, Any]:
         """创建 Bug"""
